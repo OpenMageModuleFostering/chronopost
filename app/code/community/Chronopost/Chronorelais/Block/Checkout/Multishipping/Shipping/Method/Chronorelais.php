@@ -40,9 +40,10 @@ class Chronopost_Chronorelais_Block_Checkout_Multishipping_Shipping_Method_Chron
   {
     if (empty($this->_chronorelais)) {
       $postcode = Mage::getSingleton('core/session')->getMultiPostcode();
+
+      $helper = Mage::helper('chronorelais/webservice');
+      $webservbt =  $helper->getPointsRelaisByCp($postcode);
       
-      $client = new SoapClient("http://wsshipping.chronopost.fr/soap.point.relais/services/ServiceRechercheBt?wsdl",array('trace'=> 0,'connection_timeout'=>10));
-      $webservbt = $client->__call("rechercheBtParCodeproduitEtCodepostalEtDate",array(0,$postcode,0));
       $this->_chronorelais = $webservbt;
     }
     

@@ -1,76 +1,77 @@
 <?xml version="1.0"?>
 <config>
-	<tabs>
-		<chronopost translate="label" module="chronorelais">
-			<label>Chronopost</label>
-			<sort_order>200</sort_order>
-		</chronopost>
-	</tabs>
-	<sections>
-	  <carriers>
-		  <groups>
-				<chronopost translate="label">
-				  <label>Chronopost</label>
-				  <frontend_type>text</frontend_type>
-				  <sort_order>20</sort_order>
-				  <show_in_default>1</show_in_default>
-				  <show_in_website>1</show_in_website>
-				  <show_in_store>1</show_in_store>
-					<fields>
-						<active translate="label">
-							<label>Enabled</label>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>1</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</active>			  
-						<title translate="label">
-							<label>Title</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>2</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</title>
-						<config translate="label">
-							<label>Configuration</label>
-							<frontend_model>chronorelais/adminhtml_system_config_form_field_config</frontend_model>
-							<comment>{configuration_syntax_help}</comment>
-							<frontend_type>textarea</frontend_type>
-							<sort_order>3</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</config>
-						<weight_limit translate="label">
-							<label>Weight Limit</label>
-							<frontend_type>text</frontend_type>
-							<comment>in Kg</comment>
-							<sort_order>7</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</weight_limit>
-						<quickcost translate="label">
-							<label>Quickcost</label>
-							<frontend_type>select</frontend_type>
-							<comment>No : cost is obtained from your rate grid ; Yes : cost is fetched from URL below</comment>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>10</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</quickcost>
-						<quickcost_url>
-							<label>Quickcost Url</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>11</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</quickcost_url>
+    <tabs>
+        <chronopost translate="label" module="chronorelais">
+            <label>Chronopost</label>
+            <sort_order>200</sort_order>
+        </chronopost>
+    </tabs>
+    <sections>
+        <carriers>
+            <groups>
+                <chronopost translate="label">
+                    <label>Chronopost</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>20</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_enabled</frontend_model>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <config translate="label">
+                            <label>Configuration</label>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_config</frontend_model>
+                            <comment>{configuration_syntax_help}</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </config>
+                        <weight_limit translate="label">
+                            <label>Weight Limit</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>in Kg</comment>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </weight_limit>
+                        <quickcost translate="label">
+                            <label>Quickcost</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>No : cost is obtained from your rate grid ; Yes : cost is fetched from URL below</comment>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost>
+                        <quickcost_url>
+                            <label>Quickcost Url</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost_url>
                         <free_shipping_enable translate="label">
                             <label>Free Shipping on the Amount</label>
                             <frontend_type>select</frontend_type>
@@ -104,43 +105,43 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </handling_fee>
-						<logo_url>
-							<label>Logo Url</label>
-							<frontend_type>text</frontend_type>
-							<comment>{logo_ulr_help}</comment>
-							<sort_order>18</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</logo_url>
-						<debug>
-							<label>Debug</label>
-							<comment>{debug_help}</comment>
-							<frontend_type>text</frontend_type>
-							<sort_order>20</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</debug>
-						<!--<stop_to_first_match translate="label">
-							<label>Stop to first match</label>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>22</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</stop_to_first_match>-->
-						<deliver_on_saturday translate="label comment">
-							<label>Livraison le Samedi</label>
-							<comment>If yes has been selected, the option will be available every Thursdays from 6pm to Fridays at 3pm.</comment>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>23</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</deliver_on_saturday>
+                        <logo_url>
+                            <label>Logo Url</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>{logo_ulr_help}</comment>
+                            <sort_order>18</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </logo_url>
+                        <debug>
+                            <label>Debug</label>
+                            <comment>{debug_help}</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </debug>
+                        <!--<stop_to_first_match translate="label">
+                                <label>Stop to first match</label>
+                                <frontend_type>select</frontend_type>
+                                <source_model>adminhtml/system_config_source_yesno</source_model>
+                                <sort_order>22</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                        </stop_to_first_match>-->
+                        <deliver_on_saturday translate="label comment">
+                            <label>Livraison le Samedi</label>
+                            <comment>If yes has been selected, the option will be available every Thursdays from 6pm to Fridays at 3pm.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>23</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </deliver_on_saturday>
                         <!--<showmethod translate="label">
                             <label>Show Method if Not Applicable</label>
                             <frontend_type>select</frontend_type>
@@ -159,79 +160,80 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </specificerrmsg>-->
-						<sort_order translate="label">
-							<label>Sort order</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>100</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</sort_order>
-					</fields>
-				</chronopost>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                    </fields>
+                </chronopost>
 				
-				<chronoexpress translate="label">
-				  <label>Chrono Express</label>
-				  <frontend_type>text</frontend_type>
-				  <sort_order>21</sort_order>
-				  <show_in_default>1</show_in_default>
-				  <show_in_website>1</show_in_website>
-				  <show_in_store>1</show_in_store>
-					<fields>
-						<active translate="label">
-							<label>Enabled</label>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>1</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</active>			  
-						<title translate="label">
-							<label>Title</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>2</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</title>
-						<config translate="label">
-							<label>Configuration</label>
-							<frontend_model>chronorelais/adminhtml_system_config_form_field_config</frontend_model>
-							<comment>{configuration_syntax_help}</comment>
-							<frontend_type>textarea</frontend_type>
-							<sort_order>3</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</config>
-						<weight_limit translate="label">
-							<label>Weight Limit</label>
-							<frontend_type>text</frontend_type>
-							<comment>in Kg</comment>
-							<sort_order>7</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</weight_limit>
-						<quickcost translate="label">
-							<label>Quickcost</label>
-							<frontend_type>select</frontend_type>
-							<comment>No : cost is obtained from your rate grid ; Yes : cost is fetched from URL below</comment>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>10</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</quickcost>
-						<quickcost_url>
-							<label>Quickcost Url</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>11</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</quickcost_url>
+                <chronoexpress translate="label">
+                    <label>Chrono Express</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>21</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_enabled</frontend_model>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <config translate="label">
+                            <label>Configuration</label>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_config</frontend_model>
+                            <comment>{configuration_syntax_help}</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </config>
+                        <weight_limit translate="label">
+                            <label>Weight Limit</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>in Kg</comment>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </weight_limit>
+                        <quickcost translate="label">
+                            <label>Quickcost</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>No : cost is obtained from your rate grid ; Yes : cost is fetched from URL below</comment>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost>
+                        <quickcost_url>
+                            <label>Quickcost Url</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost_url>
                         <free_shipping_enable translate="label">
                             <label>Free Shipping on the Amount</label>
                             <frontend_type>select</frontend_type>
@@ -265,34 +267,34 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </handling_fee>
-						<logo_url>
-							<label>Logo Url</label>
-							<frontend_type>text</frontend_type>
-							<comment>{logo_ulr_help}</comment>
-							<sort_order>18</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</logo_url>
-						<debug>
-							<label>Debug</label>
-							<comment>{debug_help}</comment>
-							<frontend_type>text</frontend_type>
-							<sort_order>20</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</debug>
-						<!--<stop_to_first_match translate="label">
-							<label>Stop to first match</label>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>22</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</stop_to_first_match>-->
-						<!-- deliver_on_saturday not included in chronoexpress only -->
+                        <logo_url>
+                            <label>Logo Url</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>{logo_ulr_help}</comment>
+                            <sort_order>18</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </logo_url>
+                        <debug>
+                            <label>Debug</label>
+                            <comment>{debug_help}</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </debug>
+                        <!--<stop_to_first_match translate="label">
+                                <label>Stop to first match</label>
+                                <frontend_type>select</frontend_type>
+                                <source_model>adminhtml/system_config_source_yesno</source_model>
+                                <sort_order>22</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                        </stop_to_first_match>-->
+                        <!-- deliver_on_saturday not included in chronoexpress only -->
                         <!--<showmethod translate="label">
                             <label>Show Method if Not Applicable</label>
                             <frontend_type>select</frontend_type>
@@ -311,79 +313,80 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </specificerrmsg>-->
-						<sort_order translate="label">
-							<label>Sort order</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>100</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</sort_order>
-					</fields>
-				</chronoexpress>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                    </fields>
+                </chronoexpress>
 				
-				<chronorelais translate="label">
-					<label>Chrono Relais</label>
-					<frontend_type>text</frontend_type>
-					<sort_order>22</sort_order>
-					<show_in_default>1</show_in_default>
-					<show_in_website>1</show_in_website>
-					<show_in_store>1</show_in_store>
-					<fields>
-						<active translate="label">
-							<label>Enabled</label>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>1</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</active>			  
-						<title translate="label">
-							<label>Title</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>2</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</title>
-						<config translate="label">
-							<label>Configuration</label>
-							<frontend_model>chronorelais/adminhtml_system_config_form_field_config</frontend_model>
-							<comment>{configuration_syntax_help}</comment>
-							<frontend_type>textarea</frontend_type>
-							<sort_order>3</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</config>
-						<weight_limit translate="label">
-							<label>Weight Limit</label>
-							<frontend_type>text</frontend_type>
-							<comment>in Kg</comment>
-							<sort_order>7</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</weight_limit>
-						<quickcost translate="label">
-							<label>Quickcost</label>
-							<frontend_type>select</frontend_type>
-							<comment>No : cost is obtained from your rate grid ; Yes : cost is fetched from URL below</comment>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>10</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</quickcost>
-						<quickcost_url>
-							<label>Quickcost Url</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>11</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</quickcost_url>
+                <chronorelais translate="label">
+                    <label>Chrono Relais</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>22</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_enabled</frontend_model>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <config translate="label">
+                            <label>Configuration</label>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_config</frontend_model>
+                            <comment>{configuration_syntax_help}</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </config>
+                        <weight_limit translate="label">
+                            <label>Weight Limit</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>in Kg</comment>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </weight_limit>
+                        <quickcost translate="label">
+                            <label>Quickcost</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>No : cost is obtained from your rate grid ; Yes : cost is fetched from URL below</comment>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost>
+                        <quickcost_url>
+                            <label>Quickcost Url</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost_url>
                         <free_shipping_enable translate="label">
                             <label>Free Shipping with Minimum Order Amount</label>
                             <frontend_type>select</frontend_type>
@@ -417,43 +420,43 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </handling_fee>
-						<logo_url>
-							<label>Logo Url</label>
-							<frontend_type>text</frontend_type>
-							<comment>{logo_ulr_help}</comment>
-							<sort_order>18</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</logo_url>
-						<debug>
-							<label>Debug</label>
-							<comment>{debug_help}</comment>
-							<frontend_type>text</frontend_type>
-							<sort_order>20</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</debug>
-						<!--<stop_to_first_match translate="label">
-							<label>Stop to first match</label>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>22</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</stop_to_first_match>-->
-						<deliver_on_saturday translate="label comment">
-							<label>Livraison le Samedi</label>
-							<comment>If yes has been selected, the option will be available every Thursdays from 6pm to Fridays at 3pm.</comment>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>23</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</deliver_on_saturday>
+                        <logo_url>
+                            <label>Logo Url</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>{logo_ulr_help}</comment>
+                            <sort_order>18</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </logo_url>
+                        <debug>
+                            <label>Debug</label>
+                            <comment>{debug_help}</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </debug>
+                        <!--<stop_to_first_match translate="label">
+                                <label>Stop to first match</label>
+                                <frontend_type>select</frontend_type>
+                                <source_model>adminhtml/system_config_source_yesno</source_model>
+                                <sort_order>22</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                        </stop_to_first_match>-->
+                        <deliver_on_saturday translate="label comment">
+                            <label>Livraison le Samedi</label>
+                            <comment>If yes has been selected, the option will be available every Thursdays from 6pm to Fridays at 3pm.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>23</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </deliver_on_saturday>
                         <!--<showmethod translate="label">
                             <label>Show Method if Not Applicable</label>
                             <frontend_type>select</frontend_type>
@@ -472,23 +475,513 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </specificerrmsg>-->
-						<sort_order translate="label">
-							<label>Sort order</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>100</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</sort_order>
-					</fields>
-				</chronorelais>
-			  </groups>
-		  </carriers>
-		</sections>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                    </fields>
+                </chronorelais>
 
-	<sections>
+                <!-- C10 Livraison avant 10H -->
+                <chronopostc10 translate="label">
+                    <label>Chronopost C10</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>23</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_enabled</frontend_model>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <config translate="label">
+                            <label>Configuration</label>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_config</frontend_model>
+                            <comment>{configuration_syntax_help}</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </config>
+                        <weight_limit translate="label">
+                            <label>Weight Limit</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>in Kg</comment>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </weight_limit>
+                        <quickcost translate="label">
+                            <label>Quickcost</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>No : cost is obtained from your rate grid ; Yes : cost is fetched from URL below</comment>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost>
+                        <quickcost_url>
+                            <label>Quickcost Url</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost_url>
+                        <free_shipping_enable translate="label">
+                            <label>Free Shipping on the Amount</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_enabledisable</source_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </free_shipping_enable>
+                        <free_shipping_subtotal translate="label">
+                            <label>Minimum Amount for Free Shipping</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>13</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </free_shipping_subtotal>
+                        <application_fee translate="label">
+                            <label>Application Fee</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>14</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </application_fee>
+                        <handling_fee translate="label">
+                            <label>Handling Fee</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </handling_fee>
+                        <logo_url>
+                            <label>Logo Url</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>{logo_ulr_help}</comment>
+                            <sort_order>18</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </logo_url>
+                        <debug>
+                            <label>Debug</label>
+                            <comment>{debug_help}</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </debug>
+                        <!--<stop_to_first_match translate="label">
+                                <label>Stop to first match</label>
+                                <frontend_type>select</frontend_type>
+                                <source_model>adminhtml/system_config_source_yesno</source_model>
+                                <sort_order>22</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                        </stop_to_first_match>-->
+                        <deliver_on_saturday translate="label comment">
+                            <label>Livraison le Samedi</label>
+                            <comment>If yes has been selected, the option will be available every Thursdays from 6pm to Fridays at 3pm.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>23</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </deliver_on_saturday>
+                        <!--<showmethod translate="label">
+                            <label>Show Method if Not Applicable</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>30</sort_order>
+                            <frontend_class>shipping-skip-hide</frontend_class>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </showmethod>
+                        <specificerrmsg translate="label">
+                            <label>Displayed Error Message</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>31</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificerrmsg>-->
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                    </fields>
+                </chronopostc10>
+
+                <!-- C18 Livraison avant 18H -->
+                <chronopostc18 translate="label">
+                    <label>Chronopost C18</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>24</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_enabled</frontend_model>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <config translate="label">
+                            <label>Configuration</label>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_config</frontend_model>
+                            <comment>{configuration_syntax_help}</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </config>
+                        <weight_limit translate="label">
+                            <label>Weight Limit</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>in Kg</comment>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </weight_limit>
+                        <quickcost translate="label">
+                            <label>Quickcost</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>No : cost is obtained from your rate grid ; Yes : cost is fetched from URL below</comment>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost>
+                        <quickcost_url>
+                            <label>Quickcost Url</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost_url>
+                        <free_shipping_enable translate="label">
+                            <label>Free Shipping on the Amount</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_enabledisable</source_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </free_shipping_enable>
+                        <free_shipping_subtotal translate="label">
+                            <label>Minimum Amount for Free Shipping</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>13</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </free_shipping_subtotal>
+                        <application_fee translate="label">
+                            <label>Application Fee</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>14</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </application_fee>
+                        <handling_fee translate="label">
+                            <label>Handling Fee</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </handling_fee>
+                        <logo_url>
+                            <label>Logo Url</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>{logo_ulr_help}</comment>
+                            <sort_order>18</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </logo_url>
+                        <debug>
+                            <label>Debug</label>
+                            <comment>{debug_help}</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </debug>
+                        <!--<stop_to_first_match translate="label">
+                                <label>Stop to first match</label>
+                                <frontend_type>select</frontend_type>
+                                <source_model>adminhtml/system_config_source_yesno</source_model>
+                                <sort_order>22</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                        </stop_to_first_match>-->
+                        <deliver_on_saturday translate="label comment">
+                            <label>Livraison le Samedi</label>
+                            <comment>If yes has been selected, the option will be available every Thursdays from 6pm to Fridays at 3pm.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>23</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </deliver_on_saturday>
+                        <!--<showmethod translate="label">
+                            <label>Show Method if Not Applicable</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>30</sort_order>
+                            <frontend_class>shipping-skip-hide</frontend_class>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </showmethod>
+                        <specificerrmsg translate="label">
+                            <label>Displayed Error Message</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>31</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificerrmsg>-->
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                    </fields>
+                </chronopostc18>
+
+                <!-- CClassic Livraison dans certaines villes Européennes -->
+                <chronopostcclassic translate="label">
+                    <label>Chronopost CClassic</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>25</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_enabled</frontend_model>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <config translate="label">
+                            <label>Configuration</label>
+                            <frontend_model>chronorelais/adminhtml_system_config_form_field_config</frontend_model>
+                            <comment>{configuration_syntax_help}</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </config>
+                        <weight_limit translate="label">
+                            <label>Weight Limit</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>in Kg</comment>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </weight_limit>
+                        <quickcost translate="label">
+                            <label>Quickcost</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>No : cost is obtained from your rate grid ; Yes : cost is fetched from URL below</comment>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost>
+                        <quickcost_url>
+                            <label>Quickcost Url</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </quickcost_url>
+                        <free_shipping_enable translate="label">
+                            <label>Free Shipping on the Amount</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_enabledisable</source_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </free_shipping_enable>
+                        <free_shipping_subtotal translate="label">
+                            <label>Minimum Amount for Free Shipping</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>13</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </free_shipping_subtotal>
+                        <application_fee translate="label">
+                            <label>Application Fee</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>14</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </application_fee>
+                        <handling_fee translate="label">
+                            <label>Handling Fee</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </handling_fee>
+                        <logo_url>
+                            <label>Logo Url</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>{logo_ulr_help}</comment>
+                            <sort_order>18</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </logo_url>
+                        <debug>
+                            <label>Debug</label>
+                            <comment>{debug_help}</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </debug>
+                        <!--<stop_to_first_match translate="label">
+                                <label>Stop to first match</label>
+                                <frontend_type>select</frontend_type>
+                                <source_model>adminhtml/system_config_source_yesno</source_model>
+                                <sort_order>22</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                        </stop_to_first_match>-->
+                        <deliver_on_saturday translate="label comment">
+                            <label>Livraison le Samedi</label>
+                            <comment>If yes has been selected, the option will be available every Thursdays from 6pm to Fridays at 3pm.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>23</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </deliver_on_saturday>
+                        <!--<showmethod translate="label">
+                            <label>Show Method if Not Applicable</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>30</sort_order>
+                            <frontend_class>shipping-skip-hide</frontend_class>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </showmethod>
+                        <specificerrmsg translate="label">
+                            <label>Displayed Error Message</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>31</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificerrmsg>-->
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                    </fields>
+                </chronopostcclassic>
+
+            </groups>
+        </carriers>
+    </sections>
+
+    <sections>
         <chronorelais>
-            <label>Chronopost Settings</label>
+            <label>Configuration</label>
             <tab>chronopost</tab>
             <frontend_type>text</frontend_type>
             <sort_order>2000</sort_order>
@@ -496,60 +989,71 @@
             <show_in_website>1</show_in_website>
             <show_in_store>1</show_in_store>
             <groups>
-				<shipping translate="label">
-					<label>General</label>
-					<frontend_type>text</frontend_type>
-					<sort_order>10</sort_order>
-					<show_in_default>1</show_in_default>
-					<show_in_website>1</show_in_website>
-					<show_in_store>1</show_in_store>
-					<fields>
-						<account_number translate="label">
-							<label>N° de compte Chronopost</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>7</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</account_number>
-						<sub_account_number translate="label">
-							<label>N° de sous-compte</label>
-							<comment>must be 3 digits or empty</comment>
-							<frontend_type>text</frontend_type>
-							<sort_order>8</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</sub_account_number>
-						<account_pass translate="label">
-							<label>Mot de passe Chronopost</label>
-							<frontend_type>text</frontend_type>
-							<sort_order>9</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</account_pass>
-						<google_map_api translate="label">
-							<label>Google Map v3 API Key</label>
-              <comment>The Google Maps JavaScript API Version 2 has been officially deprecated. Please use v3 API now. Get your key at https://code.google.com/apis/console/.</comment>
-							<frontend_type>text</frontend_type>
-							<sort_order>10</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</google_map_api>
-						<tracking_view_url translate="label">
-							<label>Tracking URL</label>
-							<comment>For English language, replace fr_FR with en_GB in the above url</comment>
-							<frontend_type>text</frontend_type>
-							<sort_order>20</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</tracking_view_url>
+                <shipping translate="label">
+                    <label>General</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <account_number translate="label">
+                            <label>N° de compte Chronopost</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </account_number>
+                        <sub_account_number translate="label">
+                            <label>N° de sous-compte</label>
+                            <comment>must be 3 digits or empty</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sub_account_number>
+                        <account_pass translate="label">
+                            <label>Mot de passe Chronopost</label>
+                            <frontend_type>text</frontend_type>
+                            <button_label>Vérifier mes identifiants</button_label>
+                            <frontend_model>chronorelais/adminhtml_system_config_checklogin</frontend_model>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </account_pass>
+                        <google_map_api translate="label">
+                            <label>Google Map v3 API Key</label>
+                            <comment>The Google Maps JavaScript API Version 2 has been officially deprecated. Please use v3 API now. Get your key at https://code.google.com/apis/console/.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </google_map_api>
+                        <tracking_view_url translate="label">
+                            <label>Tracking URL</label>
+                            <comment>For English language, replace fr_FR with en_GB in the above url</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </tracking_view_url>
+                        <gs_path translate="label">
+                            <label>Chemin GS</label>
+                            <comment>Chemin d'accès à la commande gs (Ghostscript)</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>21</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </gs_path>
 						
-					</fields>
-				</shipping>
+                    </fields>
+                </shipping>
                 <export_css translate="label">
                     <label>Export Configuration CSS</label>
                     <frontend_type>text</frontend_type>
@@ -605,7 +1109,7 @@
                         </field_separator>
                     </fields>
                 </export_css>
-				<export_cso translate="label">
+                <export_cso translate="label">
                     <label>Export Configuration CSO</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>21</sort_order>
@@ -709,14 +1213,14 @@
                     </fields>
                 </import>
 				
-				<shipperinformation translate="label">
+                <shipperinformation translate="label">
                     <label>Shipper Information for Labels printing</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>40</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
-					<fields>
+                    <fields>
                         <civility translate="label">
                             <label>Shipper Civility</label>
                             <frontend_type>select</frontend_type>
@@ -759,7 +1263,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-							<comment>[Optional]</comment>
+                            <comment>[Optional]</comment>
                         </address2>
                         <zipcode translate="label">
                             <label>Shipper Zipcode</label>
@@ -777,15 +1281,15 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </city>
-						<country translate="label">
-							<label>Shipper Country</label>
-							<frontend_type>select</frontend_type>
-							<sort_order>80</sort_order>
-							<source_model>adminhtml/system_config_source_country</source_model>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</country>
+                        <country translate="label">
+                            <label>Shipper Country</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>80</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </country>
                         <contactname translate="label">
                             <label>Shipper Contact Name</label>
                             <frontend_type>text</frontend_type>
@@ -801,7 +1305,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-							<comment>[Optional]</comment>
+                            <comment>[Optional]</comment>
                         </email>
                         <phone translate="label comment">
                             <label>Shipper Telephone</label>
@@ -810,7 +1314,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-							<comment>[Optional]</comment>
+                            <comment>[Optional]</comment>
                         </phone>
                         <mobilephone translate="label comment">
                             <label>Shipper Mobile</label>
@@ -819,19 +1323,19 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-							<comment>[Optional]</comment>
+                            <comment>[Optional]</comment>
                         </mobilephone>
                     </fields>
                 </shipperinformation>
 				
-				<customerinformation translate="label">
+                <customerinformation translate="label">
                     <label>Chronopost Customer Account Information for Labels printing</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>50</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
-					<fields>
+                    <fields>
                         <civility translate="label">
                             <label>Customer Civility</label>
                             <frontend_type>select</frontend_type>
@@ -874,7 +1378,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-							<comment>[Optional]</comment>
+                            <comment>[Optional]</comment>
                         </address2>
                         <zipcode translate="label">
                             <label>Customer Zipcode</label>
@@ -892,15 +1396,15 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </city>
-						<country translate="label">
-							<label>Customer Country</label>
-							<frontend_type>select</frontend_type>
-							<sort_order>80</sort_order>
-							<source_model>adminhtml/system_config_source_country</source_model>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</country>
+                        <country translate="label">
+                            <label>Customer Country</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>80</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </country>
                         <contactname translate="label">
                             <label>Customer Contact Name</label>
                             <frontend_type>text</frontend_type>
@@ -916,7 +1420,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-							<comment>[Optional]</comment>
+                            <comment>[Optional]</comment>
                         </email>
                         <phone translate="label comment">
                             <label>Customer Telephone</label>
@@ -925,7 +1429,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-							<comment>[Optional]</comment>
+                            <comment>[Optional]</comment>
                         </phone>
                         <mobilephone translate="label comment">
                             <label>Customer Mobile</label>
@@ -934,19 +1438,19 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-							<comment>[Optional]</comment>
+                            <comment>[Optional]</comment>
                         </mobilephone>
                     </fields>
                 </customerinformation>
 				
-				<skybillparam translate="label">
+                <skybillparam translate="label">
                     <label>Skybill Parameters for Labels printing</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>60</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
-					<fields>
+                    <fields>
                         <mode translate="label">
                             <label>Print Mode</label>
                             <frontend_type>select</frontend_type>
@@ -955,10 +1459,86 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-							<required>1</required>
+                            <required>1</required>
                         </mode>
-					</fields>
+                    </fields>
                 </skybillparam>
+
+                <weightunit translate="label">
+                    <label>Weight unit for the store</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>70</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <unit translate="label">
+                            <label>Weight unit</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>chronorelais/config_source_weightUnit</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <required>1</required>
+                        </unit>
+                    </fields>
+                </weightunit>
+
+                <optionbal translate="label">
+                    <label>Option BAL</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>80</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enabled translate="label">
+                            <label>Activer l'option BAL de Chronopost</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment>Vérifiez que cette option figure dans votre contrat</comment>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <required>1</required>
+                        </enabled>
+                    </fields>
+                </optionbal>
+
+                <assurance translate="label">
+                    <label>Assurance Ad Valorem</label>
+                    <frontend_type>text</frontend_type>
+                    <frontend_model>chronorelais/adminhtml_system_config_form_fieldsetassurance</frontend_model>
+                    <sort_order>90</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enabled translate="label">
+                            <label>Activer l'Ad Valorem</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <required>1</required>
+                        </enabled>
+                        <amount translate="label">
+                            <label>Montant minimum à assurer</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <required>0</required>
+                            <validate>validate-number</validate>
+                        </amount>
+                    </fields>
+                </assurance>
+
             </groups>
         </chronorelais>
     </sections>

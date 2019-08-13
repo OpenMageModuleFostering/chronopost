@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Magento
  *
@@ -32,22 +33,28 @@
  * @package    Mage_Checkout
  * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Chronopost_Chronorelais_Block_Checkout_Onepage_Shipping_Method_Chronorelais extends Mage_Checkout_Block_Onepage_Abstract
-{
+class Chronopost_Chronorelais_Block_Checkout_Onepage_Shipping_Method_Chronorelais extends Mage_Checkout_Block_Onepage_Abstract {
+
     protected $_chronorelais;
 
-    public function getChronorelais()
-    {
-		if (empty($this->_chronorelais)) {
-			$quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
-			$address = $quote->getShippingAddress();
-			$postcode = $address->getPostcode();
-	
-			$client = new SoapClient("http://wsshipping.chronopost.fr/soap.point.relais/services/ServiceRechercheBt?wsdl",array('trace'=> 0,'connection_timeout'=>10));
-			$webservbt = $client->__call("rechercheBtParCodeproduitEtCodepostalEtDate",array(0,$postcode,0));
-			$this->_chronorelais = $webservbt;
-		}
-		
+    public function getChronorelais() {
+        if (empty($this->_chronorelais)) {
+            $quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
+            $address = $quote->getShippingAddress();
+            $postcode = $address->getPostcode();
+            $helper = Mage::helper('chronorelais/webservice');
+            $params = $this->getRequest()->getParams();
+            if(isset($params['mappostalcode']))
+            {
+                $webservbt =  $helper->getPointsRelaisByCp($params['mappostalcode']);
+            }
+            else
+            {
+                $webservbt = $helper->getPointRelaisByAddress();
+            }
+            $this->_chronorelais = $webservbt;
+        }
+
         return $this->_chronorelais;
     }
 

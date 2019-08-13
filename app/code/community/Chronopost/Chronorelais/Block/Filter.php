@@ -14,18 +14,9 @@ class Chronopost_Chronorelais_Block_Filter extends Mage_Core_Block_Template
 
 		if( $zipcode && $zipcode!="" ){
 			$result = Mage::getModel('shipping/rate_result');        
-
-			try { 
-				$client = new SoapClient("http://wsshipping.chronopost.fr/soap.point.relais/services/ServiceRechercheBt?wsdl",array('trace'=> 0,'connection_timeout'=>10));
-
-				$webservbt = $client->__call("rechercheBtParCodeproduitEtCodepostalEtDate",array(0,$zipcode,0));
-				
-			} catch(SoapFault $fault){
-
-				return false;
-			}
+                        $helper = Mage::helper('chronorelais/webservice');
+                        $webservbt = $helper->getPointsRelaisByCp($zipcode);
 			
-
 			return $webservbt;
 		}
 		else{
@@ -40,8 +31,8 @@ class Chronopost_Chronorelais_Block_Filter extends Mage_Core_Block_Template
 		if($zipcode){
 			$result = Mage::getModel('shipping/rate_result');        
 			ini_set("soap.wsdl_cache_enabled", "0");
-			$client = new SoapClient("http://wsshipping.chronopost.fr/soap.point.relais/services/ServiceRechercheBt?wsdl");
-			$webservbt = $client->__call("rechercheBtParCodeproduitEtCodepostalEtDate",array(0,$zipcode,0));
+                        $helper = Mage::helper('chronorelais/webservice');
+                        $webservbt = $helper->getPointsRelaisByCp($zipcode);
 			return $webservbt;
 		}
 		else{

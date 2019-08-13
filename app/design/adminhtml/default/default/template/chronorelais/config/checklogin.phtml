@@ -1,0 +1,40 @@
+<?php
+/**
+ * @see Chronopost_Chronorelais_Block_Adminhtml_Config_Checklogin
+ */
+?>
+<script type="text/javascript">
+//<![CDATA[
+    function checkLogin() {
+        var elem = $('<?php echo $this->getHtmlId() ?>');
+
+        params = {
+            account_number: $('chronorelais_shipping_account_number').value,
+            sub_account_number: $('chronorelais_shipping_sub_account_number').value,
+            account_pass: $('chronorelais_shipping_account_pass').value
+        };
+
+
+        new Ajax.Request('<?php echo $this->getAjaxUrl() ?>', {
+            parameters: params,
+            onSuccess: function(data) {
+                var response = data.responseText.evalJSON();
+                response = response.return;
+                var msg = '<strong style="color:#007700;">Identification réussie.</strong>';
+                if(response.errorCode == undefined) {
+                    msg = '<strong>Le webservice est momentanément inaccessible. Veuillez réessayer plus tard.</strong>';
+                }
+                else if(response.errorCode != 0)
+                {
+                    msg = '<strong style="color:#FF0000;">Les identifiants que vous avez renseignés ne sont pas valides.</strong>'
+                }
+                $('validation_result').update(msg);
+            }
+        });
+    }
+//]]>
+</script>
+<button onclick="javascript:checkLogin(); return false;" class="scalable" type="button" id="<?php echo $this->getHtmlId() ?>">
+    <span><?php echo $this->escapeHtml($this->getButtonLabel()) ?></span>
+</button>
+<div id="validation_result"></div>

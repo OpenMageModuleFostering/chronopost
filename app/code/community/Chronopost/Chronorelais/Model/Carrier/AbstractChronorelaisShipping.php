@@ -20,7 +20,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-// Pour gérer les cas où il y a eu compilation
+// Pour gï¿½rer les cas oï¿½ il y a eu compilation
 if (file_exists(dirname(__FILE__).'/Chronopost_Chronorelais_includes_ChronorelaisShippingHelper.php')) include_once 'Chronopost_Chronorelais_includes_ChronorelaisShippingHelper.php';
 else include_once Mage::getBaseDir('code').'/community/Chronopost/Chronorelais/includes/ChronorelaisShippingHelper.php';
 
@@ -130,6 +130,7 @@ abstract class Chronopost_Chronorelais_Model_Carrier_AbstractChronorelaisShippin
 		/*foreach ($request->_data as $key => $data) {
 			echo $key.' => '.$data.'<br/>';
 		}*/
+                $helper = Mage::helper('chronorelais');
 		
 		$process = array(
 			'request' => $request,
@@ -142,7 +143,7 @@ abstract class Chronopost_Chronorelais_Model_Carrier_AbstractChronorelaisShippin
 				'cart.price_excluding_tax' => $request->_data['package_value_with_discount'],
 				'cart.price_including_tax' => null,
 				'cart.weight' => $request->_data['package_weight'],
-				'cart.weight.unit' => null,
+				'cart.weight.unit' => $helper->getConfigWeightUnit(),
 				'cart.quantity' => $request->_data['package_qty'],
 				'destination.country.code' => $request->_data['dest_country_id'],
 				'destination.country.name' => null,
@@ -240,6 +241,7 @@ abstract class Chronopost_Chronorelais_Model_Carrier_AbstractChronorelaisShippin
 		$mage_config = Mage::getConfig();
 		$timestamp = time();
 		$customer_group_id = Mage::getSingleton('customer/session')->getCustomerGroupId();
+                $helper = Mage::helper('chronorelais');
 		// Pour les commandes depuis Adminhtml
 		if ($customer_group_id==0) {
 			$customer_group_id2 = Mage::getSingleton('adminhtml/session_quote')->getQuote()->getCustomerGroupId();
@@ -252,7 +254,7 @@ abstract class Chronopost_Chronorelais_Model_Carrier_AbstractChronorelaisShippin
 			'customer.group.code' => $customer_group_code,
 			'destination.country.name' => $this->__getCountryName($process['data']['destination.country.code']),
 			'origin.country.name' => $this->__getCountryName($process['data']['origin.country.code']),
-			'cart.weight.unit' => Mage::getStoreConfig('chronorelais/shipping/weight_unit'),
+			'cart.weight.unit' => $helper->getConfigWeightUnit(),/*Mage::getStoreConfig('chronorelais/shipping/weight_unit')*/
 			'store.code' => $store->getCode(),
 			'store.name' => $store->getConfig('general/store_information/name'),
 			'store.address' => $store->getConfig('general/store_information/address'),
@@ -267,9 +269,20 @@ abstract class Chronopost_Chronorelais_Model_Carrier_AbstractChronorelaisShippin
 			'module.version' => (string)$mage_config->getNode('modules/Chronopost_Chronorelais/version'),
 		));
 
+                $weight_limit = $this->__getConfigData('weight_limit'); /* weight_limit in kg */
+                $productWeightOverLimit = false;
+
 		foreach ($process['cart.items'] as $id => $item) {
 			if ($item->getProduct()->getTypeId()!='configurable') {
 				$parent_item_id = $item->getParentItemId();
+                                $itemWeight = $item->getWeight();
+                                if($helper->getConfigWeightUnit() == 'g')
+                                {
+                                    $itemWeight = $itemWeight / 1000; // conversion g => kg
+                                }
+                                if($itemWeight > $weight_limit) {
+                                    $productWeightOverLimit = true;
+                                }
 				$process['products'][] = new OCS_Magento_Product($item, isset($process['cart.items'][$parent_item_id]) ? $process['cart.items'][$parent_item_id] : null);
 			}
 		}
@@ -314,12 +327,33 @@ abstract class Chronopost_Chronorelais_Model_Carrier_AbstractChronorelaisShippin
 		$applicationFee 	= $this->__getConfigData('application_fee');
 		$handlingFee 		= $this->__getConfigData('handling_fee');
 		
-		/* Check weight limit with cart weight*/
-		$weight_limit = $this->__getConfigData('weight_limit');
-		if($process['data']['cart.weight']>$weight_limit) {
+                /* On autorise chronopost > 30 Kg si tous les produits sont <= 30 Kg */
+                if($productWeightOverLimit) {
 			$value_found = false;
 			$process_continue = false;
 		}
+
+                $helperWS = Mage::helper('chronorelais/webservice');
+                /* Si Chronorelais => test Si WS fonctionne */
+                if($this->_code == 'chronorelais') {
+                    $shippingAddress = Mage::getSingleton('adminhtml/session_quote')->getQuote()->getShippingAddress();
+                    $webservice = $helperWS->getPointsRelaisByCp($shippingAddress->getPostcode());
+                    if($webservice === false) {
+                        $value_found = false;
+			$process_continue = false;
+                    }
+                }
+
+                /* Si C10, CClassic ou Express => On vÃ©rifie si la mÃ©thode fait partie du contrat */
+                $methodsToCheck = array('chronoexpress','chronopostc10','chronopostcclassic');
+                if(in_array($this->_code, $methodsToCheck))
+                {
+                    $isAllowed = $helperWS->getMethodIsAllowed($this->_code);
+                    if($isAllowed === false) {
+                        $value_found = false;
+                        $process_continue = false;
+                    }
+                }
 		
 		if($process_continue) {
 			foreach ($process['config'] as $row) {

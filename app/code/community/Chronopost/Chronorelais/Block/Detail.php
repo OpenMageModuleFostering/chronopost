@@ -14,11 +14,11 @@ class Chronopost_Chronorelais_Block_Detail extends Mage_Core_Block_Template
 
 		if($btcode){
 			$result = Mage::getModel('shipping/rate_result');        
-			ini_set("soap.wsdl_cache_enabled", "0");
-			$client = new SoapClient("http://wsshipping.chronopost.fr/soap.point.relais/services/ServiceRechercheBt?wsdl");
-			$webservbt = $client->__call("rechercheBtParIdChronopostA2Pas",array($btcode));
+                        ini_set("soap.wsdl_cache_enabled", "0");
+                        $helper = Mage::helper('chronorelais/webservice');
+                        $webservbt = $helper->getDetailRelaisPoint($btcode);
 
-			return $webservbt[0];
+			return $webservbt;
 		}
 		else{
 			return false;

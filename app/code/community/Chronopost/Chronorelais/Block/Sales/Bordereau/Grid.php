@@ -1,9 +1,10 @@
 <?php
 
-class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_Block_Widget_Grid {
+class Chronopost_Chronorelais_Block_Sales_Bordereau_Grid extends Mage_Adminhtml_Block_Widget_Grid {
 
     public function __construct() {
         parent::__construct();
+        $this->setTemplate('chronorelais/bordereau/grid.phtml'); /* Pour ajouter la phrase d'impression des bordereaux enxemplaires */
         $this->setId('sales_order_grid');
         $this->setDefaultSort('created_at');
         $this->setDefaultDir('DESC');
@@ -106,6 +107,14 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
             'filter' => false,
         ));
 
+        $this->addColumn('status', array(
+            'header' => Mage::helper('sales')->__('Status'),
+            'index' => 'status',
+            'type'  => 'options',
+            'width' => '90px',
+            'options' => Mage::getSingleton('sales/order_config')->getStatuses(),
+        ));
+
         if ($is_sending_day = Mage::helper('chronorelais')->isSendingDay()) {
             $this->addColumn('livraison_le_samedi', array(
                 'header' => Mage::helper('sales')->__('Livraison le Samedi'),
@@ -115,45 +124,6 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
                 'filter' => false,
             ));
         }
-
-        $this->addColumn('etiquette_expedition', array(
-            'header' => Mage::helper('chronorelais')->__('Impression étiquette expédition'),
-            'type' => 'action',
-            'getter' => 'getId',
-            'column_css_class' => 'etiquette_expedition',
-            'actions' => array(
-                array(
-                    'caption' => Mage::helper('chronorelais')->__('Expédition'),
-                    'url' => array(
-                        'base' => 'chronorelais/sales_impression/print'
-                    ),
-                    'field' => 'order_id'
-                )
-            ),
-            'filter' => false,
-            'sortable' => false,
-            'index' => 'stores'
-        ));
-
-        $this->addColumn('etiquette_retour', array(
-            'header' => Mage::helper('chronorelais')->__('Impression étiquette retour'),
-            'type' => 'action',
-            'getter' => 'getId',
-            'column_css_class' => 'etiquette_retour',
-            'actions' => array(
-                array(
-                    'caption' => Mage::helper('chronorelais')->__('Retour SAV'),
-                    'url' => array(
-                        'base' => 'chronorelais/sales_impression/printEtiquetteRetour'
-                    ),
-                    'field' => 'order_id'
-                )
-            ),
-            'filter' => false,
-            'renderer'  => 'Chronopost_Chronorelais_Block_Sales_Shipment_Grid_Renderer_Retoursav',
-            'sortable' => false,
-            'index' => 'stores'
-        ));
 
         return parent::_prepareColumns();
     }
@@ -175,75 +145,16 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
         $this->getMassactionBlock()->setFormFieldName('order_ids');
         $this->getMassactionBlock()->setUseSelectAll(false);
 
-        $cmd = Mage::helper('chronorelais')->getConfigData('chronorelais/shipping/gs_path');
-        $res_shell = shell_exec($cmd);
-        if($res_shell !== null) {
-            $this->getMassactionBlock()->addItem('print', array(
-                'label' => Mage::helper('chronorelais')->__('Imprimer les étiquettes'),
-                'url' => $this->getUrl('*/*/printMass', array('_current' => true)),
+        $this->getMassactionBlock()->addItem('print_bordereau', array(
+                'label' => Mage::helper('chronorelais')->__('Imprimer le bordereau'),
+                'url' => $this->getUrl('*/*/massPrintBordereau', array('_current' => true)),
+                'selected' => true,
             ));
-        }
 
-        if ($is_sending_day = Mage::helper('chronorelais')->isSendingDay()) {
-
-            $shipping = array(
-                'Yes' => Mage::helper('chronorelais')->__('Yes'),
-                'No' => Mage::helper('chronorelais')->__('No'));
-            $this->getMassactionBlock()->addItem('shipping', array(
-                'label' => Mage::helper('chronorelais')->__('Livraison le Samedi'),
-                'url' => $this->getUrl('*/*/massLivraisonSamediStatus', array('_current' => true)),
-                'additional' => array(
-                    'visibility' => array(
-                        'name' => 'status',
-                        'type' => 'select',
-                        'class' => 'required-entry',
-                        'style' => 'width:80px',
-                        'label' => Mage::helper('chronorelais')->__('Status'),
-                        'values' => $shipping
-                    )
-                )
-            ));
-        }
         return $this;
     }
 
     public function getGridUrl() {
         return $this->getUrl('*/*/*', array('_current' => true));
     }
-
-    public function getAdditionalJavaScript() {
-        echo "$$('#sales_order_grid_table tr td:nth-child(4)').each(function(item) {
-        var chaine = item.innerHTML.replace(/^\s+/g,'').replace(/\s+$/g,'');
-        var lienExpedition = $(item).next('.etiquette_expedition').down('a');
-        var lienRetour = $(item).next('.etiquette_retour').down('a');
-        if (chaine.split(', ').length > 1) {
-          var contentExpedition = '';
-          var contentRetour = '';
-          var numbers = chaine.split(', ');
-          for (var i=0; i<numbers.length; i++) {
-            contentExpedition += '<a href=\"' + lienExpedition.href.replace(/\/order_id\/\d+\//, '/shipment_increment_id/' + numbers[i] + '/') + '\">Exp&eacute;dition ' + numbers[i] + '</a><br />';
-            contentRetour += '<a href=\"' + lienRetour.href.replace(/\/order_id\/\d+\//, '/shipment_increment_id/' + numbers[i] + '/') + '\" >Retour SAV ' + numbers[i] + '</a><br />';
-          }
-          lienExpedition.up().innerHTML = contentExpedition;
-          if(typeof lienRetour !== 'undefined')
-          {
-            lienRetour.up().innerHTML = contentRetour;
-          }
-        }
-        else if(chaine.length > 2) {
-            lienExpedition.up().innerHTML = '<a href=\"' + lienExpedition.href.replace(/\/order_id\/\d+\//, '/shipment_increment_id/' + chaine + '/') + '\">Exp&eacute;dition</a><br />';
-            if(typeof lienRetour !== 'undefined')
-            {
-                lienRetour.up().innerHTML = '<a href=\"' + lienRetour.href.replace(/\/order_id\/\d+\//, '/shipment_increment_id/' + chaine + '/') + '\" >Retour SAV</a><br />';
-            }
-        }
-        else {
-            if(typeof lienRetour !== 'undefined')
-            {
-                lienRetour.up().innerHTML = '';
-            }
-        }
-      });";
-    }
-
 }

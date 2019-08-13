@@ -1,36 +1,36 @@
 <?xml version="1.0"?>
 <config>
-	<modules>
-		<Chronopost_Chronorelais>
-			<version>0.3.0</version>
-			<depends>
-				<Mage_Shipping />
-				<Mage_Sales />
-				<Mage_Adminhtml />
-			</depends>
-		</Chronopost_Chronorelais>
-	</modules>
+    <modules>
+        <Chronopost_Chronorelais>
+            <version>1.0.1</version>
+            <depends>
+                <Mage_Shipping />
+                <Mage_Sales />
+                <Mage_Adminhtml />
+            </depends>
+        </Chronopost_Chronorelais>
+    </modules>
 
-	<global>
-		<models>
-			<chronorelais>
-				<class>Chronopost_Chronorelais_Model</class>
-			</chronorelais>
-			<sales>
+    <global>
+        <models>
+            <chronorelais>
+                <class>Chronopost_Chronorelais_Model</class>
+            </chronorelais>
+            <sales>
                 <rewrite>
-					<quote_address_total_shipping>Chronopost_Chronorelais_Model_Sales_Quote_Address_Total_Shipping</quote_address_total_shipping>
+                    <quote_address_total_shipping>Chronopost_Chronorelais_Model_Sales_Quote_Address_Total_Shipping</quote_address_total_shipping>
                 </rewrite>
-            </sales>        
- 		</models>
+            </sales>
+        </models>
         <blocks>
             <chronorelais>
                 <class>Chronopost_Chronorelais_Block</class>
             </chronorelais>
-			<adminhtml>
-				<rewrite>
-					<sales_order_shipment_view>Chronopost_Chronorelais_Block_Sales_Order_Shipment_View</sales_order_shipment_view>
-				</rewrite>
-			</adminhtml>
+            <adminhtml>
+                <rewrite>
+                    <sales_order_shipment_view>Chronopost_Chronorelais_Block_Sales_Order_Shipment_View</sales_order_shipment_view>
+                </rewrite>
+            </adminhtml>
         </blocks>
         <helpers>
             <chronorelais>
@@ -38,89 +38,103 @@
             </chronorelais>
         </helpers>
 
-		<resources>
-			<sales>
-				<shipping>
-					<carriers>
-						<chronorelais>
-							<class>Chronopost_Chronorelais_Model_Carrier_Chronorelais</class>
-						</chronorelais>
-						<chronopost>
-							<class>Chronopost_Chronorelais_Model_Carrier_Chronopost</class>
-						</chronopost>
-						<chronoexpress>
-							<class>Chronopost_Chronorelais_Model_Carrier_Chronoexpress</class>
-						</chronoexpress>
-					</carriers>
-				</shipping>
-			</sales>
-			<chronorelais_setup>
-				<setup>
-					<module>Chronopost_Chronorelais</module>
-					<class>Mage_Catalog_Model_Resource_Eav_Mysql4_Setup</class>
-				</setup>
-				<connection>
-					<use>core_setup</use>
-				</connection>
-			</chronorelais_setup>
-			<chronorelais_write>
-				<connection>
-					<use>core_write</use>
-				</connection>
-			</chronorelais_write>
+        <resources>
+            <sales>
+                <shipping>
+                    <carriers>
+                        <chronorelais>
+                            <class>Chronopost_Chronorelais_Model_Carrier_Chronorelais</class>
+                        </chronorelais>
+                        <chronopost>
+                            <class>Chronopost_Chronorelais_Model_Carrier_Chronopost</class>
+                        </chronopost>
+                        <chronoexpress>
+                            <class>Chronopost_Chronorelais_Model_Carrier_Chronoexpress</class>
+                        </chronoexpress>
+                    </carriers>
+                </shipping>
+            </sales>
+            <chronorelais_setup>
+                <setup>
+                    <module>Chronopost_Chronorelais</module>
+                    <class>Mage_Catalog_Model_Resource_Eav_Mysql4_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </chronorelais_setup>
+            <chronorelais_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </chronorelais_write>
 
-			<chronorelais_read>
-				<connection>
-					<use>core_read</use>
-				</connection>
-			</chronorelais_read>
-		</resources>
+            <chronorelais_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </chronorelais_read>
+        </resources>
         
- 		<rewrite>
-			<chronopost_chronorelais_checkout_onepage>
-				<from><![CDATA[#^/checkout/onepage/#]]></from>
-				<to>/chronorelais/checkout_onepage/</to>
-			</chronopost_chronorelais_checkout_onepage>
-			<chronopost_chronorelais_checkout_multishipping>
-				<from><![CDATA[#^/checkout/multishipping/#]]></from>
-				<to>/chronorelais/checkout_multishipping/</to>
-			</chronopost_chronorelais_checkout_multishipping>
-			<chronopost_chronorelais_sales_order_shipment>
-				<from><![CDATA[#^/.*sales_order_shipment/save/#]]></from>
-				<to>/chronorelais/sales_order_shipment/save/</to>
-			</chronopost_chronorelais_sales_order_shipment>
-		</rewrite>
+        <rewrite>
+            <chronopost_chronorelais_checkout_onepage>
+                <from><![CDATA[#^/checkout/onepage/#]]>
+                </from>
+                <to>/chronorelais/checkout_onepage/</to>
+            </chronopost_chronorelais_checkout_onepage>
+            <chronopost_chronorelais_checkout_multishipping>
+                <from><![CDATA[#^/checkout/multishipping/#]]>
+                </from>
+                <to>/chronorelais/checkout_multishipping/</to>
+            </chronopost_chronorelais_checkout_multishipping>
+            <chronopost_chronorelais_sales_order_shipment>
+                <from><![CDATA[#^/.*sales_order_shipment/save/#]]>
+                </from>
+                <to>/chronorelais/sales_order_shipment/save/</to>
+            </chronopost_chronorelais_sales_order_shipment>
+        </rewrite>
 
         <fieldsets>
-			<sales_copy_order_billing_address>
-				<w_relay_point_code><to_order>*</to_order></w_relay_point_code>
+            <sales_copy_order_billing_address>
+                <w_relay_point_code>
+                    <to_order>*</to_order>
+                </w_relay_point_code>
             </sales_copy_order_billing_address>
             <sales_copy_order_shipping_address>
-				<w_relay_point_code><to_order>*</to_order></w_relay_point_code>
+                <w_relay_point_code>
+                    <to_order>*</to_order>
+                </w_relay_point_code>
             </sales_copy_order_shipping_address>
-			<sales_convert_quote_address>
-				<w_relay_point_code><to_order_address>*</to_order_address><to_customer_address>*</to_customer_address></w_relay_point_code>        
+            <sales_convert_quote_address>
+                <w_relay_point_code>
+                    <to_order_address>*</to_order_address>
+                    <to_customer_address>*</to_customer_address>
+                </w_relay_point_code>
             </sales_convert_quote_address>
-			<sales_convert_order_address>
-				<w_relay_point_code><to_quote_address>*</to_quote_address></w_relay_point_code>
-			</sales_convert_order_address>
-			<customer_address>
-				<w_relay_point_code><to_quote_address>*</to_quote_address></w_relay_point_code>
+            <sales_convert_order_address>
+                <w_relay_point_code>
+                    <to_quote_address>*</to_quote_address>
+                </w_relay_point_code>
+            </sales_convert_order_address>
+            <customer_address>
+                <w_relay_point_code>
+                    <to_quote_address>*</to_quote_address>
+                </w_relay_point_code>
             </customer_address>
-        </fieldsets>		
+        </fieldsets>
 		
-	</global>
+    </global>
 	
-	<frontend>	
-		<routers>
-			<chronorelais>
-				<use>standard</use>
-				<args>
-					<module>Chronopost_Chronorelais</module>
-					<frontName>chronorelais</frontName>
-				</args>
-			</chronorelais>
-		</routers>
+    <frontend>
+        <routers>
+            <chronorelais>
+                <use>standard</use>
+                <args>
+                    <module>Chronopost_Chronorelais</module>
+                    <frontName>chronorelais</frontName>
+                </args>
+            </chronorelais>
+        </routers>
 		
         <layout>
             <updates>
@@ -128,7 +142,7 @@
                     <file>chronorelais.xml</file>
                 </chronorelais>
             </updates>
-        </layout>		
+        </layout>
         <translate>
             <modules>
                 <Chronopost_Chronorelais>
@@ -137,25 +151,32 @@
                     </files>
                 </Chronopost_Chronorelais>
             </modules>
-        </translate>		
-	</frontend>
+        </translate>
+    </frontend>
 	
-	<admin>
-		<routers>
-			<chronorelais>
-				<use>admin</use>
-				<args>
-					<module>Chronopost_Chronorelais</module>
-					<frontName>chronorelais</frontName>
-				</args>
-			</chronorelais>
-		</routers>
-	</admin>
+    <admin>
+        <routers>
+            <chronorelais>
+                <use>admin</use>
+                <args>
+                    <module>Chronopost_Chronorelais</module>
+                    <frontName>chronorelais</frontName>
+                </args>
+            </chronorelais>
+        </routers>
+    </admin>
 	
-	<adminhtml>
-		<menu>
-             <sales>
-                 <children>
+    <adminhtml>
+        <layout>
+            <updates>
+                <chronorelais>
+                    <file>chronorelais.xml</file>
+                </chronorelais>
+            </updates>
+        </layout>
+        <menu>
+            <sales>
+                <children>
                     <chronorelais translate="title"> <!-- TODO faire marcher : module="chronorelais" (aussi dans les children) -->
                         <title>Chronopost</title>
                         <sort_order>15</sort_order>
@@ -170,17 +191,22 @@
                                 <action>chronorelais/import</action>
                                 <sort_order>20</sort_order>
                             </import>
-							<impression translate="title" module="sales">
-								<title>Impression des étiquettes</title>
-								<action>chronorelais/sales_impression</action>
-								<sort_order>30</sort_order>
-							</impression>
+                            <impression translate="title" module="sales">
+                                <title>Impression des étiquettes</title>
+                                <action>chronorelais/sales_impression</action>
+                                <sort_order>30</sort_order>
+                            </impression>
+                            <bordereau translate="title" module="sales">
+                                <title>Bordereau de fin de journée</title>
+                                <action>chronorelais/sales_bordereau</action>
+                                <sort_order>40</sort_order>
+                            </bordereau>
                         </children>
                     </chronorelais>
                 </children>
-             </sales>
+            </sales>
         </menu>
-		<acl>
+        <acl>
             <resources>
                 <admin>
                     <children>
@@ -192,21 +218,21 @@
                                     <children>
                                         <export translate="title">
                                             <title>Export</title>
-											<sort_order>10</sort_order>
+                                            <sort_order>10</sort_order>
                                         </export>
                                         <import translate="title">
                                             <title>Import</title>
-											<sort_order>20</sort_order>
+                                            <sort_order>20</sort_order>
                                         </import>
-										<impression translate="title" module="sales">
-											<title>Impression des étiquettes</title>
-											<sort_order>30</sort_order>
-										</impression>
+                                        <impression translate="title" module="sales">
+                                            <title>Impression des étiquettes</title>
+                                            <sort_order>30</sort_order>
+                                        </impression>
                                     </children>
                                 </chronorelais>
                             </children>
                         </sales>
-						<system>
+                        <system>
                             <children>
                                 <config>
                                     <children>
@@ -231,15 +257,18 @@
                     </files>
                 </Chronopost_Chronorelais>
             </modules>
-        </translate>		
-	</adminhtml>
+        </translate>
 
-	<default>
-		<chronorelais>
-			<shipping>
-				<google_map_api>ABQIAAAAZvdukOwsytNocL5anZKqZxS51Nc8ngbKeRYi0kVLSLeRaqOKHRSLs6O150txpwWCDcct2mH4X-G6OA</google_map_api>
-				<tracking_view_url><![CDATA[http://www.chronopost.fr/expedier/inputLTNumbersNoJahia.do?lang=fr_FR&listeNumeros={tracking_number}]]></tracking_view_url>
-			</shipping>
+    </adminhtml>
+
+    <default>
+        <chronorelais>
+            <shipping>
+                <google_map_api>ABQIAAAAZvdukOwsytNocL5anZKqZxS51Nc8ngbKeRYi0kVLSLeRaqOKHRSLs6O150txpwWCDcct2mH4X-G6OA</google_map_api>
+                <tracking_view_url><![CDATA[http://www.chronopost.fr/expedier/inputLTNumbersNoJahia.do?lang=fr_FR&listeNumeros={tracking_number}]]>
+                </tracking_view_url>
+                <gs_path>/usr/bin/gs</gs_path>
+            </shipping>
             <export_css>
                 <file_extension>.chr</file_extension>
                 <file_charset>ASCII-7</file_charset>
@@ -260,100 +289,164 @@
                 <shipping_comment></shipping_comment>
                 <include_comment>0</include_comment>
             </import>
-		</chronorelais>
-		<carriers>
-			<chronopost>
-				<active>0</active>
-				<title>Chronopost</title>
-				<model>Chronopost_Chronorelais_Model_Carrier_Chronopost</model>
-				<tracking_view_url></tracking_view_url>
-				<config>
-# Chronopost
-{
-	label: "Chronopost livraison express à domicile",
-	code: "chronopost",
-	description: "Colis livré le lendemain avant 13h, à l’adresse de votre choix.
-				Délai à compter de la prise en charge du colis par Chronopost, pour une livraison en France métropolitaine.
-				En cas d’absence, le colis est mis en instance dans le bureau de Poste le plus proche.",
-	tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
-	destination: "FR,MC",
-	fees: "{table {cart.weight} in 2.00:17.56, 3.00:18.40, 4.00:19.24, 5.00:20.08, 6.00:20.92, 7.00:21.76, 8.00:22.60, 9.00:23.44, 10.00:24.28, 15.00:28.48, 20.00:32.68, 25.00:36.88, 30.00:41.08}",
-}
+        </chronorelais>
+        <carriers>
+            <chronopost>
+                <active>0</active>
+                <title>Chronopost-Livraison express à domicile avant 13H</title>
+                <model>Chronopost_Chronorelais_Model_Carrier_Chronopost</model>
+                <tracking_view_url></tracking_view_url>
+                <config>
+                    # Chronopost
+                    {
+                    label: "Chronopost-Livraison express à domicile avant 13H",
+                    code: "chronopost",
+                    description: "Colis livré le lendemain matin avant 13h à votre domicile. La veille de la livraison, vous êtes averti par e-mail et SMS.
+                    Délai à compter de la prise en charge du colis par Chronopost, pour une livraison en France métropolitaine.",
+                    tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
+                    destination: "FR,MC",
+                    fees: "{table {cart.weight} in 2.00:17.56, 3.00:18.40, 4.00:19.24, 5.00:20.08, 6.00:20.92, 7.00:21.76, 8.00:22.60, 9.00:23.44, 10.00:24.28, 15.00:28.48, 20.00:32.68, 25.00:36.88, 30.00:41.08}",
+                    }
 
-# Chronopost Corse
-{
-	label: "Chronopost livraison express à domicile en Corse",
-	code: "chronopost_corse",
-	description: "Colis livré le lendemain avant 13h, à l’adresse de votre choix.
-				Délai à compter de la prise en charge du colis par Chronopost, pour une livraison en France métropolitaine.
-				En cas d’absence, le colis est mis en instance dans le bureau de Poste le plus proche.",
-	tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
-	destination: "FR(20*)",
-	fees: "{table {cart.weight} in 2.00:19.56, 3.00:20.40, 4.00:21.24, 5.00:22.08, 6.00:22.92, 7.00:23.76, 8.00:24.60, 9.00:25.44, 10.00:26.28, 15.00:30.48, 20.00:34.68, 25.00:38.88, 30.00:43.08}",
-}
-				</config>
-				<weight_limit>30</weight_limit>
-				<quickcost_url>http://wsshipping.chronopost.fr/wsQuickcost/services/ServiceQuickCost?wsdl</quickcost_url>
-				<logo_url>chronopost.png</logo_url>
-				<debug>0</debug>
-				<stop_to_first_match>0</stop_to_first_match>
-				<!--<specificerrmsg>This shipping method is currently unavailable.</specificerrmsg>-->
-				<sort_order>1</sort_order>
-			</chronopost>
-			<chronoexpress>
-				<active>0</active>
-				<title>Chronopost</title>
-				<model>Chronopost_Chronorelais_Model_Carrier_Chronoexpress</model>
-				<tracking_view_url></tracking_view_url>
-				<config>
-# Chronoexpress
-{
-	label: "Chronopost livraison express partout dans le monde",
-	code: "chronoexpress",
-	description: "L'Europe livrée en 1 à 3 jours et le reste du monde en 2 à 5 jours. 
-			Délai à compter de la prise en charge du colis par Chronopost.",
-	tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
-	destination: "DE,BE,BG,CY,DK,ES,EE,FI,GR,IE,IT,LV,LT,MT,NL,PL,PT,CZ,RO,SK,AT,HU,LU,GB,SI,SE,GF,YT,GP,MQ,RE",
-	fees: "{table {cart.weight} in 0.50:30.94, 1.00:45.07, 1.50:55.26, 2.00:65.45, 2.50:75.64, 3.00:85.83, 3.50:88.72, 4.00:91.61, 4.50:94.50, 5.00:97.39, 30.00:97.39}",
-}
-				</config>
-				<weight_limit>30</weight_limit>
-				<quickcost_url>http://wsshipping.chronopost.fr/wsQuickcost/services/ServiceQuickCost?wsdl</quickcost_url>
-				<logo_url>Logo-Chronopost.jpg</logo_url>
-				<debug>0</debug>
-				<stop_to_first_match>0</stop_to_first_match>
-				<!--<specificerrmsg>This shipping method is currently unavailable.</specificerrmsg>-->
-				<sort_order>1</sort_order>
-			</chronoexpress>
-			<chronorelais>
-				<active>0</active>
-				<title>Chrono Relais</title>
-				<model>Chronopost_Chronorelais_Model_Carrier_Chronorelais</model>
-				<tracking_view_url></tracking_view_url>
-				<config>
-# Chronorelais
-{
-	label: "Chrono Relais : livraison express en relais Pickup",
-	code: "chronorelais",
-	description: "Colis livré en Chronopost le lendemain avant 13 h dans le relais Pickup de votre choix. 
-				Vous êtes averti par email ou SMS de l’arrivée du colis dans le point.
-				Délai à compter de la prise en charge du colis par Chronopost.",
-	tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
-	destination: "FR",
-	fees: "{table {cart.weight} in 2.00:17.56, 3.00:18.40, 4.00:19.24, 5.00:20.08, 6.00:20.92, 7.00:21.76, 8.00:22.60, 9.00:23.44, 10.00:24.28, 15.00:28.48, 20.00:32.68, 25.00:36.88, 30.00:41.08}",
-}
+                    # Chronopost Corse
+                    {
+                    label: "Chronopost livraison express à domicile en Corse",
+                    code: "chronopost_corse",
+                    description: "Colis livré le lendemain avant 13h, à l’adresse de votre choix.
+                    Délai à compter de la prise en charge du colis par Chronopost, pour une livraison en France métropolitaine.
+                    En cas d’absence, le colis est mis en instance dans le bureau de Poste le plus proche.",
+                    tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
+                    destination: "FR(20*)",
+                    fees: "{table {cart.weight} in 2.00:19.56, 3.00:20.40, 4.00:21.24, 5.00:22.08, 6.00:22.92, 7.00:23.76, 8.00:24.60, 9.00:25.44, 10.00:26.28, 15.00:30.48, 20.00:34.68, 25.00:38.88, 30.00:43.08}",
+                    }
+                </config>
+                <weight_limit>30</weight_limit>
+                <quickcost_url>https://www.chronopost.fr/quickcost-cxf/QuickcostServiceWS?wsdl</quickcost_url>
+                <logo_url>chronopost.png</logo_url>
+                <debug>0</debug>
+                <stop_to_first_match>0</stop_to_first_match>
+                <!--<specificerrmsg>This shipping method is currently unavailable.</specificerrmsg>-->
+                <sort_order>1</sort_order>
+            </chronopost>
+            <chronoexpress>
+                <active>0</active>
+                <title>Chronopost Livraison express partout dans le monde</title>
+                <model>Chronopost_Chronorelais_Model_Carrier_Chronoexpress</model>
+                <tracking_view_url></tracking_view_url>
+                <config>
+                    # Chronoexpress
+                    {
+                    label: "Chronopost Livraison express partout dans le monde",
+                    code: "chronoexpress",
+                    description: "Colis livré en 1 à 3 jours vers l'Europe, en 48h vers les DOM et en 2 à 5 jours vers le reste du monde.
+                    Délai à compter de la prise en charge du colis par Chronopost, pour une livraison en France métropolitaine.",
+                    tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
+                    destination: "DE,BE,BG,CY,DK,ES,EE,FI,GR,IE,IT,LV,LT,MT,NL,PL,PT,CZ,RO,SK,AT,HU,LU,GB,SI,SE,GF,YT,GP,MQ,RE",
+                    fees: "{table {cart.weight} in 0.50:30.94, 1.00:45.07, 1.50:55.26, 2.00:65.45, 2.50:75.64, 3.00:85.83, 3.50:88.72, 4.00:91.61, 4.50:94.50, 5.00:97.39, 30.00:97.39}",
+                    }
+                </config>
+                <weight_limit>30</weight_limit>
+                <quickcost_url>https://www.chronopost.fr/quickcost-cxf/QuickcostServiceWS?wsdl</quickcost_url>
+                <logo_url>Logo-Chronopost.jpg</logo_url>
+                <debug>0</debug>
+                <stop_to_first_match>0</stop_to_first_match>
+                <!--<specificerrmsg>This shipping method is currently unavailable.</specificerrmsg>-->
+                <sort_order>1</sort_order>
+            </chronoexpress>
+            <chronorelais>
+                <active>0</active>
+                <title>Chrono Relais</title>
+                <model>Chronopost_Chronorelais_Model_Carrier_Chronorelais</model>
+                <tracking_view_url></tracking_view_url>
+                <config>
+                    # Chronorelais
+                    {
+                    label: "Chrono Relais : livraison express en relais Pickup",
+                    code: "chronorelais",
+                    description: "Colis livré en Chronopost le lendemain avant 13 h dans le relais Pickup de votre choix.
+                    Vous êtes averti par email ou SMS de l’arrivée du colis dans le point.
+                    Délai à compter de la prise en charge du colis par Chronopost.",
+                    tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
+                    destination: "FR",
+                    fees: "{table {cart.weight} in 2.00:17.56, 3.00:18.40, 4.00:19.24, 5.00:20.08, 6.00:20.92, 7.00:21.76, 8.00:22.60, 9.00:23.44, 10.00:24.28, 15.00:28.48, 20.00:32.68, 25.00:36.88, 30.00:41.08}",
+                    }
 
-# Voir exemple sur mode "Chronopost" pour un tarif spécifique pour la Corse
-				</config>
-				<weight_limit>20</weight_limit>
-				<quickcost_url>http://wsshipping.chronopost.fr/wsQuickcost/services/ServiceQuickCost?wsdl</quickcost_url>
-				<logo_url>chronorelais.png</logo_url>
-				<debug>0</debug>
-				<stop_to_first_match>0</stop_to_first_match>
-				<!--<specificerrmsg>This shipping method is currently unavailable.</specificerrmsg>-->
-				<sort_order>2</sort_order>
-			</chronorelais>
-		</carriers>
-	</default>
+                    # Voir exemple sur mode "Chronopost" pour un tarif spécifique pour la Corse
+                </config>
+                <weight_limit>20</weight_limit>
+                <quickcost_url>https://www.chronopost.fr/quickcost-cxf/QuickcostServiceWS?wsdl</quickcost_url>
+                <logo_url>chronorelais.png</logo_url>
+                <debug>0</debug>
+                <stop_to_first_match>0</stop_to_first_match>
+                <!--<specificerrmsg>This shipping method is currently unavailable.</specificerrmsg>-->
+                <sort_order>2</sort_order>
+            </chronorelais>
+            <chronopostc10>
+                <active>0</active>
+                <title>Chronopost-Livraison express à domicile avant 10H</title>
+                <model>Chronopost_Chronorelais_Model_Carrier_ChronopostC10</model>
+                <tracking_view_url></tracking_view_url>
+                <config>
+                    # ChronopostC10
+                    {
+                    label: "Chronopost-Livraison express à domicile avant 10H",
+                    code: "chronopostC10",
+                    description: "Colis livré le lendemain matin avant 10h à votre domicile. La veille de la livraison, vous êtes averti par e-mail et SMS.
+                    Délai à compter de la prise en charge du colis par Chronopost, pour une livraison en France métropolitaine.",
+                    tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
+                    destination: "FR,MC",
+                    fees: "{table {cart.weight} in 2.00:17.56, 3.00:18.40, 4.00:19.24, 5.00:20.08, 6.00:20.92, 7.00:21.76, 8.00:22.60, 9.00:23.44, 10.00:24.28, 15.00:28.48, 20.00:32.68, 25.00:36.88, 30.00:41.08}",
+                    }
+                </config>
+                <weight_limit>30</weight_limit>
+                <quickcost_url>http://wsshipping.chronopost.fr/wsQuickcost/services/ServiceQuickCost?wsdl</quickcost_url>
+                <logo_url>chronopost.png</logo_url>
+                <debug>0</debug>
+                <stop_to_first_match>0</stop_to_first_match>
+                <!--<specificerrmsg>This shipping method is currently unavailable.</specificerrmsg>-->
+                <sort_order>3</sort_order>
+            </chronopostc10>
+            <chronopostc18>
+                <active>0</active>
+                <title>Chronopost-Livraison express à domicile avant 18H</title>
+                <model>Chronopost_Chronorelais_Model_Carrier_ChronopostC18</model>
+                <tracking_view_url></tracking_view_url>
+                <config>
+                    # ChronopostC18
+                    {
+                    label: "Chronopost-Livraison express à domicile avant 18H",
+                    code: "chronopostC18",
+                    description: "Colis livré le lendemain matin avant 18h à votre domicile. La veille de la livraison, vous êtes averti par e-mail et SMS.
+                    Délai à compter de la prise en charge du colis par Chronopost, pour une livraison en France métropolitaine.",
+                    tracking_url: "http://www.fr.chronopost.com/fr/tracking/result?listeNumeros={tracking_number}",
+                    destination: "FR,MC",
+                    fees: "{table {cart.weight} in 2.00:17.56, 3.00:18.40, 4.00:19.24, 5.00:20.08, 6.00:20.92, 7.00:21.76, 8.00:22.60, 9.00:23.44, 10.00:24.28, 15.00:28.48, 20.00:32.68, 25.00:36.88, 30.00:41.08}",
+                    }
+                </config>
+                <weight_limit>30</weight_limit>
+                <quickcost>0</quickcost>
+                <quickcost_url>https://www.chronopost.fr/quickcost-cxf/QuickcostServiceWS?wsdl</quickcost_url>
+                <logo_url>chronopost.png</logo_url>
+                <debug>0</debug>
+                <stop_to_first_match>0</stop_to_first_match>
+                <!--<specificerrmsg>This shipping method is currently unavailable.</specificerrmsg>-->
+                <sort_order>4</sort_order>
+            </chronopostc18>
+            <chronopostcclassic>
+                <active>0</active>
+                <title>Chronopost Livraison dans certaines villes Européennes</title>
+                <model>Chronopost_Chronorelais_Model_Carrier_ChronopostCClassic</model>
+                <tracking_view_url></tracking_view_url>
+                <config></config>
+                <weight_limit>30</weight_limit>
+                <quickcost_url>https://www.chronopost.fr/quickcost-cxf/QuickcostServiceWS?wsdl</quickcost_url>
+                <logo_url>chronopost.png</logo_url>
+                <debug>0</debug>
+                <stop_to_first_match>0</stop_to_first_match>
+                <!--<specificerrmsg>This shipping method is currently unavailable.</specificerrmsg>-->
+                <sort_order>5</sort_order>
+            </chronopostcclassic>
+        </carriers>
+    </default>
 
 </config>
