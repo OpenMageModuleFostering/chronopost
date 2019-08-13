@@ -114,12 +114,14 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
 
         $paths = array();
         $this->createMediaChronopostFolder();
+        $indiceFile = 0;
         foreach ($pdf_contents as $pdf_content) {
-            $fileName = 'tmp-etiquette-'.date('H-i-s');
+            $fileName = 'tmp-etiquette-'.date('H-i-s-'.$indiceFile);
             /* save pdf file */
             $path = Mage::getBaseDir('media').'/chronopost/' . $fileName . '.pdf';
             file_put_contents($path, $pdf_content);
             $paths[] = $path;
+            $indiceFile++;
         }
 
         /* creation d'un pdf unique */

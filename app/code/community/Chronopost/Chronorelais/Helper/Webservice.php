@@ -206,10 +206,16 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
                 'identifiant' => $btcode
             );
 
-            $client = new SoapClient("https://www.chronopost.fr/recherchebt-ws-cxf/PointRelaisServiceWS");
-            $webservbt = $client->__call("rechercheDetailPointChronopost",$params);
+            $client = new SoapClient("https://www.chronopost.fr/recherchebt-ws-cxf/PointRelaisServiceWS?wsdl");
+            $webservbt = $client->rechercheDetailPointChronopost($params);
 
-            return $webservbt[0];
+            if($webservbt->return->errorCode == 0)
+            {
+                return $webservbt->return->listePointRelais;
+            } else {
+                return $this->getDetailRelaisPointByPudo($btcode);
+            }
+
         }  catch (Exception $e) {
             return $this->getDetailRelaisPointByPudo($btcode);
         }
