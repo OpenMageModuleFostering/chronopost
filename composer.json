@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/Chronopost",
+    "type": "magento-module",
+    "license": "OSL-v3.0",
+    "homepage": "",
+    "description": "Cette extension officielle permet de proposer à vos clients le mode de livraison Chronopost",
+    "authors": [
+    {
+        "name": "Benjamin GOSSELET",
+        "email": "bgosselet@adexos.fr"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}

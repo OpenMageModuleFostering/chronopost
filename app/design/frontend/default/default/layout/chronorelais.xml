@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+	<default>
+		<reference name="head">
+			<action method="addItem"><type>skin_css</type><name>chronorelais/chronorelais.css</name></action>
+        </reference>
+	</default>
+	
+	<checkout_onepage_index>
+		<reference name="checkout.onepage.shipping_method">
+			<action method="setTemplate"><template>chronorelais/checkout/onepage/shipping_method.phtml</template></action>
+			<block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="chronorelais/checkout/onepage/shipping_method/available.phtml">
+				<block type="chronorelais/checkout_onepage_shipping_method_chronorelais" name="checkout.onepage.shipping_method.chronorelais" as="relaislist" template="chronorelais/checkout/onepage/shipping_method/chronorelais.phtml"/>
+			</block>
+		</reference>
+	</checkout_onepage_index>
+	
+  <!-- -->
+	<checkout_multishipping_shipping>
+    <update handle="checkout_multishipping"/>
+		<reference name="checkout_shipping">
+			<action method="setTemplate"><template>chronorelais/checkout/multishipping/shipping.phtml</template></action>
+      <block type="chronorelais/checkout_multishipping_shipping_method_chronorelais" name="checkout.multishipping.shipping_method.chronorelais" as="relaislist" template="chronorelais/checkout/multishipping/shipping_method/chronorelais.phtml"/>
+		</reference>
+	</checkout_multishipping_shipping>
+	<!-- -->
+  
+  <checkout_onepage_shippingmethod>
+    <remove name="right"/>
+    <remove name="left"/>
+    <block type="checkout/onepage_shipping_method_available" name="root" output="toHtml" template="chronorelais/checkout/onepage/shipping_method/available.phtml">
+			<!--<block type="checkout/onepage_shipping_method_chronorelais" name="checkout.onepage.shipping_method.chronorelais" as="relaislist" template="chronorelais/checkout/onepage/shipping_method/chronorelais.phtml"/>-->
+    </block>
+	</checkout_onepage_shippingmethod>
+
+    <checkout_onepage_shippingchronorelais>
+      <remove name="right"/>
+      <remove name="left"/>
+      <block type="chronorelais/checkout_onepage_shipping_method_chronorelais" name="root" output="toHtml" template="chronorelais/checkout/onepage/shipping_method/chronorelais.phtml"/>
+    </checkout_onepage_shippingchronorelais>
+
+    <checkout_multishipping_shippingchronorelais>
+      <remove name="right"/>
+      <remove name="left"/>
+      <block type="chronorelais/checkout_multishipping_shipping_method_chronorelais" name="root" output="toHtml" template="chronorelais/checkout/multishipping/shipping_method/chronorelais.phtml"/>
+    </checkout_multishipping_shippingchronorelais>
+
+    <customer_account_index>
+        <reference name="customer_account_dashboard">
+            <block type="sales/order_recent" name="customer_account_dashboard_top" as="top" template="chronorelais/sales/order/recent.phtml"/>
+        </reference>
+    </customer_account_index>
+
+    <sales_order_history>
+        <reference name="sales.order.history">
+			<action method="setTemplate"><template>chronorelais/sales/order/history.phtml</template></action>
+        </reference>
+    </sales_order_history>
+	
+</layout>

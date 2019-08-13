@@ -1,0 +1,65 @@
+<div class="content-header">
+    <table cellspacing="0">
+        <tr>
+            <td><h3 class="icon-head head-tax-rate-importExport"><?php echo Mage::helper('chronorelais')->__('Importer une liste de num&eacute;ros de colis') ?></h3></td>
+        </tr>
+    </table>
+</div>
+<div class="entry-edit">
+    <div class="box-left">
+        <form id="import_form" action="<?php echo $this->getUrl('*/*/import') ?>" method="post" enctype="multipart/form-data">
+            <?php echo $this->getBlockHtml('formkey')?>
+            <div class="entry-edit-head">
+                <h4 class="icon-head head-edit-form fieldset-legend"><?php echo Mage::helper('chronorelais')->__('Importer une liste de num&eacute;ros de colis') ?></h4>
+            </div>
+
+            <fieldset>
+            <table class="form-list" cellspacing="0">
+                <colgroup class="label"/>
+                <colgroup class="value"/>
+                <tbody>
+                    <tr>
+                        <td class="label">
+                            <label><?php echo Mage::helper('chronorelais')->__('Tracking Title') ?></label>
+                        </td>
+                        <td class="value">
+                            <input type="text" name="import_chronorelais_tracking_title" class="input-file" value="<?php echo Mage::helper('chronorelais')->getConfigurationDefaultTrackingTitle() ?>"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label><?php echo Mage::helper('chronorelais')->__('Import File') ?></label>
+                        </td>
+                        <td class="value">
+                            <input type="file" name="import_chronorelais_file" class="input-file required-entry"/>
+                            <p class="nm">
+                                <small><?php echo Mage::helper('chronorelais')->__('Line format:'). ' "'.Mage::helper('chronorelais')->__('order id').'","'.Mage::helper('chronorelais')->__('tracking number').'"'; ?></small>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td class="value">
+                            <?php $button_label = Mage::helper('chronorelais')->__('Import'); ?>
+                            <?php echo $this->getButtonHtml($button_label, "this.form.submit();displayLoadingMask();") ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </fieldset>
+
+        </form>
+        <script type="text/javascript">
+            var importForm = new varienForm('import_form');
+
+            function displayLoadingMask()
+            {
+                var loaderArea = $$('#html-body .wrapper')[0]; // Blocks all page
+                Position.clone($(loaderArea), $('loading-mask'), {offsetLeft:-2});
+                toggleSelectsUnderBlock($('loading-mask'), false);
+                Element.show('loading-mask');
+            }
+        </script>
+    </div>
+    <div class="clear"></div>
+</div>
