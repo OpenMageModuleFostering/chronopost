@@ -38,22 +38,23 @@ class Chronopost_Chronorelais_Block_Checkout_Onepage_Shipping_Method_Chronorelai
     protected $_chronorelais;
 
     public function getChronorelais() {
-        if (empty($this->_chronorelais)) {
-            $quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
-            $address = $quote->getShippingAddress();
-            $postcode = $address->getPostcode();
-            $helper = Mage::helper('chronorelais/webservice');
-            $params = $this->getRequest()->getParams();
-            if(isset($params['mappostalcode']))
-            {
-                $webservbt =  $helper->getPointsRelaisByCp($params['mappostalcode']);
-            }
-            else
-            {
-                $webservbt = $helper->getPointRelaisByAddress();
-            }
-            $this->_chronorelais = $webservbt;
+        $quote = Mage::getSingleton('checkout/cart')->getQuote();
+        $helper = Mage::helper('chronorelais/webservice');
+        $params = $this->getRequest()->getParams();
+        if(isset($params['mappostalcode']))
+        {
+            $webservbt =  $helper->getPointsRelaisByCp($params['mappostalcode']);
         }
+        else
+        {
+            $shippingMethodCode = '';
+            if(isset($params['shipping_method'])) {
+                $shippingMethodCode = explode("_", $params['shipping_method']);
+                $shippingMethodCode = $shippingMethodCode[0];
+            }
+            $webservbt = $helper->getPointRelaisByAddress($shippingMethodCode);
+        }
+        $this->_chronorelais = $webservbt;
 
         return $this->_chronorelais;
     }

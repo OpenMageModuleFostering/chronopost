@@ -12,7 +12,7 @@ function loadMyPoint(i) {
 }
 
 var bounds = new google.maps.LatLngBounds();
-function loadRelayMap(address, relaisArray, nextpt, mapid) {
+function loadRelayMap(address, relaisArray, nextpt, mapid, nbPointRelai) {
   var geo = new google.maps.Geocoder();
 
   var myOptions = {
@@ -61,7 +61,6 @@ function loadRelayMap(address, relaisArray, nextpt, mapid) {
         content: '<div style="width: 400px;"><div style="width: 190px; float: left;"><h2>Infos</h2>'+getMarkerInfoContent(relaisArray) + getActionsForm(addressrelais.length)+'</div><div style="margin-left: 10px; padding-left: 10px; border-left: 1px solid #000; float: left;"><h2>Horaires</h2><div style="width: 189px">'+getHorairesTab(relaisArray, true)+'</div></div></div>'
       });
     }
-
     google.maps.event.addListener(marker, 'click', function() {
       if(document.getElementById('s_method_chronorelais_'+relaisArray.identifiantChronopostPointA2PAS))
         document.getElementById('s_method_chronorelais_'+relaisArray.identifiantChronopostPointA2PAS).checked = true;
@@ -71,10 +70,20 @@ function loadRelayMap(address, relaisArray, nextpt, mapid) {
       }
       infowindow.open(map,marker);
       currentInfoWindow = infowindow;
+
+      // Compat Idev_OneStepCheckout
+      if($('onestepcheckout-form') != undefined) { /* sauvegarde en ajax du point relay choisi */
+        saveRelayPoint();
+      }
+
     });
 
     gmarkers[relaypoint_id] = marker;
     return marker;
+  }
+
+  function saveRelayPoint() {
+    shippingMethodChrono.save();
   }
 
   function showAddress(address, relaisArray) {
@@ -95,7 +104,7 @@ function loadRelayMap(address, relaisArray, nextpt, mapid) {
         }
         // centre the map on the first result
         //!homeaddress && hidehomeicon &&
-        if(nextpt==5) {
+        if(nextpt==nbPointRelai) {
           var p = results[0].geometry.location;
           // ===== determine the zoom level from the bounds =====
           map.fitBounds(bounds);
@@ -270,7 +279,7 @@ function btQueryString(anArray, needEscape)
 
 function getShipAddress() {
 	var ship_address = '';
-	if($('shipping:same_as_billing').checked) {
+	if( ($('shipping:same_as_billing') && $('shipping:same_as_billing').checked) || ($('billing:use_for_shipping_yes') && $('billing:use_for_shipping_yes').checked) ) {
 		if ($('billing-address-select') && $('billing-address-select').value) {
 			var e = $('billing-address-select');
 			var address_value = e.options[e.selectedIndex].text;
@@ -304,8 +313,8 @@ function getShipAddress() {
 
 
 // shipping method
-var ShippingMethod = Class.create();
-ShippingMethod.prototype = {
+var ShippingMethodChrono = Class.create();
+ShippingMethodChrono.prototype = {
   initialize: function(form, saveUrl){
     this.form = form;
     if ($(this.form)) {
@@ -317,53 +326,87 @@ ShippingMethod.prototype = {
     this.onComplete = this.resetLoadWaiting.bindAsEventListener(this);
   },
 
-  validate: function() {
-    var methods = document.getElementsByName('shipping_method');
-    if (methods.length==0) {
-      alert(Translator.translate('Your order cannot be completed at this time as there is no shipping methods available for it. Please make neccessary changes in your shipping address.'));
-      return false;
-    }
+    validate: function() {
 
-    if(!this.validator.validate()) {
-      return false;
-    }
-
-    for (var i=0; i<methods.length; i++) {
-      if (methods[i].checked) {
-        if (methods[i].value.indexOf('chronorelais') != -1) {
-          var submethods = document.getElementsByName('shipping_method_chronorelais');
-          if (submethods.length==0) {
-            alert(Translator.translate('Your order cannot be completed at this time as there is no shipping methods available for it. Please make neccessary changes in your shipping address.'));
-            return false;
-          }
-          for (var j=0; j<submethods.length; j++) {
-            if (submethods[j].checked) {
-              return true;
+        if($('onestepcheckout-form') == undefined) {
+            var methods = document.getElementsByName('shipping_method');
+            if (methods.length==0) {
+                alert(Translator.translate('Your order cannot be completed at this time as there is no shipping methods available for it. Please make neccessary changes in your shipping address.'));
+                return false;
             }
-          }
-        } else {
-          return true;
-        }
-      }
-    }
-    alert(Translator.translate('Please specify shipping method.'));
-    return false;
-  },
 
-  getrelais: function(url){
-    if (checkout.loadWaiting!=false) return;
-    //if (this.validate()) {
-      checkout.setLoadWaiting('shipping-method');
-			hidehomeicon = false;
-      var request = new Ajax.Request(
-      url,
-      {
-        method:'post',
-        onComplete: this.onComplete,
-        onSuccess: this.onSave,
-        onFailure: checkout.ajaxFailure.bind(checkout),
-        parameters: Form.serialize(this.form)
-      }
+            if(!this.validator.validate()) {
+                return false;
+            }
+
+            for (var i=0; i<methods.length; i++) {
+                if (methods[i].checked) {
+                    //if (methods[i].value == 'chronorelais_chronorelais') {
+                    if (methods[i].value.indexOf('chronorelais') != -1) { /* verifie si un point relai est selectionne */
+                        var submethods = document.getElementsByName('shipping_method_chronorelais');
+                        if (submethods.length==0) {
+                            alert(Translator.translate('Veuillez sélectionner un point relais'));
+                            return false;
+                        }
+                        for (var j=0; j<submethods.length; j++) {
+                            if (submethods[j].checked) {
+                                return true;
+                            }
+                        }
+                        alert(Translator.translate('Veuillez sélectionner un point relais'));
+                        return false;
+                    } else if (methods[i].value.indexOf('chronopostsrdv') != -1) { /* vérifie si un creneau horaire est sélectionné */
+                        var submethods = document.getElementsByName('shipping_method_chronopostsrdv');
+                        if (submethods.length==0) {
+                            alert(Translator.translate('Veuillez sélectionner une date'));
+                            return false;
+                        }
+                        for (var j=0; j<submethods.length; j++) {
+                            if (submethods[j].checked) {
+                                return true;
+                            }
+                        }
+                        alert(Translator.translate('Veuillez sélectionner une date'));
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }
+            alert(Translator.translate('Please specify shipping method.'));
+            return false;
+        }
+        return true;
+    },
+
+
+    getrelais: function(url){
+        if (checkout.loadWaiting!=false) return;
+
+        // Compat Idev_OneStepCheckout
+        if($('onestepcheckout-form') != undefined) { /* ajout loading */
+            $$('.onestepcheckout-shipping-method-block')[0].insert('<div class="loading-ajax"></div>');
+        }
+
+        //if (this.validate()) {
+        checkout.setLoadWaiting('shipping-method');
+        hidehomeicon = false;
+        var request = new Ajax.Request(
+            url,
+            {
+                method:'post',
+                onComplete: this.onComplete,
+                onSuccess: this.onSave,
+                onFailure: checkout.ajaxFailure.bind(checkout),
+                parameters: Form.serialize(this.form)
+            }
+        );
+        //}
+    },
+
+  resetSessionrelais: function(url){
+    var request = new Ajax.Request(
+      url
     );
     //}
   },
@@ -391,12 +434,36 @@ ShippingMethod.prototype = {
   },
 
   hiderelais: function(url){
-    if($$('.chronorelais-list')) {
-      $$('.chronorelais-list').each(function(element) {
+		if($$('.chronorelais-list')) {
+			$$('.chronorelais-list').each(function(element) {
           element.innerHTML = "";
       });
-    }
+		}
   },
+
+    getPlanning: function(url){
+        if (checkout.loadWaiting!=false) return;
+
+        // Compat Idev_OneStepCheckout
+        if($('onestepcheckout-form') != undefined) { /* ajout loading */
+            $$('.onestepcheckout-shipping-method-block')[0].insert('<div class="loading-ajax"></div>');
+        }
+
+        //if (this.validate()) {
+        checkout.setLoadWaiting('shipping-method');
+        hidehomeicon = false;
+        var request = new Ajax.Request(
+            url,
+            {
+                method:'post',
+                onComplete: this.onComplete,
+                onSuccess: this.onSave,
+                onFailure: checkout.ajaxFailure.bind(checkout),
+                parameters: Form.serialize(this.form)
+            }
+        );
+        //}
+    },
 
   save: function(){
 
@@ -430,14 +497,28 @@ ShippingMethod.prototype = {
       }
     }
 
+    // Compat Idev_OneStepCheckout
+    if($('onestepcheckout-form') != undefined && $$('.onestepcheckout-shipping-method-block .loading-ajax')[0] != undefined) { /* ajout loading */
+      $$('.onestepcheckout-shipping-method-block .loading-ajax')[0].remove();
+    }
+
     if (response.error) {
       alert(response.message);
 			if($('mappostalcodebtn')) { $('mappostalcodebtn').show(); }
 			if($('postalcode-please-wait')) { $('postalcode-please-wait').hide(); }
       return false;
     }
+	   if (response.update_section) {
+      if($('checkout-'+response.update_section.name+'-load') == undefined) {
+        var methodToCreate = response.update_section.name;
+        //shipping-method-chronorelais_chronorelais
+        var methodSelect = methodToCreate.replace('shipping-method-','');
+        var input = $$('input[name=shipping_method][value='+methodSelect+']')[0];
+        var parentNode = input.up();
+        parentNode.insert('<div id="checkout-shipping-method-'+methodSelect+'-load" class="chronorelais-list"></div>');
 
-		if (response.update_section) {
+      }
+
       $('checkout-'+response.update_section.name+'-load').update(response.update_section.html);
       response.update_section.html.evalScripts();
 
@@ -457,22 +538,25 @@ ShippingMethod.prototype = {
 							relayaddress += " "+response.relaypoints[s].codePostal;
 						if(response.relaypoints[s].localite)
 							relayaddress += " "+response.relaypoints[s].localite;
-						loadRelayMap(relayaddress, response.relaypoints[s], next_pt, "chronomap");
+						loadRelayMap(relayaddress, response.relaypoints[s], next_pt, "chronomap",response.relaypoints.length);
 					}
+                    return;
 				}
-			}
+			} else if(response.planning) {
+                return;
+            }
     }
 
     payment.initWhatIsCvvListeners();
 
     if (response.goto_section) {
-      checkout.gotoSection(response.goto_section);
-      checkout.reloadProgressBlock();
-      return;
+        checkout.gotoSection(response.goto_section,true);
+        checkout.reloadProgressBlock();
+        return;
     }
 
     if (response.payment_methods_html) {
-      $('checkout-payment-method-load').update(response.payment_methods_html);
+        $('checkout-payment-method-load').update(response.payment_methods_html);
     }
 
     checkout.setShippingMethod();
@@ -567,7 +651,7 @@ MultiShippingMethod.prototype = {
               relayaddress += " "+response.relaypoints[s].codePostal;
             if(response.relaypoints[s].localite)
               relayaddress += " "+response.relaypoints[s].localite;
-            loadRelayMap(relayaddress, response.relaypoints[s], next_pt, 'chronomap' + multiindex);
+            loadRelayMap(relayaddress, response.relaypoints[s], next_pt, 'chronomap' + multiindex,response.relaypoints.length);
           }
         }
       }

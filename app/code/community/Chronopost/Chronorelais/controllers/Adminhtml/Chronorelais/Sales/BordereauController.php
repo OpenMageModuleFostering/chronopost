@@ -64,7 +64,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_BordereauController e
                     /* items */
                     $items = $shipment->getAllItems();
                     $weightTotal = 0;
-                    $nbTotal = 0;
 
                     $maxAmount = $helper->getMaxAdValoremAmount();
                     $adValoremAmount = $helper->assuranceAdValoremAmount();
@@ -74,17 +73,15 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_BordereauController e
                     foreach($items as $item) {
                         $weightTotal += $item->getWeight() * $item->getQty();
                         $totalAdValorem += $item->getPrice() * $item->getQty();
-                        /*$price = min($item->getPrice(),$maxAmount);
-                        if($price <= $maxAmount) {
-                            $totalAdValorem += $price * $item->getQty();
-                        }*/
                     }
                     /* Si montant < au montant minimum ad valorem => pas d'assurance */
                     $totalAdValorem = 0;
                     if($adValoremEnabled)
                     {
                         $totalAdValorem = min($totalAdValorem,$maxAmount);
-                        if($totalAdValorem < $adValoremAmount) $totalAdValorem = 0;
+                        if($totalAdValorem < $adValoremAmount) {
+                            $totalAdValorem = 0;
+                        }
                     }
 
                     /* Shipping address */

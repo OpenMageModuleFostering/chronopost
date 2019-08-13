@@ -109,7 +109,7 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
             'filter' => false,
         ));
 
-        if ($is_sending_day = Mage::helper('chronorelais')->isSendingDay()) {
+        if (Mage::helper('chronorelais')->isSendingDay()) {
             $this->addColumn('livraison_le_samedi', array(
                 'header' => Mage::helper('sales')->__('Livraison le Samedi'),
                 'index' => 'livraison_le_samedi',
@@ -178,6 +178,11 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
         $this->getMassactionBlock()->setFormFieldName('order_ids');
         $this->getMassactionBlock()->setUseSelectAll(false);
 
+        $this->getMassactionBlock()->addItem('cancel', array(
+            'label' => Mage::helper('chronorelais')->__('Annuler les étiquettes'),
+            'url' => $this->getUrl('*/*/cancelMass', array('_current' => true)),
+        ));
+
         $cmd = Mage::helper('chronorelais')->getConfigData('chronorelais/shipping/gs_path')." -v";
         $res_shell = shell_exec($cmd);
         if($res_shell !== null) {
@@ -187,7 +192,7 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
             ));
         }
 
-        if ($is_sending_day = Mage::helper('chronorelais')->isSendingDay()) {
+        if (Mage::helper('chronorelais')->isSendingDay()) {
 
             $shipping = array(
                 'Yes' => Mage::helper('chronorelais')->__('Yes'),

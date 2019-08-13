@@ -117,7 +117,7 @@ class Chronopost_Chronorelais_Block_Sales_Bordereau_Grid extends Mage_Adminhtml_
             'options' => Mage::getSingleton('sales/order_config')->getStatuses(),
         ));
 
-        if ($is_sending_day = Mage::helper('chronorelais')->isSendingDay()) {
+        if (Mage::helper('chronorelais')->isSendingDay()) {
             $this->addColumn('livraison_le_samedi', array(
                 'header' => Mage::helper('sales')->__('Livraison le Samedi'),
                 'index' => 'livraison_le_samedi',

@@ -42,7 +42,6 @@ class Chronopost_Chronorelais_Model_Sales_Quote_Address_Total_Shipping extends M
     {
         parent::collect($address);
 
-        $oldWeight = $address->getWeight();
         $address->setWeight(0);
         $address->setFreeMethodWeight(0);
         $this->_setAmount(0)
@@ -167,7 +166,7 @@ class Chronopost_Chronorelais_Model_Sales_Quote_Address_Total_Shipping extends M
                     $this->_setBaseAmount($rate->getPrice());
 					if(!$address->getShippingDescription()) {
                     	$address->setShippingDescription($rate->getCarrierTitle().' - '.$rate->getMethodTitle());
-					}	
+					}
                     break;
                 }
             }

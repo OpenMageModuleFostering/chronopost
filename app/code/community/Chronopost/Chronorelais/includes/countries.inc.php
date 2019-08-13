@@ -292,7 +292,7 @@ class Country
 			'r-a-s-chinoise-de-macao' => 'MO',
 		),
 	);
-	
+
 	public static function loadCache() {
 		$filename = 'var/cache/countries.txt';
 		if (!file_exists($filename)) {
@@ -305,7 +305,6 @@ class Country
 			}
 			$fp = fopen($filename,'w');
 			fwrite($fp, serialize(self::$COUNTRIES));
-			//file_put_contents('var/cache/countries.txt',serialize(self::$COUNTRIES));
 		} else {
 			self::$COUNTRIES = unserialize(file_get_contents($filename));
 		}
@@ -317,26 +316,28 @@ class Country
 
 	public static function getCountryCodeByName($name, $name_type=null) {
 		$suffix = isset($name_type) ? $name_type.'-' : '';
-		if (!self::$LOADED) self::loadCache();
+		if (!self::$LOADED) {
+			self::loadCache();
+		}
 		$code = array_search($name, self::$COUNTRIES['code2'.$suffix.'name']);
 		return $code!==false ? $code : null;
 	}
 
 	public static function getCountryCodeByReplacedName($cleaned_name) {
-		if (isset(self::$COUNTRIES['replacement'][$cleaned_name])) return self::$COUNTRIES['replacement'][$cleaned_name];
+		if (isset(self::$COUNTRIES['replacement'][$cleaned_name])) {
+			return self::$COUNTRIES['replacement'][$cleaned_name];
+		}
 		return null;
 	}
 
 	public static function softClean($input) {
 		$input = mb_strtolower($input,'UTF-8');
 		$input = preg_replace('/[ -\.]+/','-',trim($input));
-		//echo '"'.$input.'" => ';
 		$input = str_replace(
 			array(' ','ç','é','è','ê','ë','à','á','â','ä','ã','å','ô','ö','ù','û','ü','î','ï','ÿ'),
 			array('-','c','e','e','e','e','a','a','a','a','a','a','o','o','u','u','u','i','i','y'),
 			$input
 		);
-		//echo '"'.$input.'", ';
 		$input = preg_replace("/^st-/",'saint-',$input);
 		$input = preg_replace("/^ste-/",'sainte-',$input);
 		$input = preg_replace("/-&-/",'-et-',$input);
@@ -344,19 +345,16 @@ class Country
 	}
 
 	public static function hardClean($input) {
-		//$output = preg_match('/ivoire/',$input);
-		//if ($output) echo '"'.$input.'" => ';
 		$input = preg_replace("/^(?:les|le|la|l'|ile|iles)-/",'',$input);
 		$input = preg_replace("/-(?:ile|iles)$/",'',$input);
 		$input = preg_replace("/-(?:(?:et|les)-)+/",'-',$input);
 		$input = preg_replace("/(?:[^a-z0-9]+)/",'-',$input);
-		//if ($output) echo '"'.$input.'",<br/>';
 		return $input;
 	}
 
 }
 
-class AddressFilter extends Country 
+class AddressFilter extends Country
 {
 	private $data;
 	private $code;
@@ -367,7 +365,6 @@ class AddressFilter extends Country
 	private $address_filters_list;
 
 	public function AddressFilter($data) {
-		//$input = trim($input);
 		$this->data = $data;
 		$this->classes = array();
 		$this->address_filters_list = null;
@@ -378,7 +375,7 @@ class AddressFilter extends Country
 		if (strlen($this->data['country_code'])==2) {
 			$code = strtoupper($this->data['country_code']);
 			$name = Country::getCountryNameByCode($code);
-			
+
 			if (isset($name)) {
 				$this->code = $code;
 				$this->name = $name;
@@ -413,9 +410,11 @@ class AddressFilter extends Country
 				$this->classes[] = 'unknown';
 			}
 		}
-		
+
 		if ($recursive && $this->hasClass('unknown')) {
-			if (!isset($cleaned_name)) $cleaned_name = Country::hardClean(Country::softClean($this->data['original']));
+			if (!isset($cleaned_name)) {
+				$cleaned_name = Country::hardClean(Country::softClean($this->data['original']));
+			}
 			switch ($cleaned_name) {
 				case 'corse':
 					$this->data = array(
@@ -466,12 +465,17 @@ class AddressFilter extends Country
 						$name = "Outre-Mer"
 					);
 					break;
+				default:
+					break;
 			}
 		}
-		
+
 		if ($this->hasClass('known')) {
-			if ($this->hasClass('replaced') || $this->hasClass('hard-cleaned')) $this->label = '<span class="bad">'.$this->data['original'].'</span> '.$this->name;
-			else $this->label = $this->name;
+			if ($this->hasClass('replaced') || $this->hasClass('hard-cleaned')) {
+				$this->label = '<span class="bad">'.$this->data['original'].'</span> '.$this->name;
+			} else {
+				$this->label = $this->name;
+			}
 			if (isset($this->data['region_codes']) && $this->data['region_codes']!='') {
 				$this->label .= ' ('.$this->data['region_codes'].')';
 			}
@@ -479,7 +483,7 @@ class AddressFilter extends Country
 			$this->label = $this->data['original'];
 		}
 	}
-	
+
 	public function createAddressFilterGroup($countries, $code, $name) {
 		$this->address_filters_list = array();
 		foreach ($countries as $country_code) {
@@ -493,7 +497,7 @@ class AddressFilter extends Country
 	public function hasClass($class) {
 		return in_array($class,$this->classes);
 	}
-	
+
 	public function __toString() {
 		$output = '';
 		if (isset($this->address_filters_list)) {

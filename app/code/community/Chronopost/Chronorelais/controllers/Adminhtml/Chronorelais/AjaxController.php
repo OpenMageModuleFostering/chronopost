@@ -160,14 +160,15 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
         $i = 0;
 
         foreach ($tmp_address_filter_array as $address_filter) {
-            if ($concat)
+            if ($concat) {
                 $concatened .= ',' . $address_filter;
-            else {
+            } else {
                 if ($i < count($tmp_address_filter_array) - 1 && preg_match('#\(#', $address_filter)) {
                     $concat = true;
                     $concatened .= $address_filter;
-                } else
+                } else {
                     $address_filter_array[] = $address_filter;
+                }
             }
             if (preg_match('#\)#', $address_filter)) {
                 $address_filter_array[] = $concatened;
@@ -186,14 +187,12 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
                     $region_codes = array();
                     if(isset($result[4])) {
                         $region_codes = explode(',', $result[4]);
-                        $in_array = false;
                         for ($i = count($region_codes); --$i >= 0;) {
                             $code = trim($region_codes[$i]);
                             $region_codes[$i] = $code;
                         }
                     }
 
-                    /* $in_array = in_array($address['region_code'],$region_codes,true) || in_array($address['postcode'],$region_codes,true); */
                     $excluding_region = (isset($result[2]) && $result[2] == '-') || (isset($result[3]) && $result[3] == '-');
                     $output['countries'][] = array(
                         'excluding' => $excluding_region,
@@ -290,14 +289,15 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
 
     private function getConfigErrors($config) {
         $script = "ocseditor.resetErrors();";
-        foreach ($config as $row_code => $row) {
+        foreach ($config as $row) {
             if (isset($row['*messages'])) {
                 $error = '';
                 foreach ($row['*messages'] as $message) {
                     $error .= "<p>" . $this->__($message) . "</p>";
                 }
-                if ($error != '')
+                if ($error != '') {
                     $script .= "ocseditor.setError('" . $row['_ID_']['value'] . "','','" . $this->jsEscape($error) . "');";
+                }
             }
             foreach ($row as $property_key => $property) {
                 if (isset($property['messages'])) {
@@ -317,7 +317,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
                 }
             }
         }
-        //$script .= "alert('".str_replace(array("\r\n","\n","\'","'"),array(" "," ","\\\'","\'"),$script)."');";
         return $script;
     }
 
@@ -327,7 +326,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
         $helper = new ChronorelaisShippingHelper($input);
         $helper->checkConfig();
         $config = $helper->getConfig();
-        //print_r($config);
 
         $output = "<div class=\"buttons-set\">"
                 . $this->button('Add a shipping method', "ocseditor.addRow();", 'add')
@@ -349,8 +347,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
         switch ($_POST['what']) {
             case 'open':
                 $output = ""
-                        // Donate page
-                        //.$this->page('donate',"Support the development of Chronorelais Shipping extension",$this->__('{ocseditor.donate-page.content}'))
                         // Help page
                         . $this->page('help', "Chronorelais Shipping extension help", '')
                         // Main page
@@ -366,16 +362,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
                         . $this->button('Cancel', "ocseditor.hideConfigLoader();", 'cancel')
                         . "</div>"
                         . "</div>"
-                        . "<div id=\"ocs-editor-config-container\">" . $this->loadConfig($_POST['input']) . "</div>"
-                /* ."<div class=\"donate-container\">"
-                  ."<table cellspacing=\"0\"><tr>"
-                  ."<td>".$this->__('You appreciate this extension and would like to help?')."</td>"
-                  ."<td class=\"form-buttons\">"
-                  .$this->button('Donate',"ocseditor.openPage('donate');",'donate')
-                  ."</td>"
-                  ."</tr></table>"
-                  ."</div>" */
-                ;
+                        . "<div id=\"ocs-editor-config-container\">" . $this->loadConfig($_POST['input']) . "</div>";
                 echo $output;
                 exit;
             case 'help':
@@ -393,9 +380,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
                 $helper = new ChronorelaisShippingHelper(urldecode($_POST['config']));
                 $helper->checkConfig();
                 print_r($helper->getConfig(), $out);
-                //$script = "alert('".$this->jsEscape(urldecode($_POST['config']))."');";
                 $script = $this->getConfigErrors($helper->getConfig());
-                //$script = "alert('".$this->jsEscape($this->getConfigErrors($helper->getConfig()))."');";
                 break;
             case 'save-to-file':
                 include_once $this->getIncludingPath('ChronorelaisShippingHelper.php');
@@ -408,6 +393,8 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
                 $result = $this->parseAddressFilter($_POST['input']);
                 echo $this->getAddressFilters($result);
                 exit;
+            default:
+                break;
         }
 
         echo "<script type=\"text/javascript\">" . $script . "</script>";
@@ -417,7 +404,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chro
     public function checkloginAction() {
         $params = $this->getRequest()->getParams();
         $account_number = $params['account_number'];
-        $sub_account_number = $params['sub_account_number'];
         $account_pass = $params['account_pass'];
         $helper = Mage::helper('chronorelais');
 

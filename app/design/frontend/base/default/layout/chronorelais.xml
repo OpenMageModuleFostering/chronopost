@@ -3,15 +3,19 @@
 	<default>
 		<reference name="head">
 			<action method="addItem"><type>skin_css</type><name>chronorelais/chronorelais.css</name></action>
+            <action method="addItem"><type>skin_js</type><name>chronorelais/carousel-min.js</name></action>
         </reference>
 	</default>
 
 	<checkout_onepage_index>
+        <reference name="content">
+            <block type="core/template" template="chronorelais/checkout/onepage/shipping_method_complement.phtml" />
+        </reference>
 		<reference name="checkout.onepage.shipping_method">
-			<action method="setTemplate"><template>chronorelais/checkout/onepage/shipping_method.phtml</template></action>
-			<block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="chronorelais/checkout/onepage/shipping_method/available.phtml">
+			<!-- <action method="setTemplate"><template>chronorelais/checkout/onepage/shipping_method.phtml</template></action> -->
+			<!-- <block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="chronorelais/checkout/onepage/shipping_method/available.phtml">
 				<block type="chronorelais/checkout_onepage_shipping_method_chronorelais" name="checkout.onepage.shipping_method.chronorelais" as="relaislist" template="chronorelais/checkout/onepage/shipping_method/chronorelais.phtml"/>
-			</block>
+			</block> -->
 		</reference>
 	</checkout_onepage_index>
 
@@ -28,9 +32,12 @@
   <checkout_onepage_shippingmethod>
     <remove name="right"/>
     <remove name="left"/>
-    <block type="checkout/onepage_shipping_method_available" name="root" output="toHtml" template="chronorelais/checkout/onepage/shipping_method/available.phtml">
-			<!--<block type="checkout/onepage_shipping_method_chronorelais" name="checkout.onepage.shipping_method.chronorelais" as="relaislist" template="chronorelais/checkout/onepage/shipping_method/chronorelais.phtml"/>-->
-    </block>
+    <reference name="root">
+        <block type="checkout/onepage_shipping_method_available" name="chronopost_shipping_method_images" output="toHtml" after='-' template="chronorelais/checkout/onepage/shipping_method_images.phtml" />
+    </reference>
+    <!-- <block type="checkout/onepage_shipping_method_available" name="root" output="toHtml" template="chronorelais/checkout/onepage/shipping_method/available.phtml">
+
+    </block> -->
 	</checkout_onepage_shippingmethod>
 
     <checkout_onepage_shippingchronorelais>
@@ -38,6 +45,12 @@
       <remove name="left"/>
       <block type="chronorelais/checkout_onepage_shipping_method_chronorelais" name="root" output="toHtml" template="chronorelais/checkout/onepage/shipping_method/chronorelais.phtml"/>
     </checkout_onepage_shippingchronorelais>
+
+    <checkout_onepage_shippingchronopostsrdv>
+      <remove name="right"/>
+      <remove name="left"/>
+      <block type="chronorelais/checkout_onepage_shipping_method_chronopostsrdv" name="root" output="toHtml" template="chronorelais/checkout/onepage/shipping_method/chronopostsrdv.phtml"/>
+    </checkout_onepage_shippingchronopostsrdv>
 
     <checkout_multishipping_shippingchronorelais>
       <remove name="right"/>
@@ -56,5 +69,17 @@
 			<action method="setTemplate"><template>chronorelais/sales/order/history.phtml</template></action>
         </reference>
     </sales_order_history>
+
+
+
+    <!-- Compatibility with Idev_OneStepCheckout -->
+    <onestepcheckout_index_index>
+      <reference name="root">
+        <block type="checkout/onepage_shipping_method_available" name="chronopost_shipping_method_images" output="toHtml" after='-' template="chronorelais/checkout/onepage/shipping_method_images.phtml" />
+      </reference>
+      <reference name="content">
+            <block type="core/template" template="chronorelais/checkout/onepage/shipping_method_complement.phtml" />
+        </reference>
+    </onestepcheckout_index_index>
 
 </layout>

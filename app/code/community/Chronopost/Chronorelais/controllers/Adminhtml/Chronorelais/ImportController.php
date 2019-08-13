@@ -74,9 +74,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ImportController extends Ma
         $comment = Mage::helper('chronorelais')->getConfigurationShippingComment();
         $includeComment = Mage::helper('chronorelais')->getConfigurationIncludeComment();
 
-        /* debug */
-        //$this->_getSession()->addSuccess($this->__('%s - %s - %s - %s', $sendEmail, $comment, $includeComment, $trackingTitle));
-
         /**
          * $k is line number
          * $v is line content array
@@ -103,9 +100,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ImportController extends Ma
              */
             $orderId = $v[0];
             $trackingNumber = $v[1];
-
-            /* for debug */
-            //$this->_getSession()->addSuccess($this->__('Lecture ligne %s: %s - %s', $k, $orderId, $trackingNumber));
 
             /**
              * Try to load the order
@@ -188,8 +182,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ImportController extends Ma
 			case "chronoexpress":
 				$carrier_code = $_shippingMethod[0];
 				$popup = 1;
-                /*$hash = Mage::helper('core')->urlEncode("order_id:{$order->getId()}:{$order->getProtectCode()}");
-				$tracking_url = Mage::getBaseUrl().'chronorelais/relais/tracking/hash/'.$hash.'/';*/
 				$tracking_url = str_replace('{tracking_number}', $trackingNumber, Mage::helper('chronorelais')->getConfigurationTrackingViewUrl());
 				$tracking_title = $this->__('Track Your Order');
 				$tracking_order = '<p><a title="'.$tracking_title.'" href="'.$tracking_url.'"><b>'.$tracking_title.'</b></a></p>';

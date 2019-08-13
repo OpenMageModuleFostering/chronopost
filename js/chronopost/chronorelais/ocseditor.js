@@ -104,7 +104,7 @@ OCSEditor.prototype = {
 	_contextualMenu: function (which, caller) {
 		var self = this;
 		this.mouse_event_owner = caller;
-		
+
 		if (this.jcontextualmenu==null) {
 			var jcontextualmenu = jQuery('<ul id="ocs-contextual-menu" style="display:none;"></ul>');
 			jcontextualmenu.click(function (event) {
@@ -176,7 +176,7 @@ OCSEditor.prototype = {
 			success: args.success
 		});
 	},
-	
+
 	/**
 	 * @private
 	 */
@@ -184,13 +184,13 @@ OCSEditor.prototype = {
 		data.form_key = this.options.form_key;
 		data = jQuery.param(data);
 		var inputs = '';
-		jQuery.each(data.split('&'),function(){ 
+		jQuery.each(data.split('&'),function(){
 			var tmp = this.split('=');
-			inputs += '<input type="hidden" name="'+tmp[0]+'" value="'+tmp[1]+'"/>'; 
+			inputs += '<input type="hidden" name="'+tmp[0]+'" value="'+tmp[1]+'"/>';
 		});
 		jQuery('<form action="'+this.options.ajax_url+'" method="post">'+inputs+'</form>').appendTo('body').submit().remove();
 	},
-	
+
 	/**
 	 * @private
 	 */
@@ -241,7 +241,7 @@ OCSEditor.prototype = {
 						}
 						else value = jpropertycontainer.find('.field').val();
 						var property = jpropertycontainer.attr('property-name');
-						
+
 						switch (property) {
 							case 'enabled':
 								if (value!='1') config += "\t"+property+': false,'+"\n";
@@ -250,7 +250,7 @@ OCSEditor.prototype = {
 								if (value!='') config += "\t"+property+': "'+value+'",'+"\n";
 								break;
 						}
-						
+
 					}
 				});
 				config += "}\n";
@@ -285,7 +285,7 @@ OCSEditor.prototype = {
 			self.updateCountries(parent);
 		}
 	},
-	
+
 	/**
 	 * @private
 	 */
@@ -326,7 +326,7 @@ OCSEditor.prototype = {
 		this._ajax({
 			data: {
 				what: 'check-config',
-				config: encodeURIComponent(this._getConfig()),
+				config: encodeURIComponent(this._getConfig())
 			},
 			success: function (msg) {
 				jQuery('body').append(msg);
@@ -432,7 +432,7 @@ OCSEditor.prototype = {
 
 		var values = [];
 		object.find('.address-filter-list').attr('displayed-field',field).attr('compact',compact?'1':'0');
-		
+
 		if (linearize_groups) {
 			object.find('.address-filter-list .address-filter').each(function () {
 				var jfilter = jQuery(this);
@@ -540,7 +540,7 @@ OCSEditor.prototype = {
 	saveToFile: function () {
 		this._download({
 			what: 'save-to-file',
-			config: this._getConfig(),
+			config: this._getConfig()
 		});
 	},
 
@@ -627,7 +627,7 @@ OCSEditor.prototype = {
 			}
 		});
 	},
-	
+
 	/**
 	 * @public
 	 */

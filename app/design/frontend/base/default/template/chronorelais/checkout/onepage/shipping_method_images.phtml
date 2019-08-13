@@ -1,0 +1,25 @@
+<script type="text/javascript">
+//<![CDATA[
+
+<?php $_shippingRateGroups = $this->getShippingRates(); ?>
+<?php if($_shippingRateGroups): ?>
+
+    <?php foreach ($_shippingRateGroups as $code => $_rates): ?>
+        <?php foreach ($_rates as $_rate): ?>
+            <?php if(Mage::getStoreConfig('carriers/'.$code.'/logo_url')): ?>
+                var img = '<img src="<?php echo $this->getSkinUrl("chronorelais/".Mage::getStoreConfig('carriers/'.$code.'/logo_url')); ?>" alt="" style="vertical-align: middle; margin-right: 5px; float: none; display: inline-block;" />';
+                var input = $$('input[name=shipping_method][value=<?php echo $_rate->getCode() ?>]')[0];
+                var label = input.next('label');
+                if(label != undefined) {
+                    label.insert({top:img})
+                } else {
+                    input.insert({after:img});
+                }
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endforeach; ?>
+
+<?php endif; ?>
+
+//]]>
+</script>

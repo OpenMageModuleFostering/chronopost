@@ -33,7 +33,9 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
         // Recursively browse pathes
         foreach ($modulePathes as $modulePath) {
 
-            if(!is_dir($modulePath)) { continue; }
+            if(!is_dir($modulePath)) {
+                continue;
+            }
 
             $dir = new RecursiveDirectoryIterator($modulePath, FilesystemIterator::SKIP_DOTS);
             $ite  = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::SELF_FIRST);
@@ -42,7 +44,9 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
             $configXmls = new RegexIterator($ite, '/^.+config\.xml$/i', RecursiveRegexIterator::GET_MATCH);
 
             foreach ($configXmls as $configXml) {
-                if (self::DEBUG) $result .= '' . $configXml[0] . "\n";
+                if (self::DEBUG) {
+                    $result .= '' . $configXml[0] . "\n";
+                }
 
                 // Parse XML to look for rewrites
                 $xml = simplexml_load_file($configXml[0]);
@@ -57,15 +61,13 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
                         $typeNode = $moduleNode[0]->xpath("..");
                         $typeName = $typeNode[0]->getName();
 
-                        // $result .= "Module : " . $moduleName . "\n";
-                        // $result .= "Type : " . $typeName . "\n";
-
                         foreach ($node->children() as $child) {
                             $rewriteFrom = "Mage_" . str_replace(" ", "_", ucwords($moduleName . " " . substr($typeName, 0, -1) . " " . str_replace("_", " ", $child->getName())));
 
-                            // $result .= "Rewrite from : " . $child->getName() . "\n";
-                            if (self::DEBUG) $result .= "Rewrite from : " . $rewriteFrom . "\n";
-                            if (self::DEBUG) $result .= "Rewrite to : " . $child->__toString() . "\n";
+                            if (self::DEBUG) {
+                                $result .= "Rewrite from : " . $rewriteFrom . "\n";
+                                $result .= "Rewrite to : " . $child->__toString() . "\n";
+                            }
 
                             if (strpos($child->__toString(), "Chronopost_Chronorelais") !== false) {
                                 $scope = "chrono";
@@ -76,12 +78,14 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
                             if (!isset($this->rewrites[$scope][$typeName][$rewriteFrom])) {
                                 $this->rewrites[$scope][$typeName][$rewriteFrom] = array();
                             }
-                            $this->rewrites[$scope][$typeName][$rewriteFrom][] = $child->__toString(); // array("class" => $child->__toString());
+                            $this->rewrites[$scope][$typeName][$rewriteFrom][] = $child->__toString();
                         }
                     }
                 }
 
-                if (self::DEBUG) $result .= "\n";
+                if (self::DEBUG) {
+                    $result .= "\n";
+                }
             }
 
             // Get controllers PHP files
@@ -122,18 +126,13 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
                         if (!isset($this->rewrites[$scope]["controllers"][$token[1]])) {
                             $this->rewrites[$scope]["controllers"][$token[1]] = array();
                         }
-                        $this->rewrites[$scope]["controllers"][$token[1]][] = $className; // array("class" => $className, "file" => $controllerPhp);
+                        $this->rewrites[$scope]["controllers"][$token[1]][] = $className;
 
                         $className = "";
                         $extends_token = false;
                     }
                   }
                 }
-
-                // $className = str_replace(".php", "", str_replace($modulePath . DS, "", $controllerPhp[0]));
-                // $classNameArray = explode(DS, $className);
-                // $className = $classNameArray[0] . '_' . $classNameArray[1] . '_' . $classNameArray[3];
-
             }
         }
 
@@ -143,7 +142,6 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
             foreach ($rewrites as $from => $tos) {
                 if (!in_array($from, $this->whiteList) && isset($this->rewrites['other'][$type][$from])) {
                     // Houston, we have a rewrite
-                    // $result .= "<p>[" . $type . "] Rewrite of Class <b>" . $from . "</b> by " . implode(', ', $tos) . " might conflict with rewrites from " . implode(', ', $this->rewrites['other'][$type][$from]) . "</p>\r\n";
                     $result .= "<p>[" . $type . "] La réécriture de la Classe <u>" . $from . "</u> par <u>" . implode(', ', $tos) . "</u> pourrait entrer en conflit avec les réécritures faites par <u>" . implode(', ', $this->rewrites['other'][$type][$from]) . "</u></p>\r\n";
                 }
             }

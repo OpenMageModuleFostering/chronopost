@@ -1,17 +1,25 @@
 <?php if(count($this->getChronorelais())>0): ?>
 <?php
-	$quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
+	//$quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
+    $quote = Mage::getSingleton('checkout/cart')->getQuote();
 	$address = $quote->getShippingAddress();
 	$postcode = $address->getPostcode();
 
     $helperData = Mage::helper('chronorelais');
+
+    $_shippingMethodCode = $this->getMethodCode();
+
+    $_canChangePostcode = Mage::getStoreConfig('carriers/'.$_shippingMethodCode.'/can_change_postcode');
 ?>
 <div class="chronorelaismap">
+    <?php if($_canChangePostcode): ?>
     <div class="mappostalcode">
-        <input type="text" name="mappostalcode" id="mappostalcode" value="<?php echo $postcode ?>" class="input-text" onkeydown="if (event.keyCode == 13) shippingMethod.changePostalCode('<?php echo $this->getUrl('checkout/onepage/changePostalCode')?>')" />
-        <button onclick="shippingMethod.changePostalCode('<?php echo $this->getUrl('checkout/onepage/changePostalCode')?>');" id="mappostalcodebtn" class="button" type="button"><span><span><?php echo $this->__('Changer mon code postal')?></span></span></button>
+        <input type="text" name="mappostalcode" id="mappostalcode" value="<?php echo $postcode ?>" class="input-text" onkeydown="if (event.keyCode == 13) shippingMethodChrono.changePostalCode('<?php echo $this->getUrl('chronorelais/relais/changePostalCode')?>')" />
+        <button onclick="shippingMethodChrono.resetSessionrelais('<?php echo $this->getUrl("chronorelais/relais/resetSessionRelai") ?>');shippingMethodChrono.changePostalCode('<?php echo $this->getUrl('chronorelais/relais/changePostalCode')?>');" id="mappostalcodebtn" class="button" type="button"><span><span><?php echo $this->__('Changer mon code postal')?></span></span></button>
     	<span style="display: none;" class="please-wait" id="postalcode-please-wait"><img class="v-middle" title="<?php echo $this->__('Loading map...')?>" alt="<?php echo $this->__('Loading map...')?>" src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif')?>"> <?php echo $this->__('Loading map...')?></span>
     </div>
+    <?php endif; ?>
+
     <?php if($helperData->canShowGoogleMap()): ?>
     <div id="chronomap" class="chronomap"></div>
     <?php endif; ?>

@@ -1,0 +1,353 @@
+<?php
+$_searchDeliverySlot = $this->getSearchDeliverySlot();
+$_creneaux = $_searchDeliverySlot->return->slotList;
+$_srdvConfig = json_decode($this->getSrdvConfig(),true);
+
+$cart = Mage::getSingleton('checkout/cart');
+$address = $cart->getQuote()->getShippingAddress();
+$rates = $address->collectShippingRates()
+    ->getGroupedAllShippingRates();
+
+$ratePrice = 0;
+foreach ($rates as $carrier) {
+    foreach ($carrier as $rate) {
+        if($rate->getCode() === $this->getRequest()->getParam('shipping_method')) {
+            $ratePrice = $rate->getPrice();
+            if(isset($_SESSION['chronopostsrdv_creneaux_info'])) {
+                $ratePrice -= $_srdvConfig[$_SESSION['chronopostsrdv_creneaux_info']['tariffLevel']."_price"];
+            } else {
+                $minimal_price = '';
+                for($i = 1; $i <= 4; $i++) {
+                    if($minimal_price === '' || isset($_srdvConfig["N".$i."_price"]) && $_srdvConfig["N".$i."_price"] < $minimal_price) {
+                        $minimal_price = $_srdvConfig["N".$i."_price"];
+                    }
+                }
+                $ratePrice -= $minimal_price;
+            }
+        }
+    }
+}
+
+/* application du surplus de quicickost */
+$_carrierModel = $this->getCarrierModel();
+for($i = 1; $i <= 4; $i++) {
+    //$_srdvConfig["N".$i."_price"] = Mage::helper('chronorelais')->addMargeToQuickcost($_srdvConfig["N".$i."_price"],$_carrierModel->getCarrierCode(), false);
+    $_srdvConfig["N".$i."_price"] = $_srdvConfig["N".$i."_price"] + $ratePrice;
+}
+
+
+if($_creneaux):
+
+    /**
+     * Code jours dans résultats WS :
+     * 1 = Lundi
+     * 7 = dimanche
+    **/
+
+    $_creneauxSort = array();
+    $_distinctCreneauxHoraire = array();
+    $_semaine = 0;
+
+    if(!is_array($_creneaux)) $_creneaux = array($_creneaux);
+
+    /* trie des creneaux par heures et date */
+    foreach($_creneaux as $_creneau):
+
+        $_creneau = (array)$_creneau;
+
+        $_creneauHoraire = str_pad($_creneau['startHour'], 2, '0', STR_PAD_LEFT).'h';
+        if($_creneau['startMinutes']) {
+            $_creneauHoraire .= str_pad($_creneau['startMinutes'], 2, '0', STR_PAD_LEFT);
+        }
+        $_creneauHoraire .= ' - ';
+        $_creneauHoraire .= str_pad($_creneau['endHour'], 2, '0', STR_PAD_LEFT).'h';
+        if($_creneau['endMinutes']) {
+            $_creneauHoraire .= str_pad($_creneau['endMinutes'], 2, '0', STR_PAD_LEFT);
+        }
+
+        if(!in_array($_creneauHoraire, $_distinctCreneauxHoraire)) {
+            $_distinctCreneauxHoraire[] = $_creneauHoraire;
+        }
+
+        /* rangement des creneaux par jour */
+        if(!isset($_creneauxSort[$_creneau['deliveryDate']])) {
+            $_creneauxSort[$_creneau['deliveryDate']] = array();
+        }
+        $_creneauxSort[$_creneau['deliveryDate']][$_creneauHoraire] = $_creneau;
+
+    endforeach;
+
+    sort($_distinctCreneauxHoraire);
+
+    /* on scinde le tableau tous les 7 éléments (7 jours) */
+    $_creneauxSortByWeek = array_chunk($_creneauxSort, 7, true);
+
+    ?>
+
+    <!-- Permettra de récupérer toutes les infos aux format json du créneau choisi : date, code, ... -->
+    <input type="hidden" name="chronopostsrdv_creneaux_info" id="chronopostsrdv_creneaux_info" value="" />
+
+    <?php setlocale(LC_ALL, Mage::app()->getLocale()->getLocaleCode().'.UTF-8','fra'); ?>
+
+    <?php //if(!Mage::getStoreConfig('onestepcheckout/general/rewrite_checkout_links')): ?>
+        <div class="global-desktop<?php if(Mage::getStoreConfig('onestepcheckout/general/rewrite_checkout_links')) echo ' onestepcheckout' ?>" id="global-desktop">
+            <header class="rdvCarouselheader" id="rdvCarouselheader">
+                <nav>
+                    <a href="#" class="carousel-control prev inactive" rel="prev">Semaine pr&eacute;c&eacute;dente</a>
+                    <a href="#" class="carousel-control next" rel="next">Semaine suivante</a>
+                </nav>
+            </header>
+            <div id="rdvCarousel">
+                <div id="rdvCarouselContent">
+                    <?php for($i = 0; $i < count($_creneauxSortByWeek); $i++): ?>
+                        <?php $_creneauxSort = $_creneauxSortByWeek[$i]; ?>
+                        <section class="slide content" id="content<?php echo $i ?>">
+                            <table class="date-time" id="thead" width="100%">
+                                <thead>
+                                    <tr class="date-row" id="date-row">
+                                        <th><img src="img/px.png" id="spacer" width="1" height="1" alt=""></th>
+                                        <?php foreach($_creneauxSort as $_day => $_creneaux): ?>
+                                            <th scope="col" id="th_<?php echo $_day ?>">
+                                                <?php $_dateTime = new DateTime($_day); ?>
+                                                <?php echo strftime("%A <span>%d</span> %B",Mage::getModel('core/date')->timestamp($_dateTime->getTimestamp())); ?>
+                                                <?php /*echo $_dateTime->format('l'); ?>
+                                                <span><?php echo $_dateTime->format('j'); ?></span>
+                                                <?php echo $_dateTime->format('F');*/ ?>
+                                            </th>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($_distinctCreneauxHoraire as $_horaire): ?>
+                                        <tr>
+                                            <th class="time-cell" scope="row"><?php echo $_horaire; ?></th>
+                                            <?php foreach($_creneauxSort as $_day => $_creneaux): ?>
+                                                <?php if(isset($_creneaux[$_horaire]) && $_creneaux[$_horaire]['status'] == 'O'): ?>
+                                                    <?php $_creneaux[$_horaire]['meshCode'] = $_searchDeliverySlot->return->meshCode;?>
+                                                    <?php $_creneaux[$_horaire]['transactionID'] = $_searchDeliverySlot->return->transactionID;?>
+                                                    <td>
+                                                        <label>
+                                                            <span>
+                                                                <input type="radio" name="shipping_method_chronopostsrdv" class="shipping_method_chronopostsrdv" slotValueJson='<?php echo json_encode($_creneaux[$_horaire],true) ?>' >
+                                                                <?php
+                                                                if($_srdvConfig['niveauTarifaire_show'] == 1) {
+                                                                    echo Mage::helper('core')->currency($_srdvConfig[$_creneaux[$_horaire]['tariffLevel']."_price"]);
+                                                                }
+                                                                ?>
+                                                            </span>
+                                                        </label>
+                                                    </td>
+                                                <?php else: ?>
+                                                    <td class="unavailable">&nbsp;</td>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </section>
+                    <?php endfor; ?>
+                </div>
+            </div> <!-- End #rdvCarousel -->
+        </div>
+    <?php //else: ?>
+        <!-- Mobile -->
+        <div class="global-mobile<?php if(Mage::getStoreConfig('onestepcheckout/general/rewrite_checkout_links')) echo ' onestepcheckout' ?>" id="global-mobile">
+            <header class="header">
+                <h1>S&eacute;lectionnez une date et un cr&eacute;neau horaire ci dessous&nbsp;:</h1>
+                <div class="scroll">
+                    <table class="date-time">
+                        <tr class="date-row" id="date-row">
+                            <?php for($i = 0; $i < count($_creneauxSortByWeek); $i++): ?>
+                                <?php $_creneauxSort = $_creneauxSortByWeek[$i]; ?>
+                                <?php foreach($_creneauxSort as $_day => $_creneaux): ?>
+                                    <th scope="col" id="th_<?php echo $_day ?>">
+                                        <?php $_dateTime = new DateTime($_day); ?>
+                                        <?php echo strftime("%A <span>%d</span> %B",Mage::getModel('core/date')->timestamp($_dateTime->getTimestamp())); ?>
+                                    </th>
+                                <?php endforeach; ?>
+                            <?php endfor; ?>
+                        </tr>
+                    </table>
+                </div>
+            </header>
+            <section class="content" id="content">
+                <div class="scroll-v" id="scroll-v">
+                    <div class="time-list" id="time-list">
+                        <?php for($i = 0; $i < count($_creneauxSortByWeek); $i++): ?>
+                            <?php $_creneauxSort = $_creneauxSortByWeek[$i]; ?>
+
+                            <?php foreach($_creneauxSort as $_day => $_creneaux): ?>
+                                <ul id="ul_<?php echo $_day ?>" style="display:none;">
+                                    <?php foreach($_distinctCreneauxHoraire as $_horaire): ?>
+                                        <?php if(isset($_creneaux[$_horaire]) && $_creneaux[$_horaire]['status'] == 'O'): ?>
+                                            <?php $_creneaux[$_horaire]['meshCode'] = $_searchDeliverySlot->return->meshCode;?>
+                                            <?php $_creneaux[$_horaire]['transactionID'] = $_searchDeliverySlot->return->transactionID;?>
+                                            <li>
+                                                <label>
+                                                    <span class="time-cell"><?php echo $_horaire; ?></span>
+                                                    <span class="price-cell">
+                                                        <input type="radio" name="shipping_method_chronopostsrdv" class="shipping_method_chronopostsrdv" slotValueJson='<?php echo json_encode($_creneaux[$_horaire],true) ?>' >
+                                                        <?php
+                                                        if($_srdvConfig['niveauTarifaire_show'] == 1) {
+                                                            echo Mage::helper('core')->currency($_srdvConfig[$_creneaux[$_horaire]['tariffLevel']."_price"]);
+                                                        }
+                                                        ?>
+                                                    </span>
+                                                </label>
+                                            </li>
+                                        <?php else: ?>
+                                            <li class="unavailable">
+                                                <label>
+                                                    <span class="time-cell"><?php echo $_horaire; ?></span>
+                                                    <span class="price-cell">non disponible</span>
+                                                </label>
+                                            </li>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endforeach; ?>
+
+                        <?php endfor; ?>
+                    </div>
+            </section>
+        </div>
+        <!-- End mobile -->
+
+    <?php //endif; ?>
+
+    <script type="text/javascript">
+    //<![CDATA[
+
+    if($("rdvCarousel") != undefined) {
+        var chronoCaroousel = new Carousel('rdvCarousel', $$('#rdvCarousel .slide'), $$('a.carousel-control', 'a.carousel-jumper'), {
+            afterMove: function() {
+
+                $$('a.carousel-control').each(function(element){
+                    element.removeClassName('inactive');
+                })
+
+                if(chronoCaroousel.current._index == 0) {
+                    $$('a.carousel-control.prev').first().addClassName('inactive');
+                } else if(chronoCaroousel.current._index == (chronoCaroousel.slides.length - 1) ) {
+                    $$('a.carousel-control.next').first().addClassName('inactive');
+                }
+            }
+        });
+    }
+
+    if($('global-mobile') != undefined) {
+
+        var mobileTh = $$('#global-mobile th');
+        for(var i=0;i<mobileTh.length;i++){
+            if(!$(mobileTh[i]).binded){
+                $(mobileTh[i]).binded = true;
+                Event.observe(mobileTh[i], 'click', function(event){
+
+                    var element = event.element();
+                    if(element.tagName != 'TH') {
+                        element = element.up('th');
+                    }
+
+                    $$('#global-mobile th').each(function(element){
+                        element.removeClassName('active');
+                    })
+                    element.addClassName('active');
+
+                    $$('#time-list ul').each(function(element){
+                        element.hide();
+                    })
+                    var idUlHoraireDay = element.id.replace("th","ul");
+                    $(idUlHoraireDay).show();
+                });
+            }
+        }
+
+        /* affichage du premier jour */
+        mobileTh[0].click();
+    }
+
+    var srdvInput = $$('.shipping_method_chronopostsrdv');
+    for(var i=0;i<srdvInput.length;i++){
+        if(!$(srdvInput[i]).binded){
+            $(srdvInput[i]).binded = true;
+            Event.observe(srdvInput[i], 'click', function(event){
+                var element = event.element();
+                selectChronopostSrdvSlot(element);
+            });
+        }
+    }
+
+    function selectChronopostSrdvSlot(element) {
+
+        var slotValue = element.readAttribute('slotValueJson');
+        var slotValueJson = JSON.parse(slotValue);
+
+        if($("rdvCarousel") != undefined) {
+            $$("#rdvCarousel .active").each(function(element){
+                element.removeClassName("active");
+            });
+
+            var td = element.up("td");
+            if(td != undefined) {
+                var tr = td.up("tr");
+                var th = tr.down('th');
+
+                th.addClassName("active");
+                $('th_'+slotValueJson.deliveryDate).addClassName("active");
+            }
+        }
+
+        if($('global-mobile') != undefined) {
+
+            $$("#global-mobile ul li.active").each(function(element){
+                element.removeClassName("active");
+            });
+
+            var li = element.up("li");
+            if(li != undefined) {
+                li.addClassName("active");
+            }
+        }
+
+        $('chronopostsrdv_creneaux_info').value = slotValue;
+
+        if($('onestepcheckout-form') != undefined) { /* sauvegarde en ajax du rdv choisi */
+            shippingMethodChrono.save();
+        }
+    }
+    //]]>
+    </script>
+
+<?php else: /* Aucun créneaux disponible */ ?>
+    <div class="chronopostsrdv_noresult" id="chronopostsrdv_noresult"></div>
+    <div class="popin" id="popin">
+        <a href="javascript:;" class="close" id="close_popin"></a>
+        <?php echo $this->__("Il n'est pas encore possible d'utiliser ce service pour votre commande, nous travaillons en ce moment pour permettre à de nouvelles villes de bénéficier de ce nouveau service.") ?>
+    </div>
+    <script type="text/javascript">
+    //<![CDATA[
+
+    $('chronopostsrdv_noresult').observe('click', function(){
+        closePopin();
+    });
+    $('close_popin').observe('click', function(){
+        closePopin();
+    });
+
+    function closePopin() {
+        if(typeof $('chronopostsrdv_noresult') != "undefined") {
+            $('chronopostsrdv_noresult').remove();
+        }
+        if(typeof $('popin') != "undefined") {
+            $('popin').remove();
+        }
+    }
+
+    var inputChronopostSrdv = $$('input[name^="shipping_method"][value^="chronopostsrdv_chronopostsrdv"]').first();
+    if(typeof inputChronopostSrdv != "undefined") {
+        inputChronopostSrdv.checked = false;
+    }
+    //]]>
+    </script>
+<?php endif; ?>

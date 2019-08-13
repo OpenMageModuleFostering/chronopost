@@ -1,0 +1,83 @@
+<?php $isSoColissimoSimplicite = Mage::getConfig()->getModuleConfig('LaPoste_SoColissimoSimplicite')->is('active'); ?>
+
+<script src="//maps.googleapis.com/maps/api/js?v=3.17&sensor=false<?php if (Mage::helper('chronorelais')->getConfigurationGoogleMapAPIKey()): ?>&amp;key=<?php echo Mage::helper('chronorelais')->getConfigurationGoogleMapAPIKey() ?><?php endif; ?>" type="text/javascript"></script>
+<script type="text/javascript" src="<?php echo $this->getSkinUrl('chronorelais/chronorelaismap.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->getSkinUrl('chronorelais/chrono.js') ?>"></script>
+<script type="text/javascript">
+//<![CDATA[
+    var Url_ShippingMethodImage = '<?php echo $this->getUrl("chronorelais/index/shippingmethodimage") ?>';
+	var Picto_Chrono_Relais = '<?php echo $this->getSkinUrl('chronorelais/Picto_Chrono_Relais.png')?>';
+	var Home_Chrono_Icon = '<?php echo $this->getSkinUrl('chronorelais/home.png')?>';
+
+    /* add click event on shipping methods */
+    if($('checkout-shipping-method-load') != undefined) {
+        $('checkout-shipping-method-load').on('click', 'input[name=shipping_method]', function(event, element) {
+            bindRelais(element);
+        });
+    }
+
+    /* Compat Idev_OneStepCheckout */
+    if($('onestepcheckout-form') != undefined) {
+        $('onestepcheckout-form').on('click', 'input[name=shipping_method]', function(event, element) {
+            bindRelais(element);
+        });
+    }
+
+    function bindRelais(element) {
+        var shippingMethodSelected = element.value;
+        shippingMethodChrono.resetSessionrelais('<?php echo $this->getUrl("chronorelais/relais/resetSessionRelai") ?>');
+        shippingMethodChrono.hiderelais();
+        if(shippingMethodSelected.indexOf("chronorelais") !== -1) {
+            shippingMethodChrono.getrelais('<?php echo $this->getUrl("chronorelais/relais/getRelais")?>');
+        } else if(shippingMethodSelected.indexOf("chronopostsrdv") !== -1) {
+            shippingMethodChrono.getPlanning('<?php echo $this->getUrl("chronorelais/srdv/getPlanning")?>');
+        }
+    }
+
+
+    <?php if(!empty($isSoColissimoSimplicite)) : ?>
+    <?php $_helper = Mage::helper('socolissimosimplicite'); ?>
+    // update method save to redirect onSuccess to method which deals with colissimo choice
+    ShippingMethodChrono.prototype.saveWithColissimo = function(){
+        if (checkout.loadWaiting!=false) return;
+        if (this.validate()) {
+            checkout.setLoadWaiting('shipping-method');
+            var request = new Ajax.Request(
+                this.saveUrl,
+                {
+                    method:'post',
+                    onComplete: this.onComplete,
+                    onSuccess: this.redirectToColissimo,
+                    onFailure: checkout.ajaxFailure.bind(checkout),
+                    parameters: Form.serialize(this.form)
+                }
+            );
+        }
+    };
+    // check if colissimo is selected, then redirect on form which post data on this platform
+    ShippingMethodChrono.prototype.redirectToColissimo = function(transport){
+        var rateCodeSoColissimoSimplicite = '<?php echo $_helper->getRateCode()?>';
+        var urlFormSoColissimoSimplicite  = '<?php echo $_helper->getFormUrl()?>';
+        var methods = document.getElementsByName('shipping_method');
+        for (var i=0; i<methods.length; i++) {
+            if (methods[i].value == rateCodeSoColissimoSimplicite && methods[i].checked) {
+                window.location = urlFormSoColissimoSimplicite;
+            }
+        }
+        // pass to next step (= default onSave binding
+        ShippingMethodChrono.prototype.nextStep(transport);
+    };
+    <?php endif; ?>
+
+    if($('onestepcheckout-form') != undefined) { /* Idev_OneStepCheckout */
+        var shippingMethodChrono = new ShippingMethodChrono('onestepcheckout-form', "<?php echo $this->getUrl('checkout/onepage/saveShippingMethod') ?>");
+    } else { /* base form */
+        var shippingMethodChrono = new ShippingMethodChrono('co-shipping-method-form', "<?php echo $this->getUrl('checkout/onepage/saveShippingMethod') ?>");
+    }
+
+    if(typeof shippingMethod != "undefined" && typeof shippingMethodChrono != "undefined") {
+        shippingMethod = shippingMethodChrono;
+    }
+
+//]]>
+</script>

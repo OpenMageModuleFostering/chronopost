@@ -9,6 +9,10 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
         $this->setUsedModuleName('Chronopost_Chronorelais');
     }
 
+    protected function _isAllowed(){
+        return true;
+    }
+
     /**
      * Main action : show orders list
      */
@@ -24,7 +28,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
     }
 
     public function removeSpclChars($text) {
-        //return ereg_replace("[^0-9a-zA-Z]", "", $text);
         return preg_replace("/[^0-9a-zA-Z]/", "", $text);
     }
 
@@ -94,18 +97,24 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
                 /* customer id */
                 $content = $this->_addFieldToCsv($content, $delimiter, ($order->getCustomerId() ? $order->getCustomerId() : $address->getLastname()));
                 $content .= $separator;
-                /* Nom du point relais OU soci�t� si livraison � domicile */
-                //$content = $this->_addFieldToCsv($content, $delimiter, $_shippingMethod[0] == "chronorelais" ? $address->getCompany() : "");
+                /* Nom du point relais OU société si livraison à domicile */
                 $content = $this->_addFieldToCsv($content, $delimiter, $address->getCompany());
                 $content .= $separator;
                 /* customer name */
-                $content = $this->_addFieldToCsv($content, $delimiter, ($address->getName() ? $address->getName() : $billingAddress->getName()));
+                $content = $this->_addFieldToCsv($content, $delimiter, ($address->getFirstname() ? $address->getFirstname() : $billingAddress->getFirstname()));
+                $content .= $separator;
+                $content = $this->_addFieldToCsv($content, $delimiter, ($address->getLastname() ? $address->getLastname() : $billingAddress->getLastname()));
                 $content .= $separator;
                 /* street address */
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getStreet(1)));
                 $content .= $separator;
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getStreet(2)));
                 $content .= $separator;
+
+                /* digicode (vide)*/
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
                 /* postal code */
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getPostcode()));
                 $content .= $separator;
@@ -124,32 +133,43 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
                 $customer_email = ($address->getEmail()) ? $address->getEmail() : ($billingAddress->getEmail() ? $billingAddress->getEmail() : $order->getCustomerEmail());
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($customer_email));
                 $content .= $separator;
-                /* chronorelay point */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getWRelayPointCode()));
-                $content .= $separator;
                 /* real order id */
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($order->getRealOrderId()));
                 $content .= $separator;
 
-
-                /* total weight (in kg) */
-                $order_weight = number_format($order->getWeight(), 2, '.', '');
-                if($weightUnit == 'g') {
-                    $order_weight = $order_weight / 1000;
-                }
-                //$order_weight = $order_weight * 1000;
-                $content = $this->_addFieldToCsv($content, $delimiter, $order_weight);
+                /* code barre client (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
                 $content .= $separator;
 
                 /* productCode */
-                $productCode = ''; //Default code for chronorelais
                 $productCode = Mage::helper('chronorelais')->getChronoProductCodeString($_shippingMethod[0]);
                 $content = $this->_addFieldToCsv($content, $delimiter, $productCode);
                 $content .= $separator;
 
+                /* compte (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* sous compte (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* empty fields */
+                $content = $this->_addFieldToCsv($content, $delimiter, 0);
+                $content .= $separator;
+                $content = $this->_addFieldToCsv($content, $delimiter, 0);
+                $content .= $separator;
+
+                /* document / marchandise (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* description contenu (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
                 /* Livraison Samedi */
                 $SaturdayShipping = 'L'; //default value for the saturday shipping
-                $send_day = strtolower(date('l'));
                 if ($_shippingMethod[0] == "chronopost" || $_shippingMethod[0] == "chronorelais") {
                     if (!$_deliver_on_saturday = Mage::helper('chronorelais')->getLivraisonSamediStatus($orderId)) {
                         $_deliver_on_saturday = Mage::helper('chronorelais')->getConfigData('carriers/' . $_shippingMethod[0] . '/deliver_on_saturday');
@@ -170,11 +190,102 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
                 $content = $this->_addFieldToCsv($content, $delimiter, $SaturdayShipping);
                 $content .= $separator;
 
-                /* empty fields */
-                $content = $this->_addFieldToCsv($content, $delimiter, 0);
+                /* chronorelay point */
+                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getWRelayPointCode()));
                 $content .= $separator;
-                $content = $this->_addFieldToCsv($content, $delimiter, 0);
+
+                /* total weight (in kg) */
+                $order_weight = number_format($order->getWeight(), 2, '.', '');
+                if($weightUnit == 'g') {
+                    $order_weight = $order_weight / 1000;
+                }
+                $content = $this->_addFieldToCsv($content, $delimiter, $order_weight);
+                $content .= $separator;
+
+
+                /* largeur (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* longueur (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* hauteur (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* avertir destinataire (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* nb colis (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* date envoi */
+                $content = $this->_addFieldToCsv($content, $delimiter, date('d/m/Y'));
+                $content .= $separator;
+
+                /* a intégrer (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* avertir expéditeur (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* DLC (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* champ specifique rdv */
+                $chronopostsrdv_creneaux_info = $address->getData('chronopostsrdv_creneaux_info');
+                if($chronopostsrdv_creneaux_info) {
+                    $chronopostsrdv_creneaux_info = json_decode($chronopostsrdv_creneaux_info,true);
+                    $_dateRdvStart = new DateTime($chronopostsrdv_creneaux_info['deliveryDate']);
+                    $_dateRdvStart->setTime($chronopostsrdv_creneaux_info['startHour'],$chronopostsrdv_creneaux_info['startMinutes']);
+
+                    $_dateRdvEnd = new DateTime($chronopostsrdv_creneaux_info['deliveryDate']);
+                    $_dateRdvEnd->setTime($chronopostsrdv_creneaux_info['endHour'],$chronopostsrdv_creneaux_info['endMinutes']);
+
+                    /* date debut rdv */
+                    //$content = $this->_addFieldToCsv($content, $delimiter, $_dateRdvStart->format("Y-m-d")."T".$_dateRdvStart->format("H:i:s"));
+                    $content = $this->_addFieldToCsv($content, $delimiter, $_dateRdvStart->format("dmyHi"));
+                    $content .= $separator;
+
+                    /* date fin rdv */
+                    //$content = $this->_addFieldToCsv($content, $delimiter, $_dateRdvEnd->format("Y-m-d")."T".$_dateRdvEnd->format("H:i:s"));
+                    $content = $this->_addFieldToCsv($content, $delimiter, $_dateRdvEnd->format("dmyHi"));
+                    $content .= $separator;
+
+                    /* Niveau tarifaire */
+                    $content = $this->_addFieldToCsv($content, $delimiter, $chronopostsrdv_creneaux_info['tariffLevel']);
+                    $content .= $separator;
+
+                    /* code service */
+                    $content = $this->_addFieldToCsv($content, $delimiter, $chronopostsrdv_creneaux_info['serviceCode']);
+                    $content .= $separator;
+
+                } else {
+                    $content = $this->_addFieldToCsv($content, $delimiter, '');
+                    $content .= $separator;
+
+                    $content = $this->_addFieldToCsv($content, $delimiter, '');
+                    $content .= $separator;
+
+                    $content = $this->_addFieldToCsv($content, $delimiter, '');
+                    $content .= $separator;
+
+                    /* code service */
+                    $content = $this->_addFieldToCsv($content, $delimiter, '');
+                    $content .= $separator;
+                }
+
+
+
                 $content .= $lineBreak;
+
             }
 
             /* decode the content, depending on the charset */
@@ -183,17 +294,17 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
             }
 
             /* pick file mime type, depending on the extension */
-            if ($fileExtension == '.txt') {
-                $fileMimeType = 'text/plain';
-            } else if ($fileExtension == '.csv') {
-                $fileMimeType = 'application/csv';
-            } else if ($fileExtension == '.chr') {
-                $fileMimeType = 'application/chr';
-            } else {
-                // default
-                $fileMimeType = 'text/plain';
+            switch ($fileExtension) {
+                case '.csv':
+                    $fileMimeType = 'application/csv';
+                    break;
+                case '.chr':
+                    $fileMimeType = 'application/chr';
+                    break;
+                default:
+                    $fileMimeType = 'text/plain';
+                    break;
             }
-
             /* download the file */
             return $this->_prepareDownloadResponse($filename, $content, $fileMimeType . '; charset="' . $fileCharset . '"');
         } else {
@@ -247,43 +358,40 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
                 $address = $order->getShippingAddress();
                 $billingAddress = $order->getBillingAddress();
 
+                $_shippingMethod = explode('_', $order->getShippingMethod());
+
                 /* customer id */
                 $content = $this->_addFieldToCsv($content, $delimiter, ($order->getCustomerId() ? $order->getCustomerId() : $address->getLastname()));
                 $content .= $separator;
-                /* Nom du point relais OU soci�t� si livraison � domicile */
-                //$content = $this->_addFieldToCsv($content, $delimiter, $_shippingMethod[0] == "chronorelais" ? $address->getCompany() : "");
+                /* Nom du point relais OU société si livraison à domicile */
                 $content = $this->_addFieldToCsv($content, $delimiter, $address->getCompany());
                 $content .= $separator;
-                /* empty */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue(""));
+                /* customer name */
+                $content = $this->_addFieldToCsv($content, $delimiter, ($address->getFirstname() ? $address->getFirstname() : $billingAddress->getFirstname()));
+                $content .= $separator;
+                $content = $this->_addFieldToCsv($content, $delimiter, ($address->getLastname() ? $address->getLastname() : $billingAddress->getLastname()));
                 $content .= $separator;
                 /* street address */
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getStreet(1)));
                 $content .= $separator;
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getStreet(2)));
                 $content .= $separator;
-                /* Code Porte */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue(""));
+
+                /* digicode (vide)*/
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* postal code */
+                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getPostcode()));
+                $content .= $separator;
+                /* city */
+                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getCity()));
                 $content .= $separator;
                 /* country code */
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getCountry()));
                 $content .= $separator;
-                /* postal code */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->removeSpclChars($this->getValue($address->getPostcode())));
-                $content .= $separator;
-                /* city */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue(strtoupper($address->getCity())));
-                $content .= $separator;
-                /* lastname */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getLastname()));
-                $content .= $separator;
-                /* firstname */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getFirstname()));
-                $content .= $separator;
                 /* telephone */
-                //$telephone = trim(ereg_replace("[^0-9.-]", " ", $address->getTelephone()));
-                $telephone = trim(preg_replace("/[^0-9\.\-]/", " ", $address->getTelephone()));
-
+                $telephone = trim(ereg_replace("[^0-9.-]", " ", $address->getTelephone()));
                 $telephone = (strlen($telephone) >= 10 ? $telephone : '');
                 $content = $this->_addFieldToCsv($content, $delimiter, $telephone);
                 $content .= $separator;
@@ -291,61 +399,43 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
                 $customer_email = ($address->getEmail()) ? $address->getEmail() : ($billingAddress->getEmail() ? $billingAddress->getEmail() : $order->getCustomerEmail());
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($customer_email));
                 $content .= $separator;
-                /* VAT number */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue(""));
-                $content .= $separator;
-                /* productCode */
-                $productCode = ''; //Default code for chronorelais
-                $_shippingMethod = explode('_', $order->getShippingMethod());
-                if ($_shippingMethod[0] == "chronopost") { // Conditions for chronorelais code
-                    $productCode = 1;
-                } elseif ($_shippingMethod[0] == "chronorelais") {
-                    //$productCode = 6; //for chronorelais
-                } else {
-                    $productCode = 4; //for chronoexpress
-                }
-                $content = $this->_addFieldToCsv($content, $delimiter, $productCode);
-                $content .= $separator;
                 /* real order id */
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($order->getRealOrderId()));
                 $content .= $separator;
 
-                /* total weight (in g)*/
-                $order_weight = number_format($order->getWeight(), 2, '.', '');
-                if($weightUnit == 'kg') {
-                    $order_weight = $order_weight * 1000;
-                }
-                $content = $this->_addFieldToCsv($content, $delimiter, $order_weight);
+                /* code barre client (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
                 $content .= $separator;
 
-                /* Valeur Assur�e field */
+                /* productCode */
+                $productCode = Mage::helper('chronorelais')->getChronoProductCodeString($_shippingMethod[0]);
+                $content = $this->_addFieldToCsv($content, $delimiter, $productCode);
+                $content .= $separator;
+
+                /* compte (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* sous compte (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* empty fields */
                 $content = $this->_addFieldToCsv($content, $delimiter, 0);
                 $content .= $separator;
-                /* Inform the recipient by e-mail field */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue("N"));
-                $content .= $separator;
-                /* Print Waybill field */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue("O"));
-                $content .= $separator;
-                /* sub-account field */
-                $sub_account = Mage::helper('chronorelais')->getConfigurationSubAccountNumber();
-                $content = $this->_addFieldToCsv($content, $delimiter, (strlen($sub_account) == 3 ? $sub_account : ""));
-                $content .= $separator;
-                /* Nature of item field */
-                $content = $this->_addFieldToCsv($content, $delimiter, 2);
-                $content .= $separator;
-                /* Description of Consignment field */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue(""));
-                $content .= $separator;
-                /* Print pro-forma (customs) field */
-                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue("N"));
-                $content .= $separator;
-                /* Declared value (customs) field */
                 $content = $this->_addFieldToCsv($content, $delimiter, 0);
                 $content .= $separator;
-                /* Livraison Samedi (Delivery Saturday) field */
-                $SaturdayShipping = 0; //default value for the saturday shipping
-                $send_day = strtolower(date('l'));
+
+                /* document / marchandise (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* description contenu (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* Livraison Samedi */
+                $SaturdayShipping = 'L'; //default value for the saturday shipping
                 if ($_shippingMethod[0] == "chronopost" || $_shippingMethod[0] == "chronorelais") {
                     if (!$_deliver_on_saturday = Mage::helper('chronorelais')->getLivraisonSamediStatus($orderId)) {
                         $_deliver_on_saturday = Mage::helper('chronorelais')->getConfigData('carriers/' . $_shippingMethod[0] . '/deliver_on_saturday');
@@ -357,14 +447,111 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
                         }
                     }
                     $is_sending_day = Mage::helper('chronorelais')->isSendingDay();
-                    if ($_deliver_on_saturday && $is_sending_day) {
-                        $SaturdayShipping = 1;
-                    } elseif (!$_deliver_on_saturday && $is_sending_day) {
-                        $SaturdayShipping = 2;
+                    if ($_deliver_on_saturday && $is_sending_day == true) {
+                        $SaturdayShipping = 'S';
+                    } elseif (!$_deliver_on_saturday && $is_sending_day == true) {
+                        $SaturdayShipping = 'L';
                     }
                 }
                 $content = $this->_addFieldToCsv($content, $delimiter, $SaturdayShipping);
+                $content .= $separator;
+
+                /* chronorelay point */
+                $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getWRelayPointCode()));
+                $content .= $separator;
+
+                /* total weight (in kg) */
+                $order_weight = number_format($order->getWeight(), 2, '.', '');
+                if($weightUnit == 'g') {
+                    $order_weight = $order_weight / 1000;
+                }
+                $content = $this->_addFieldToCsv($content, $delimiter, $order_weight);
+                $content .= $separator;
+
+
+                /* largeur (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* longueur (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* hauteur (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* avertir destinataire (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* nb colis (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* date envoi */
+                $content = $this->_addFieldToCsv($content, $delimiter, date('d/m/Y'));
+                $content .= $separator;
+
+                /* a intégrer (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* avertir expéditeur (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* DLC (vide) */
+                $content = $this->_addFieldToCsv($content, $delimiter, '');
+                $content .= $separator;
+
+                /* champ specifique rdv */
+                $chronopostsrdv_creneaux_info = $address->getData('chronopostsrdv_creneaux_info');
+                if($chronopostsrdv_creneaux_info) {
+                    $chronopostsrdv_creneaux_info = json_decode($chronopostsrdv_creneaux_info,true);
+                    $_dateRdvStart = new DateTime($chronopostsrdv_creneaux_info['deliveryDate']);
+                    $_dateRdvStart->setTime($chronopostsrdv_creneaux_info['startHour'],$chronopostsrdv_creneaux_info['startMinutes']);
+
+                    $_dateRdvEnd = new DateTime($chronopostsrdv_creneaux_info['deliveryDate']);
+                    $_dateRdvEnd->setTime($chronopostsrdv_creneaux_info['endHour'],$chronopostsrdv_creneaux_info['endMinutes']);
+
+                    /* date debut rdv */
+                    //$content = $this->_addFieldToCsv($content, $delimiter, $_dateRdvStart->format("Y-m-d")."T".$_dateRdvStart->format("H:i:s"));
+                    $content = $this->_addFieldToCsv($content, $delimiter, $_dateRdvStart->format("dmyHi"));
+                    $content .= $separator;
+
+                    /* date fin rdv */
+                    //$content = $this->_addFieldToCsv($content, $delimiter, $_dateRdvEnd->format("Y-m-d")."T".$_dateRdvEnd->format("H:i:s"));
+                    $content = $this->_addFieldToCsv($content, $delimiter, $_dateRdvEnd->format("dmyHi"));
+                    $content .= $separator;
+
+                    /* Niveau tarifaire */
+                    $content = $this->_addFieldToCsv($content, $delimiter, $chronopostsrdv_creneaux_info['tariffLevel']);
+                    $content .= $separator;
+
+                    /* code service */
+                    $content = $this->_addFieldToCsv($content, $delimiter, $chronopostsrdv_creneaux_info['serviceCode']);
+                    $content .= $separator;
+
+                } else {
+                    $content = $this->_addFieldToCsv($content, $delimiter, '');
+                    $content .= $separator;
+
+                    $content = $this->_addFieldToCsv($content, $delimiter, '');
+                    $content .= $separator;
+
+                    $content = $this->_addFieldToCsv($content, $delimiter, '');
+                    $content .= $separator;
+
+                    /* code service */
+                    $content = $this->_addFieldToCsv($content, $delimiter, '');
+                    $content .= $separator;
+                }
+
+
+
                 $content .= $lineBreak;
+
             }
 
             /* decode the content, depending on the charset */
@@ -373,17 +560,17 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Ma
             }
 
             /* pick file mime type, depending on the extension */
-            if ($fileExtension == '.txt') {
-                $fileMimeType = 'text/plain';
-            } else if ($fileExtension == '.csv') {
-                $fileMimeType = 'application/csv';
-            } else if ($fileExtension == '.chr') {
-                $fileMimeType = 'application/chr';
-            } else {
-                // default
-                $fileMimeType = 'text/plain';
+            switch ($fileExtension) {
+                case '.csv':
+                    $fileMimeType = 'application/csv';
+                    break;
+                case '.chr':
+                    $fileMimeType = 'application/chr';
+                    break;
+                default:
+                    $fileMimeType = 'text/plain';
+                    break;
             }
-
             /* download the file */
             return $this->_prepareDownloadResponse($filename, $content, $fileMimeType . '; charset="' . $fileCharset . '"');
         } else {

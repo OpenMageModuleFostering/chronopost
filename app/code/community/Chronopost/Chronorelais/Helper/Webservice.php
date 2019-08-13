@@ -8,42 +8,62 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
 
         try {
             $client = new SoapClient("http://wsshipping.chronopost.fr/soap.point.relais/services/ServiceRechercheBt?wsdl",array('trace'=> 0,'connection_timeout'=>10));
-            $webservbt = $client->__call("rechercheBtParCodeproduitEtCodepostalEtDate",array(0,$cp,0));
-            return $webservbt;
+            return $client->__call("rechercheBtParCodeproduitEtCodepostalEtDate",array(0,$cp,0));
         }  catch (Exception $e) {
-            $webservbt =  $this->getPointsRelaisByPudo('',$cp);
-            return $webservbt;
+            return $this->getPointsRelaisByPudo('',$cp);
         }
     }
 
     /* get point relais by address */
-    public function getPointRelaisByAddress() {
+    public function getPointRelaisByAddress($shippingMethodCode = 'chronorelais') {
 
-        //$quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
+        if(!$shippingMethodCode) {
+            return false;
+        }
         $quote = Mage::getSingleton('checkout/cart')->getQuote();
         $address = $quote->getShippingAddress();
         $helperData = Mage::helper('chronorelais');
 
         try {
-            $client = new SoapClient("https://www.chronopost.fr/recherchebt-ws-cxf/PointRelaisServiceWS?wsdl", array('trace' => 0, 'connection_timeout' => 10));
+
+            $pointRelaisWs = 'https://www.chronopost.fr/recherchebt-ws-cxf/PointRelaisServiceWS?wsdl';
+            $pointRelaisWsMethod = Mage::getStoreConfig('carriers/'.$shippingMethodCode.'/point_relai_ws_method');
+            $pointRelaisProductCode = $helperData->getChronoProductCode($address->getCountryId(),$shippingMethodCode);
+            $pointRelaisService = 'T';
+            $addAddressToWs = Mage::getStoreConfig('carriers/'.$shippingMethodCode.'/add_address_to_ws');
+            $maxPointChronopost = Mage::getStoreConfig('carriers/'.$shippingMethodCode.'/max_point_chronopost');
+
+            $maxDistanceSearch = Mage::getStoreConfig('carriers/'.$shippingMethodCode.'/max_distance_search');
+
+            $client = new SoapClient($pointRelaisWs, array('trace' => 0, 'connection_timeout' => 10));
+
+            /* si dom => on ne met pas le code ISO mais un code spécifique, sinon le relai dom ne fonctionne pas */
+            $countryDomCode = $this->getCountryDomCode();
+            $countryId = $address->getCountryId();
+
+            if(isset($countryDomCode[$countryId])) {
+                $countryId = $countryDomCode[$countryId];
+            }
 
             $params = array(
                 'accountNumber' => $helperData->getConfigurationAccountNumber(),
                 'password' => $helperData->getConfigurationAccountPass(),
-                'address' => $this->getFilledValue($address->getStreet(1)),
                 'zipCode' => $this->getFilledValue($address->getPostcode()),
                 'city' => $this->getFilledValue($address->getCity()),
-                'countryCode' => $this->getFilledValue($address->getCountryId()),
+                'countryCode' => $this->getFilledValue($countryId),
                 'type' => 'P',
-                'productCode' => '1',
-                'service' => 'T',
+                'productCode' => $pointRelaisProductCode,
+                'service' => $pointRelaisService,
                 'weight' => 2000,
                 'shippingDate' => date('d/m/Y'),
-                'maxPointChronopost' => 5,
-                'maxDistanceSearch' => 15,
+                'maxPointChronopost' => $maxPointChronopost,
+                'maxDistanceSearch' => $maxDistanceSearch,
                 'holidayTolerant' => 1
             );
-            $webservbt = $client->recherchePointChronopost($params);
+            if($addAddressToWs) {
+                $params['address'] = $this->getFilledValue($address->getStreet(1));
+            }
+            $webservbt = $client->$pointRelaisWsMethod($params);
 
             /* format $webservbt pour avoir le meme format que lors de l'appel du WS par code postal */
             if($webservbt->return->errorCode == 0)
@@ -99,7 +119,6 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
                 $return = array();
                 foreach($listePr as $pr)
                 {
-                    //$newPr = new object();
                     $newPr = (object)array();
                     $newPr->adresse1 = $pr->adresse1;
                     $newPr->adresse2 = $pr->adresse2;
@@ -113,22 +132,51 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
                     $newPr->horairesOuvertureLundi = $newPr->horairesOuvertureMardi = $newPr->horairesOuvertureMercredi = $newPr->horairesOuvertureJeudi = $newPr->horairesOuvertureVendredi = $newPr->horairesOuvertureSamedi = $newPr->horairesOuvertureDimanche = '';
                     foreach($pr->listeHoraireOuverture as $horaire) {
                         switch($horaire->jour) {
-                            case '1' : $newPr->horairesOuvertureLundi = $horaire->horairesAsString; break;
-                            case '2' : $newPr->horairesOuvertureMardi = $horaire->horairesAsString; break;
-                            case '3' : $newPr->horairesOuvertureMercredi = $horaire->horairesAsString; break;
-                            case '4' : $newPr->horairesOuvertureJeudi = $horaire->horairesAsString; break;
-                            case '5' : $newPr->horairesOuvertureVendredi = $horaire->horairesAsString; break;
-                            case '6' : $newPr->horairesOuvertureSamedi = $horaire->horairesAsString; break;
-                            case '7' : $newPr->horairesOuvertureDimanche = $horaire->horairesAsString; break;
+                            case '1' :
+                                $newPr->horairesOuvertureLundi = $horaire->horairesAsString;
+                                break;
+                            case '2' :
+                                $newPr->horairesOuvertureMardi = $horaire->horairesAsString;
+                                break;
+                            case '3' :
+                                $newPr->horairesOuvertureMercredi = $horaire->horairesAsString;
+                                break;
+                            case '4' :
+                                $newPr->horairesOuvertureJeudi = $horaire->horairesAsString;
+                                break;
+                            case '5' :
+                                $newPr->horairesOuvertureVendredi = $horaire->horairesAsString;
+                                break;
+                            case '6' :
+                                $newPr->horairesOuvertureSamedi = $horaire->horairesAsString;
+                                break;
+                            case '7' :
+                                $newPr->horairesOuvertureDimanche = $horaire->horairesAsString;
+                                break;
+                            default : break;
                         }
                     }
-                    if(empty($newPr->horairesOuvertureLundi)) $newPr->horairesOuvertureLundi = "00:00-00:00 00:00-00:00";
-                    if(empty($newPr->horairesOuvertureMardi)) $newPr->horairesOuvertureMardi = "00:00-00:00 00:00-00:00";
-                    if(empty($newPr->horairesOuvertureMercredi)) $newPr->horairesOuvertureMercredi = "00:00-00:00 00:00-00:00";
-                    if(empty($newPr->horairesOuvertureJeudi)) $newPr->horairesOuvertureJeudi = "00:00-00:00 00:00-00:00";
-                    if(empty($newPr->horairesOuvertureVendredi)) $newPr->horairesOuvertureVendredi = "00:00-00:00 00:00-00:00";
-                    if(empty($newPr->horairesOuvertureSamedi)) $newPr->horairesOuvertureSamedi = "00:00-00:00 00:00-00:00";
-                    if(empty($newPr->horairesOuvertureDimanche)) $newPr->horairesOuvertureDimanche = "00:00-00:00 00:00-00:00";
+                    if(empty($newPr->horairesOuvertureLundi)) {
+                        $newPr->horairesOuvertureLundi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureMardi)) {
+                        $newPr->horairesOuvertureMardi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureMercredi)) {
+                        $newPr->horairesOuvertureMercredi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureJeudi)) {
+                        $newPr->horairesOuvertureJeudi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureVendredi)) {
+                        $newPr->horairesOuvertureVendredi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureSamedi)) {
+                        $newPr->horairesOuvertureSamedi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureDimanche)) {
+                        $newPr->horairesOuvertureDimanche = "00:00-00:00 00:00-00:00";
+                    }
 
                     $return[] = $newPr;
                 }
@@ -139,10 +187,28 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
         }
     }
 
+    protected function getCountryDomCode() {
+        return array(
+            'RE' => 'REU',
+            'MQ' => 'MTQ',
+            'GP' => 'GLP',
+            'MX' => 'MYT',
+            'GF' => 'GUF'
+        );
+    }
+
     public function getDetailRelaisPoint($btcode) {
         try {
-            $client = new SoapClient("http://wsshipping.chronopost.fr/soap.point.relais/services/ServiceRechercheBt?wsdl");
-            $webservbt = $client->__call("rechercheBtParIdChronopostA2Pas",array($btcode));
+            $helperData = Mage::helper('chronorelais');
+            $params = array(
+                'accountNumber' => $helperData->getConfigurationAccountNumber(),
+                'password' => $helperData->getConfigurationAccountPass(),
+                'identifiant' => $btcode
+            );
+
+            $client = new SoapClient("https://www.chronopost.fr/recherchebt-ws-cxf/PointRelaisServiceWS");
+            $webservbt = $client->__call("rechercheDetailPointChronopost",$params);
+
             return $webservbt[0];
         }  catch (Exception $e) {
             return $this->getDetailRelaisPointByPudo($btcode);
@@ -167,68 +233,94 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
             $webservbt = $client->GetPudoDetails($params);
             $webservbt = json_decode(json_encode((object) simplexml_load_string($webservbt->GetPudoDetailsResult->any)), 1);
             if(!isset($webservbt['ERROR'])) {
-                $return = array();
                 $pr = $webservbt['PUDO_ITEMS']['PUDO_ITEM'];
-                if($pr) {
-                    if($pr['@attributes']['active'] == 'true')
-                    {
-                        $newPr = (object)array();
-                        $newPr->adresse1 = $pr['ADDRESS1'];
-                        $newPr->adresse2 = is_array($pr['ADDRESS2']) ? implode(' ', $pr['ADDRESS2']) : $pr['ADDRESS2'];
-                        $newPr->adresse3 = is_array($pr['ADDRESS3']) ? implode(' ', $pr['ADDRESS3']) : $pr['ADDRESS3'];
-                        $newPr->codePostal = $pr['ZIPCODE'];
-                        $newPr->identifiantChronopostPointA2PAS = $pr['PUDO_ID'];
-                        $newPr->localite = $pr['CITY'];
-                        $newPr->nomEnseigne = $pr['NAME'];
-                        $time = new DateTime;
-                        $newPr->dateArriveColis = $time->format(DateTime::ATOM);
-                        $newPr->horairesOuvertureLundi = $newPr->horairesOuvertureMardi = $newPr->horairesOuvertureMercredi = $newPr->horairesOuvertureJeudi = $newPr->horairesOuvertureVendredi = $newPr->horairesOuvertureSamedi = $newPr->horairesOuvertureDimanche = '';
+                if($pr && $pr['@attributes']['active'] == 'true') {
+                    $newPr = (object)array();
+                    $newPr->adresse1 = $pr['ADDRESS1'];
+                    $newPr->adresse2 = is_array($pr['ADDRESS2']) ? implode(' ', $pr['ADDRESS2']) : $pr['ADDRESS2'];
+                    $newPr->adresse3 = is_array($pr['ADDRESS3']) ? implode(' ', $pr['ADDRESS3']) : $pr['ADDRESS3'];
+                    $newPr->codePostal = $pr['ZIPCODE'];
+                    $newPr->identifiantChronopostPointA2PAS = $pr['PUDO_ID'];
+                    $newPr->localite = $pr['CITY'];
+                    $newPr->nomEnseigne = $pr['NAME'];
+                    $time = new DateTime;
+                    $newPr->dateArriveColis = $time->format(DateTime::ATOM);
+                    $newPr->horairesOuvertureLundi = $newPr->horairesOuvertureMardi = $newPr->horairesOuvertureMercredi = $newPr->horairesOuvertureJeudi = $newPr->horairesOuvertureVendredi = $newPr->horairesOuvertureSamedi = $newPr->horairesOuvertureDimanche = '';
 
-                        if(isset($pr['OPENING_HOURS_ITEMS']['OPENING_HOURS_ITEM'])) {
-                            $listeHoraires = $pr['OPENING_HOURS_ITEMS']['OPENING_HOURS_ITEM'];
-                            foreach($listeHoraires as $horaire) {
-                                switch($horaire['DAY_ID']) {
-                                    case '1' :
-                                        if(!empty($newPr->horairesOuvertureLundi)) $newPr->horairesOuvertureLundi .= ' ';
-                                        $newPr->horairesOuvertureLundi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
-                                        break;
-                                    case '2' :
-                                        if(!empty($newPr->horairesOuvertureMardi)) $newPr->horairesOuvertureMardi .= ' ';
-                                        $newPr->horairesOuvertureMardi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
-                                        break;
-                                    case '3' :
-                                        if(!empty($newPr->horairesOuvertureMercredi)) $newPr->horairesOuvertureMercredi .= ' ';
-                                        $newPr->horairesOuvertureMercredi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
-                                        break;
-                                    case '4' :
-                                        if(!empty($newPr->horairesOuvertureJeudi)) $newPr->horairesOuvertureJeudi .= ' ';
-                                        $newPr->horairesOuvertureJeudi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
-                                        break;
-                                    case '5' :
-                                        if(!empty($newPr->horairesOuvertureVendredi)) $newPr->horairesOuvertureVendredi .= ' ';
-                                        $newPr->horairesOuvertureVendredi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
-                                        break;
-                                    case '6' :
-                                        if(!empty($newPr->horairesOuvertureSamedi)) $newPr->horairesOuvertureSamedi .= ' ';
-                                        $newPr->horairesOuvertureSamedi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
-                                        break;
-                                    case '7' :
-                                        if(!empty($newPr->horairesOuvertureDimanche)) $newPr->horairesOuvertureDimanche .= ' ';
-                                        $newPr->horairesOuvertureDimanche .= $horaire['START_TM'].'-'.$horaire['END_TM'];
-                                        break;
-                                }
+                    if(isset($pr['OPENING_HOURS_ITEMS']['OPENING_HOURS_ITEM'])) {
+                        $listeHoraires = $pr['OPENING_HOURS_ITEMS']['OPENING_HOURS_ITEM'];
+                        foreach($listeHoraires as $horaire) {
+                            switch($horaire['DAY_ID']) {
+                                case '1' :
+                                    if(!empty($newPr->horairesOuvertureLundi)) {
+                                        $newPr->horairesOuvertureLundi .= ' ';
+                                    }
+                                    $newPr->horairesOuvertureLundi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
+                                    break;
+                                case '2' :
+                                    if(!empty($newPr->horairesOuvertureMardi)) {
+                                        $newPr->horairesOuvertureMardi .= ' ';
+                                    }
+                                    $newPr->horairesOuvertureMardi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
+                                    break;
+                                case '3' :
+                                    if(!empty($newPr->horairesOuvertureMercredi)) {
+                                        $newPr->horairesOuvertureMercredi .= ' ';
+                                    }
+                                    $newPr->horairesOuvertureMercredi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
+                                    break;
+                                case '4' :
+                                    if(!empty($newPr->horairesOuvertureJeudi)) {
+                                        $newPr->horairesOuvertureJeudi .= ' ';
+                                    }
+                                    $newPr->horairesOuvertureJeudi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
+                                    break;
+                                case '5' :
+                                    if(!empty($newPr->horairesOuvertureVendredi)) {
+                                        $newPr->horairesOuvertureVendredi .= ' ';
+                                    }
+                                    $newPr->horairesOuvertureVendredi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
+                                    break;
+                                case '6' :
+                                    if(!empty($newPr->horairesOuvertureSamedi)) {
+                                        $newPr->horairesOuvertureSamedi .= ' ';
+                                    }
+                                    $newPr->horairesOuvertureSamedi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
+                                    break;
+                                case '7' :
+                                    if(!empty($newPr->horairesOuvertureDimanche)) {
+                                        $newPr->horairesOuvertureDimanche .= ' ';
+                                    }
+                                    $newPr->horairesOuvertureDimanche .= $horaire['START_TM'].'-'.$horaire['END_TM'];
+                                    break;
+                                default :
+                                    break;
                             }
                         }
-                        if(empty($newPr->horairesOuvertureLundi)) $newPr->horairesOuvertureLundi = "00:00-00:00 00:00-00:00";
-                        if(empty($newPr->horairesOuvertureMardi)) $newPr->horairesOuvertureMardi = "00:00-00:00 00:00-00:00";
-                        if(empty($newPr->horairesOuvertureMercredi)) $newPr->horairesOuvertureMercredi = "00:00-00:00 00:00-00:00";
-                        if(empty($newPr->horairesOuvertureJeudi)) $newPr->horairesOuvertureJeudi = "00:00-00:00 00:00-00:00";
-                        if(empty($newPr->horairesOuvertureVendredi)) $newPr->horairesOuvertureVendredi = "00:00-00:00 00:00-00:00";
-                        if(empty($newPr->horairesOuvertureSamedi)) $newPr->horairesOuvertureSamedi = "00:00-00:00 00:00-00:00";
-                        if(empty($newPr->horairesOuvertureDimanche)) $newPr->horairesOuvertureDimanche = "00:00-00:00 00:00-00:00";
-
-                        return $newPr;
                     }
+                    if(empty($newPr->horairesOuvertureLundi)) {
+                        $newPr->horairesOuvertureLundi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureMardi)) {
+                        $newPr->horairesOuvertureMardi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureMercredi)) {
+                        $newPr->horairesOuvertureMercredi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureJeudi)) {
+                        $newPr->horairesOuvertureJeudi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureVendredi)) {
+                        $newPr->horairesOuvertureVendredi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureSamedi)) {
+                        $newPr->horairesOuvertureSamedi = "00:00-00:00 00:00-00:00";
+                    }
+                    if(empty($newPr->horairesOuvertureDimanche)) {
+                        $newPr->horairesOuvertureDimanche = "00:00-00:00 00:00-00:00";
+                    }
+
+                    return $newPr;
                 }
             }
         }
@@ -285,43 +377,71 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
                                 foreach($listeHoraires as $horaire) {
                                     switch($horaire['DAY_ID']) {
                                         case '1' :
-                                            if(!empty($newPr->horairesOuvertureLundi)) $newPr->horairesOuvertureLundi .= ' ';
+                                            if(!empty($newPr->horairesOuvertureLundi)) {
+                                                $newPr->horairesOuvertureLundi .= ' ';
+                                            }
                                             $newPr->horairesOuvertureLundi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
                                             break;
                                         case '2' :
-                                            if(!empty($newPr->horairesOuvertureMardi)) $newPr->horairesOuvertureMardi .= ' ';
+                                            if(!empty($newPr->horairesOuvertureMardi)) {
+                                                $newPr->horairesOuvertureMardi .= ' ';
+                                            }
                                             $newPr->horairesOuvertureMardi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
                                             break;
                                         case '3' :
-                                            if(!empty($newPr->horairesOuvertureMercredi)) $newPr->horairesOuvertureMercredi .= ' ';
+                                            if(!empty($newPr->horairesOuvertureMercredi)) {
+                                                $newPr->horairesOuvertureMercredi .= ' ';
+                                            }
                                             $newPr->horairesOuvertureMercredi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
                                             break;
                                         case '4' :
-                                            if(!empty($newPr->horairesOuvertureJeudi)) $newPr->horairesOuvertureJeudi .= ' ';
+                                            if(!empty($newPr->horairesOuvertureJeudi)) {
+                                                $newPr->horairesOuvertureJeudi .= ' ';
+                                            }
                                             $newPr->horairesOuvertureJeudi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
                                             break;
                                         case '5' :
-                                            if(!empty($newPr->horairesOuvertureVendredi)) $newPr->horairesOuvertureVendredi .= ' ';
+                                            if(!empty($newPr->horairesOuvertureVendredi)) {
+                                                $newPr->horairesOuvertureVendredi .= ' ';
+                                            }
                                             $newPr->horairesOuvertureVendredi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
                                             break;
                                         case '6' :
-                                            if(!empty($newPr->horairesOuvertureSamedi)) $newPr->horairesOuvertureSamedi .= ' ';
+                                            if(!empty($newPr->horairesOuvertureSamedi)) {
+                                                $newPr->horairesOuvertureSamedi .= ' ';
+                                            }
                                             $newPr->horairesOuvertureSamedi .= $horaire['START_TM'].'-'.$horaire['END_TM'];
                                             break;
                                         case '7' :
-                                            if(!empty($newPr->horairesOuvertureDimanche)) $newPr->horairesOuvertureDimanche .= ' ';
+                                            if(!empty($newPr->horairesOuvertureDimanche)) {
+                                                $newPr->horairesOuvertureDimanche .= ' ';
+                                            }
                                             $newPr->horairesOuvertureDimanche .= $horaire['START_TM'].'-'.$horaire['END_TM'];
                                             break;
                                     }
                                 }
                             }
-                            if(empty($newPr->horairesOuvertureLundi)) $newPr->horairesOuvertureLundi = "00:00-00:00 00:00-00:00";
-                            if(empty($newPr->horairesOuvertureMardi)) $newPr->horairesOuvertureMardi = "00:00-00:00 00:00-00:00";
-                            if(empty($newPr->horairesOuvertureMercredi)) $newPr->horairesOuvertureMercredi = "00:00-00:00 00:00-00:00";
-                            if(empty($newPr->horairesOuvertureJeudi)) $newPr->horairesOuvertureJeudi = "00:00-00:00 00:00-00:00";
-                            if(empty($newPr->horairesOuvertureVendredi)) $newPr->horairesOuvertureVendredi = "00:00-00:00 00:00-00:00";
-                            if(empty($newPr->horairesOuvertureSamedi)) $newPr->horairesOuvertureSamedi = "00:00-00:00 00:00-00:00";
-                            if(empty($newPr->horairesOuvertureDimanche)) $newPr->horairesOuvertureDimanche = "00:00-00:00 00:00-00:00";
+                            if(empty($newPr->horairesOuvertureLundi)) {
+                                $newPr->horairesOuvertureLundi = "00:00-00:00 00:00-00:00";
+                            }
+                            if(empty($newPr->horairesOuvertureMardi)) {
+                                $newPr->horairesOuvertureMardi = "00:00-00:00 00:00-00:00";
+                            }
+                            if(empty($newPr->horairesOuvertureMercredi)) {
+                                $newPr->horairesOuvertureMercredi = "00:00-00:00 00:00-00:00";
+                            }
+                            if(empty($newPr->horairesOuvertureJeudi)) {
+                                $newPr->horairesOuvertureJeudi = "00:00-00:00 00:00-00:00";
+                            }
+                            if(empty($newPr->horairesOuvertureVendredi)) {
+                                $newPr->horairesOuvertureVendredi = "00:00-00:00 00:00-00:00";
+                            }
+                            if(empty($newPr->horairesOuvertureSamedi)) {
+                                $newPr->horairesOuvertureSamedi = "00:00-00:00 00:00-00:00";
+                            }
+                            if(empty($newPr->horairesOuvertureDimanche)) {
+                                $newPr->horairesOuvertureDimanche = "00:00-00:00 00:00-00:00";
+                            }
 
                             $return[] = $newPr;
                         }
@@ -339,7 +459,6 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
 
     public function getQuickcost($quickCost,$quickcost_url = '') {
         if (!$quickcost_url) {
-            //$quickcost_url = "http://wsshipping.chronopost.fr/wsQuickcost/services/ServiceQuickCost?wsdl";
             $quickcost_url = "https://www.chronopost.fr/quickcost-cxf/QuickcostServiceWS?wsdl";
         }
         try {
@@ -369,7 +488,7 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
      * Return true si la méthode de livraison fait partie du contrat
      */
     public function getMethodIsAllowed($code,$quote = '') {
-        $quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
+        $quote = Mage::getSingleton('checkout/cart')->getQuote();
         $address = $quote->getShippingAddress();
         $helperData = Mage::helper('chronorelais');
         $code = $helperData->getChronoProductCode('',$code);
@@ -384,30 +503,20 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
                     'depZipCode' => $helperData->getConfigurationShipperInfo('zipcode'),
                     'arrCountryCode' => $this->getFilledValue($address->getCountryId()),
                     'arrZipCode' => $this->getFilledValue($address->getPostcode()),
-                    'arrCity' => $this->getFilledValue($address->getCity()),
+                    'arrCity' => $address->getCity() ? $this->getFilledValue($address->getCity()) : '-',
                     'type' => 'M',
                     'weight' => 1
                 );
-                //print_r($params);
                 $webservbt = $client->calculateProducts($params);
-                //print_r($webservbt);
-                if($webservbt->return->errorCode == 0)
+                if($webservbt->return->errorCode == 0 && $webservbt->return->productList)
                 {
-                    /*if($webservbt->return->productList) {
-                        foreach($webservbt->return->productList as $product) {
-                            $this->methodsAllowed[] = $product->productCode;
-                        }
-                    }*/
-                    if($webservbt->return->productList) {
-                        if(is_array($webservbt->return->productList)) {
-                          foreach($webservbt->return->productList as $product) {
-                              $this->methodsAllowed[] = $product->productCode;
-                          }
-                        } else { /* cas ou il y a un seul résultat */
-                          $product = $webservbt->return->productList;
+                    if(is_array($webservbt->return->productList)) {
+                      foreach($webservbt->return->productList as $product) {
                           $this->methodsAllowed[] = $product->productCode;
-                        }
-
+                      }
+                    } else { /* cas ou il y a un seul résultat */
+                      $product = $webservbt->return->productList;
+                      $this->methodsAllowed[] = $product->productCode;
                     }
                 }
             }
@@ -419,13 +528,6 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
             return false;
         }
     }
-
-
-
-
-
-
-
 
 
     public function getFilledValue($value) {
@@ -445,5 +547,181 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
         $stringToReturn = preg_replace('/[\-]+$/', '', $stringToReturn);
         $stringToReturn = preg_replace('/[\-]{2,}/', ' ', $stringToReturn);
         return $stringToReturn;
+    }
+
+    public function cancelSkybill($skybillNumber = '') {
+        if($skybillNumber) {
+            try {
+
+                $client = new SoapClient("https://www.chronopost.fr/tracking-cxf/TrackingServiceWS?wsdl",array('trace'=> 0,'connection_timeout'=>10));
+
+                $helperData = Mage::helper('chronorelais');
+                $params = array(
+                    'accountNumber' => $helperData->getConfigurationAccountNumber(),
+                    'password' => $helperData->getConfigurationAccountPass(),
+                    'skybillNumber' => $skybillNumber,
+                    'language' => Mage::app()->getLocale()->getLocaleCode()
+                );
+
+                return $client->cancelSkybill($params);
+            }  catch (Exception $e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /* Livraison sur rendez-vous */
+    public function getSearchDeliverySlot($_srdvConfig = '') {
+        $quote = Mage::getSingleton('checkout/cart')->getQuote();
+
+        $_shippingAddress = $quote->getShippingAddress();
+        $recipient_address = $_shippingAddress->getStreet();
+        if (!isset($recipient_address[1])) {
+            $recipient_address[1] = '';
+        }
+
+        $_helper = Mage::helper('chronorelais');
+        try {
+
+            $soapHeaders = array();
+            $namespace = 'http://cxf.soap.ws.creneau.chronopost.fr/';
+            $soapHeaders[] = new SoapHeader($namespace, 'password', $_helper->getConfigurationAccountPass());
+            $soapHeaders[] = new SoapHeader($namespace, 'accountNumber', $_helper->getConfigurationAccountNumber());
+
+            $client = new SoapClient("https://www.chronopost.fr/rdv-cxf/services/CreneauServiceWS?wsdl", array('trace' => 1, 'connection_timeout' => 10));
+            $client->__setSoapHeaders($soapHeaders);
+
+            $_srdvConfig = json_decode($_srdvConfig,true);
+
+            /* definition date de debut */
+            $dateBegin = date('Y-m-d H:i:s');
+            if(isset($_srdvConfig['dateRemiseColis_nbJour']) && $_srdvConfig['dateRemiseColis_nbJour'] > 0) {
+                $dateBegin =  date('Y-m-d', strtotime('+'.(int)$_srdvConfig['dateRemiseColis_nbJour'].' day'));
+            } elseif(isset($_srdvConfig['dateRemiseColis_jour']) && isset($_srdvConfig['dateRemiseColis_heures'])) {
+                $jour_text = date('l', strtotime("Sunday +".$_srdvConfig['dateRemiseColis_jour']." days"));
+                $dateBegin = date('Y-m-d', strtotime('next '.$jour_text)).' '.$_srdvConfig['dateRemiseColis_heures'].':'.$_srdvConfig['dateRemiseColis_minutes'].':00';
+            }
+            $dateBegin = date('Y-m-d',strtotime($dateBegin)).'T'.date('H:i:s',strtotime($dateBegin));
+
+            $params = array(
+
+                'callerTool' => 'RDVWS',
+                'productType' => 'RDV',
+
+                'shipperAdress1' => $_helper->getConfigurationShipperInfo('address1'),
+                'shipperAdress2' => $_helper->getConfigurationShipperInfo('address2'),
+                'shipperZipCode' => $_helper->getConfigurationShipperInfo('zipcode'),
+                'shipperCity' => $_helper->getConfigurationShipperInfo('city'),
+                'shipperCountry' => $_helper->getConfigurationShipperInfo('country'),
+
+                'recipientAdress1' => substr($this->getFilledValue($recipient_address[0]), 0, 38),
+                'recipientAdress2' => substr($this->getFilledValue($recipient_address[1]), 0, 38),
+                'recipientZipCode' => $this->getFilledValue($_shippingAddress->getPostcode()),
+                'recipientCity' => $this->getFilledValue($_shippingAddress->getCity()),
+                'recipientCountry' => $this->getFilledValue($_shippingAddress->getCountryId()),
+
+                'weight' => 1,
+                'dateBegin' => $dateBegin,
+                'shipperDeliverySlotClosed' => '',
+                'currency' => 'EUR',
+                'isDeliveryDate' => 0,
+                'slotType' => 'J'
+            );
+
+
+            for($i = 1; $i <= 4; $i++) {
+
+                /* tarif des niveaux tarifaires */
+                if(isset($_srdvConfig['N'.$i.'_price'])) {
+                    $params['rateN'.$i] = $_srdvConfig['N'.$i.'_price'];
+                }
+
+                /* niveaux tarifaires fermés  */
+                if(isset($_srdvConfig['N'.$i.'_status']) && $_srdvConfig['N'.$i.'_status'] == 0) {
+                    if(!isset($params['rateLevelsNotShow'])) {
+                        $params['rateLevelsNotShow'] = array();
+                    }
+                    $params['rateLevelsNotShow'][]= 'N'.$i;
+                }
+            }
+
+            /* creneaux à fermer */
+            if(isset($_srdvConfig['creneaux'])) {
+                foreach($_srdvConfig['creneaux'] as $_creneau) {
+
+                    $jour_debut_text = date('l', Mage::getModel('core/date')->timestamp(strtotime("Sunday +".$_creneau['creneaux_debut_jour']." days")));
+                    $jour_fin_text = date('l', Mage::getModel('core/date')->timestamp(strtotime("Sunday +".$_creneau['creneaux_fin_jour']." days")));
+
+                    $dateDebut = '';
+                    $dateFin = '';
+
+                    /* creation de creneaux aux bons formats, pour 6 semaines consécutives */
+                    for($indiceWeek = 0; $indiceWeek < 6; $indiceWeek++) {
+
+                        if(empty($dateDebut)) {
+                            $dateDebut = date('Y-m-d', Mage::getModel('core/date')->timestamp(strtotime('next '.$jour_debut_text))).' '.(int)$_creneau['creneaux_debut_heures'].':'.(int)$_creneau['creneaux_debut_minutes'].':00';
+                            $dateFin = date('Y-m-d', Mage::getModel('core/date')->timestamp(strtotime('next '.$jour_fin_text))).' '.(int)$_creneau['creneaux_fin_heures'].':'.(int)$_creneau['creneaux_fin_minutes'].':00';
+                            if(date('N') >= $_creneau['creneaux_debut_jour']) {
+                                $dateDebut = date('Y-m-d', Mage::getModel('core/date')->timestamp(strtotime(date('Y-m-d',strtotime($dateDebut)).' -7 day'))).' '.(int)$_creneau['creneaux_debut_heures'].':'.(int)$_creneau['creneaux_debut_minutes'].':00';
+                            }
+                            if(date('N') >= $_creneau['creneaux_fin_jour']) {
+                                $dateFin = date('Y-m-d', Mage::getModel('core/date')->timestamp(strtotime(date('Y-m-d',strtotime($dateFin)).' -7 day'))).' '.(int)$_creneau['creneaux_fin_heures'].':'.(int)$_creneau['creneaux_fin_minutes'].':00';
+                            }
+
+                        } else {
+                            $dateDebut = date('Y-m-d', Mage::getModel('core/date')->timestamp(strtotime($jour_debut_text.' next week '.date('Y-m-d',Mage::getModel('core/date')->timestamp(strtotime($dateDebut)))))).' '.(int)$_creneau['creneaux_debut_heures'].':'.(int)$_creneau['creneaux_debut_minutes'].':00';
+                            $dateFin = date('Y-m-d', Mage::getModel('core/date')->timestamp(strtotime($jour_fin_text.' next week '.date('Y-m-d',Mage::getModel('core/date')->timestamp(strtotime($dateFin)))))).' '.(int)$_creneau['creneaux_fin_heures'].':'.(int)$_creneau['creneaux_fin_minutes'].':00';
+                        }
+
+                        $dateDebutStr = date('Y-m-d',Mage::getModel('core/date')->timestamp(strtotime($dateDebut))).'T'.date('H:i:s',Mage::getModel('core/date')->timestamp(strtotime($dateDebut)));
+                        $dateFinStr = date('Y-m-d',Mage::getModel('core/date')->timestamp(strtotime($dateFin))).'T'.date('H:i:s',Mage::getModel('core/date')->timestamp(strtotime($dateFin)));
+
+                        if(!isset($params['shipperDeliverySlotClosed'])) {
+                            $params['shipperDeliverySlotClosed'] = array();
+                        }
+                        $params['shipperDeliverySlotClosed'][] = $dateDebutStr."/".$dateFinStr;
+                    }
+                }
+            }
+
+            $webservbt = $client->searchDeliverySlot($params);
+            if($webservbt->return->code == 0) {
+                return $webservbt;
+            }
+            return false;
+        }catch(Exception $e) {
+            return false;
+        }
+    }
+
+    public function confirmDeliverySlot($rdvInfo = '') {
+        $_helper = Mage::helper('chronorelais');
+        try {
+
+            $soapHeaders = array();
+            $namespace = 'http://cxf.soap.ws.creneau.chronopost.fr/';
+            $soapHeaders[] = new SoapHeader($namespace, 'password', $_helper->getConfigurationAccountPass());
+            $soapHeaders[] = new SoapHeader($namespace, 'accountNumber', $_helper->getConfigurationAccountNumber());
+
+            $client = new SoapClient("https://www.chronopost.fr/rdv-cxf/services/CreneauServiceWS?wsdl", array('trace' => 1, 'connection_timeout' => 10));
+            $client->__setSoapHeaders($soapHeaders);
+
+            $params = array(
+                'callerTool' => 'RDVWS',
+                'productType' => 'RDV',
+
+                'codeSlot' => $rdvInfo['deliverySlotCode'],
+                'meshCode' => $rdvInfo['meshCode'],
+                'transactionID' => $rdvInfo['transactionID'],
+                'rank' => $rdvInfo['rank'],
+                'position' => $rdvInfo['rank'],
+                'dateSelected' => $rdvInfo['deliveryDate']
+            );
+
+            return $client->confirmDeliverySlot($params);
+        }catch(Exception $e) {
+            return false;
+        }
     }
 }

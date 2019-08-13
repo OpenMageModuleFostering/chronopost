@@ -69,8 +69,8 @@ class Chronopost_Chronorelais_Block_Adminhtml_Notification extends Mage_Core_Blo
         $xml = simplexml_load_file(self::MODULE_RELEASES_XML_URL);
         $nbRelease = count($xml->children());
         $releases = $xml->children();
-        $lastRelease = $releases[$nbRelease-1];
-        if(version_compare($currentVersion, $lastRelease->v, '>')) {
+        $lastRelease = $releases[0];
+        if(version_compare($lastRelease->v, $currentVersion, '>')) {
             $notifications[] = 'new_version';
         }
 

@@ -20,6 +20,19 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
     const CHRONORELAIS_PR = 'PR'; // for Chronorelais
     const CHRONOPOST_DEFAULT_COUNTRY = 'FR';
     const CHRONOPOST_TRACKING_URL = 'http://wsshipping.chronopost.fr/shipping/services/getReservedSkybill?reservationNumber={trackingNumber}';
+
+    const CHRONORELAISEUROPE = '49'; // for Chronorelais Europe
+    const CHRONORELAISEUROPE_STR = 'PRU'; // for Chronorelais Europe
+
+    const CHRONORELAISDOM = '4P'; // for Chronorelais DOM
+    const CHRONORELAISDOM_STR = 'PRDOM'; // for Chronorelais DOM
+
+    const CHRONOPOST_SMD = '4I'; // for Chronopost SAMEDAY
+    const CHRONOPOST_SMD_STR = 'SMD'; // for Chronopost SAMEDAY
+
+    const CHRONOPOST_SRDV = '2O'; // for Chronopost Sur Rendez-vous 'O' majuscule et non 0
+    const CHRONOPOST_SRDV_STR = 'SRDV'; // for Chronopost Sur Rendez-vous
+
     // if you are in a period outside thursday 18:00 to friday 15:00, there is no shipping on saturday
     var $SaturdayShippingDays = array(
         'startday' => 'thursday',
@@ -33,7 +46,17 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     public function getSaturdayShippingDays() {
-        return $this->SaturdayShippingDays;
+
+        $starday = explode(":",$this->getConfigData("chronorelais/saturday/startday"));
+        $endday = explode(":",$this->getConfigData("chronorelais/saturday/endday"));
+
+        $saturdayDays = array();
+        $saturdayDays['startday'] = (count($starday) == 3 && isset($starday[0])) ? $starday[0] : $this->SaturdayShippingDays['startday'];
+        $saturdayDays['starttime'] = (count($starday) == 3 && isset($starday[1])) ? $starday[1].':'.$starday[2].':00' : $this->SaturdayShippingDays['starttime'];
+        $saturdayDays['endday'] = (count($endday) == 3 && isset($endday[0])) ? $endday[0] : $this->SaturdayShippingDays['endday'];
+        $saturdayDays['endtime'] = (count($endday) == 3 && isset($endday[1])) ? $endday[1].':'.$endday[2].':00' : $this->SaturdayShippingDays['endtime'];
+
+        return $saturdayDays;
     }
 
     public function getCurrentTimeByZone($timezone="Europe/Paris", $format="l H:i") {
@@ -53,9 +76,10 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
         $current_timestamp = strtotime($current_date);
 
         $sending_day = false;
-        if ($shipping_days['startday'] == $current_day && $current_timestamp >= $start_timestamp) {
+        /*if (  ($shipping_days['startday'] == $current_day && $current_timestamp >= $start_timestamp) || ($shipping_days['endday'] == $current_day && $current_timestamp <= $end_timestamp)  ) {
             $sending_day = true;
-        } elseif ($shipping_days['endday'] == $current_day && $current_timestamp <= $end_timestamp) {
+        }*/
+        if (  $current_timestamp >= $start_timestamp && $current_timestamp <= $end_timestamp  ) {
             $sending_day = true;
         }
         return $sending_day;
@@ -90,22 +114,37 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
 
         switch($code) {
             case 'chronorelais' :
-                $productcode = self::CHRONORELAIS;
+                $productcode = static::CHRONORELAIS;
                 break;
             case 'chronopost' :
-                $productcode = self::CHRONO_POST;
+                $productcode = static::CHRONO_POST;
                 break;
             case 'chronoexpress' :
-                $productcode = self::CHRONO_EXPRESS;
+                $productcode = static::CHRONO_EXPRESS;
                 break;
             case 'chronopostc10' :
-                $productcode = self::CHRONOPOST_C10;
+                $productcode = static::CHRONOPOST_C10;
                 break;
             case 'chronopostc18' :
-                $productcode = self::CHRONOPOST_C18;
+                $productcode = static::CHRONOPOST_C18;
                 break;
             case 'chronopostcclassic' :
-                $productcode = self::CHRONOPOST_CClassic;
+                $productcode = static::CHRONOPOST_CClassic;
+                break;
+            case 'chronorelaiseurope' :
+                $productcode = static::CHRONORELAISEUROPE;
+                break;
+            case 'chronorelaisdom' :
+                $productcode = static::CHRONORELAISDOM;
+                break;
+            case 'chronopostsameday' :
+                $productcode = static::CHRONOPOST_SMD;
+                break;
+            case 'chronopostsrdv' :
+                $productcode = static::CHRONOPOST_SRDV;
+                break;
+            default :
+                $productcode = static::CHRONO_POST;
                 break;
         }
         return $productcode;
@@ -117,32 +156,47 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
 
         switch($code) {
             case 'chronorelais' :
-                $productcode = self::CHRONORELAIS;
+                $productcode = static::CHRONORELAIS;
                 break;
             case 'chronopost' :
                 if($this->getConfigOptionBAL()) {
-                    $productcode = self::CHRONO_POST_BAL;
+                    $productcode = static::CHRONO_POST_BAL;
                 }
                 else {
-                    $productcode = self::CHRONO_POST;
+                    $productcode = static::CHRONO_POST;
                 }
                 break;
             case 'chronoexpress' :
-                $productcode = self::CHRONO_EXPRESS;
+                $productcode = static::CHRONO_EXPRESS;
                 break;
             case 'chronopostc10' :
-                $productcode = self::CHRONOPOST_C10;
+                $productcode = static::CHRONOPOST_C10;
                 break;
             case 'chronopostc18' :
                 if($this->getConfigOptionBAL()) {
-                    $productcode = self::CHRONOPOST_C18_BAL;
+                    $productcode = static::CHRONOPOST_C18_BAL;
                 }
                 else {
-                    $productcode = self::CHRONOPOST_C18;
+                    $productcode = static::CHRONOPOST_C18;
                 }
                 break;
             case 'chronopostcclassic' :
-                $productcode = self::CHRONOPOST_CClassic;
+                $productcode = static::CHRONOPOST_CClassic;
+                break;
+            case 'chronorelaiseurope' :
+                $productcode = static::CHRONORELAISEUROPE;
+                break;
+            case 'chronorelaisdom' :
+                $productcode = static::CHRONORELAISDOM;
+                break;
+            case 'chronopostsameday' :
+                $productcode = static::CHRONOPOST_SMD;
+                break;
+            case 'chronopostsrdv' :
+                $productcode = static::CHRONOPOST_SRDV;
+                break;
+            default :
+                $productcode = static::CHRONO_POST;
                 break;
         }
         return $productcode;
@@ -153,12 +207,39 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
         $code = strtolower($code);
 
         switch($code) {
-            case 'chronorelais' : $productcode = self::CHRONORELAIS_PR; break;
-            case 'chronopost' : $productcode = self::CHRONOPOST_13H; break;
-            case 'chronoexpress' : $productcode = self::CHRONOEXPRESS_EI; break;
-            case 'chronopostc10' : $productcode = self::CHRONOPOST_C10_STR; break;
-            case 'chronopostc18' : $productcode = self::CHRONOPOST_C18_STR; break;
-            case 'chronopostcclassic' : $productcode = self::CHRONOPOST_CClassic_STR; break;
+            case 'chronorelais' :
+                $productcode = static::CHRONORELAIS_PR;
+                break;
+            case 'chronopost' :
+                $productcode = static::CHRONOPOST_13H;
+                break;
+            case 'chronoexpress' :
+                $productcode = static::CHRONOEXPRESS_EI;
+                break;
+            case 'chronopostc10' :
+                $productcode = static::CHRONOPOST_C10_STR;
+                break;
+            case 'chronopostc18' :
+                $productcode = static::CHRONOPOST_C18_STR;
+                break;
+            case 'chronopostcclassic' :
+                $productcode = static::CHRONOPOST_CClassic_STR;
+                break;
+            case 'chronorelaiseurope' :
+                $productcode = static::CHRONORELAISEUROPE_STR;
+                break;
+            case 'chronorelaisdom' :
+                $productcode = static::CHRONORELAISDOM_STR;
+                break;
+            case 'chronopostsameday' :
+                $productcode = static::CHRONOPOST_SMD_STR;
+                break;
+            case 'chronopostsrdv' :
+                $productcode = static::CHRONOPOST_SRDV_STR;
+                break;
+            default :
+                $productcode = static::CHRONOPOST_13H;
+                break;
         }
         return $productcode;
     }
@@ -168,32 +249,52 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
         $code = strtolower($code);
 
         switch($code) {
-            case 'chronorelais' : $productcode = self::CHRONORELAIS_PR; break;
+            case 'chronorelais' :
+                $productcode = static::CHRONORELAIS_PR;
+                break;
             case 'chronopost' :
                 if($this->getConfigOptionBAL()) {
-                    $productcode = self::CHRONOPOST_13H_BAL;
+                    $productcode = static::CHRONOPOST_13H_BAL;
                 }
                 else {
-                    $productcode = self::CHRONOPOST_13H;
+                    $productcode = static::CHRONOPOST_13H;
                 }
                 break;
-            case 'chronoexpress' : $productcode = self::CHRONOEXPRESS_EI; break;
-            case 'chronopostc10' : $productcode = self::CHRONOPOST_C10_STR; break;
+            case 'chronoexpress' :
+                $productcode = static::CHRONOEXPRESS_EI;
+                break;
+            case 'chronopostc10' :
+                $productcode = static::CHRONOPOST_C10_STR;
+                break;
             case 'chronopostc18' :
                 if($this->getConfigOptionBAL()) {
-                    $productcode = self::CHRONOPOST_C18_BAL_STR;
+                    $productcode = static::CHRONOPOST_C18_BAL_STR;
                 }
                 else {
-                    $productcode = self::CHRONOPOST_C18_STR;
+                    $productcode = static::CHRONOPOST_C18_STR;
                 }
                 break;
-            case 'chronopostcclassic' : $productcode = self::CHRONOPOST_CClassic_STR; break;
+            case 'chronopostcclassic' :
+                $productcode = static::CHRONOPOST_CClassic_STR;
+                break;
+            case 'chronorelaiseurope' :
+                $productcode = static::CHRONORELAISEUROPE_STR;
+                break;
+            case 'chronorelaisdom' :
+                $productcode = static::CHRONORELAISDOM_STR;
+                break;
+            case 'chronopostsrdv' :
+                $productcode = static::CHRONOPOST_SRDV_STR;
+                break;
+            default :
+                $productcode = static::CHRONOPOST_13H;
+                break;
         }
         return $productcode;
     }
 
     public function getConfigurationTrackingUrl() {
-        return self::CHRONOPOST_TRACKING_URL;
+        return static::CHRONOPOST_TRACKING_URL;
     }
 
     /**
@@ -243,10 +344,8 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getConfigurationShipperInfo($field) {
         $fieldValue = '';
-        if ($field) {
-            if ($this->getConfigData('chronorelais/shipperinformation/' . $field)) {
-                $fieldValue = $this->getConfigData('chronorelais/shipperinformation/' . $field);
-            }
+        if ($field && $this->getConfigData('chronorelais/shipperinformation/' . $field)) {
+            $fieldValue = $this->getConfigData('chronorelais/shipperinformation/' . $field);
         }
         return $fieldValue;
     }
@@ -256,10 +355,8 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getConfigurationCustomerInfo($field) {
         $fieldValue = '';
-        if ($field) {
-            if ($this->getConfigData('chronorelais/customerinformation/' . $field)) {
-                $fieldValue = $this->getConfigData('chronorelais/customerinformation/' . $field);
-            }
+        if ($field && $this->getConfigData('chronorelais/customerinformation/' . $field)) {
+            $fieldValue = $this->getConfigData('chronorelais/customerinformation/' . $field);
         }
         return $fieldValue;
     }
@@ -337,14 +434,30 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
 
     /* return track number field name */
     public function getTrackNumberFieldName() {
-        $magentoVersion = Mage::getVersionInfo();
-        //if($magentoVersion['minor'] > 4 || ($magentoVersion['minor'] == 4 && $magentoVersion['revision'] > 1)) { /* version > 1.4.1 */
         if (version_compare(Mage::getVersion(), '1.5.1.0', '>')) {
             return "track_number";
         } else {
             return "number";
         }
 
+    }
+
+    public function addMargeToQuickcost($quickcost_val,$carrierCode = '', $firstPassage = true) {
+        if($carrierCode) {
+
+            $quickcostMarge = Mage::getStoreConfig('carriers/' . $carrierCode . '/quickcost_marge');
+            $quickcostMargeType = Mage::getStoreConfig('carriers/' . $carrierCode . '/quickcost_marge_type');
+
+            if($quickcostMarge) {
+                if($quickcostMargeType == 'amount') {
+                    $quickcost_val += $quickcostMarge;
+                } elseif($quickcostMargeType == 'prcent') {
+                    $quickcost_val += $quickcost_val * $quickcostMarge / 100;
+                }
+            }
+        }
+
+        return $quickcost_val;
     }
 
 }

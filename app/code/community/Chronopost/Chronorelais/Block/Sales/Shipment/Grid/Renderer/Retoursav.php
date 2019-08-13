@@ -10,15 +10,18 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid_Renderer_Retoursav
             return '&nbsp;';
         }
         $countryId = $row->getShippingAddress()->getCountryId();
+        $shippingMethodCode = strtolower($row->getChronoShippingMethod());
 
-        if($countryId != 'FR')
+        if($countryId != 'FR' && strpos($shippingMethodCode, 'chronorelaiseurope') === false) {
             return '';
+        }
         $out = '';
         $i = 0;
         foreach ($actions as $action){
             if (is_array($action) ) {
-                if($i > 0)
+                if($i > 0) {
                     $out .= '<br />';
+                }
                 $out .= $this->_toLinkHtml($action, $row);
                 $i++;
             }

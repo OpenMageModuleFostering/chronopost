@@ -25,24 +25,21 @@ class Chronopost_Chronorelais_Checkout_MultishippingController extends Mage_Chec
             $addresses = $this->_getCheckout()->getQuote()->getAllShippingAddresses();
             $relays = $this->getRequest()->getParam('shipping_method_chronorelais');
             foreach ($addresses as $address) {
-                if (isset($shippingMethods[$address->getId()])) {
-                    if (substr($shippingMethods[$address->getId()], 0, 12) == "chronorelais") {
+                if (isset($shippingMethods[$address->getId()]) && substr($shippingMethods[$address->getId()], 0, 12) == "chronorelais" ) {
+                    $relaisId = $relays[$address->getId()];
+                    if ($relaisId != "") {
 
-                        $relaisId = $relays[$address->getId()];
-                        if ($relaisId != "") {
+                        $helper = Mage::helper('chronorelais/webservice');
+                        $relais = $helper->getDetailRelaisPoint($relaisId);
 
-                            $helper = Mage::helper('chronorelais/webservice');
-                            $relais = $helper->getDetailRelaisPoint($relaisId);
-
-                            if ($relais) {
-                                $address->setCity($relais->localite)
-                                        ->setPostcode($relais->codePostal)
-                                        ->setStreet(trim($relais->adresse1 . "\n" . $relais->adresse2 . " " . $relais->adresse3))
-                                        ->setCompany($relais->nomEnseigne)
-                                        ->setWRelayPointCode($relais->identifiantChronopostPointA2PAS)
-                                        ->save()
-                                        ->setCollectShippingRates(true);
-                            }
+                        if ($relais) {
+                            $address->setCity($relais->localite)
+                                    ->setPostcode($relais->codePostal)
+                                    ->setStreet(trim($relais->adresse1 . "\n" . $relais->adresse2 . " " . $relais->adresse3))
+                                    ->setCompany($relais->nomEnseigne)
+                                    ->setWRelayPointCode($relais->identifiantChronopostPointA2PAS)
+                                    ->save()
+                                    ->setCollectShippingRates(true);
                         }
                     }
                 }
@@ -73,9 +70,6 @@ class Chronopost_Chronorelais_Checkout_MultishippingController extends Mage_Chec
             $addresses = $this->_getCheckout()->getQuote()->getAllShippingAddresses();
             foreach ($addresses as $address) {
                 if ($address->getId() == $this->getRequest()->get('index')) {
-                    /* $address->setPostcode($postcode)
-                      ->save()
-                      ->setCollectShippingRates(true); */
 
                     $helper = Mage::helper('chronorelais/webservice');
                     $webservbt =  $helper->getPointsRelaisByCp($postcode);

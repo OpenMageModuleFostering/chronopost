@@ -26,8 +26,16 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
     {
 		$_chronopost_deliver_saturday = Mage::helper('chronorelais')->getConfigData('carriers/chronopost/deliver_on_saturday');
 		$_chronorelais_deliver_saturday = Mage::helper('chronorelais')->getConfigData('carriers/chronorelais/deliver_on_saturday');
-		if($_chronopost_deliver_saturday==1) { $_chronopost_deliver_saturday = 'Yes'; } else { $_chronopost_deliver_saturday = 'No';}
-		if($_chronorelais_deliver_saturday==1) { $_chronorelais_deliver_saturday = 'Yes'; } else { $_chronorelais_deliver_saturday = 'No'; }
+		if($_chronopost_deliver_saturday==1) {
+            $_chronopost_deliver_saturday = 'Yes';
+        } else {
+            $_chronopost_deliver_saturday = 'No';
+        }
+		if($_chronorelais_deliver_saturday==1) {
+            $_chronorelais_deliver_saturday = 'Yes';
+        } else {
+            $_chronorelais_deliver_saturday = 'No';
+        }
 
 		$collection = Mage::getResourceModel($this->_getCollectionClass());
         $collection->join('order', 'main_table.entity_id = order.entity_id', 'shipping_description');
@@ -132,7 +140,7 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
             'filter'    => false,
 		));
 
-		if($is_sending_day = Mage::helper('chronorelais')->isSendingDay()) {
+		if(Mage::helper('chronorelais')->isSendingDay()) {
 			$this->addColumn('livraison_le_samedi', array(
 				'header' 	=> Mage::helper('sales')->__('Livraison le Samedi'),
 				'index'	 	=> 'livraison_le_samedi',
@@ -198,7 +206,7 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
         $this->getMassactionBlock()->setFormFieldName('order_ids');
         $this->getMassactionBlock()->setUseSelectAll(false);
 
-		if($is_sending_day = Mage::helper('chronorelais')->isSendingDay()) {
+		if(Mage::helper('chronorelais')->isSendingDay()) {
 			$shipping = array(
 					'Yes' => Mage::helper('chronorelais')->__('Yes'),
 					'No'  => Mage::helper('chronorelais')->__('No'));

@@ -56,11 +56,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
      * @param int $contentLength    explicit content length, if strlen($content) isn't applicable
      * @return Mage_Core_Controller_Varien_Action
      */
-    protected function _prepareDownloadResponse(
-        $fileName,
-        $content,
-        $contentType = 'application/octet-stream',
-        $contentLength = null)
+    protected function _prepareDownloadResponse($fileName,$content,$contentType = 'application/octet-stream',$contentLength = null)
     {
         $session = Mage::getSingleton('admin/session');
         if ($session->isFirstPageAfterLogin()) {
@@ -114,27 +110,15 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
         return $this;
     }
 
-    protected function _processDownloadMass($urls) {
-
-        $helper = Mage::helper('downloadable/download');
-        $countUrl = count($urls);
-        $indice = 1;
-        $filesSize = 0;
-        $content = '';
+    protected function _processDownloadMass($pdf_contents) {
 
         $paths = array();
         $this->createMediaChronopostFolder();
-        foreach ($urls as $url) {
-            $helper->setResource($url, 'url');
-            $fileName = $helper->getFilename();
-            $fileName = explode('reservationNumber=', $fileName);
-            $fileName = $fileName[1];
-            $filesSize = $helper->getFilesize();
-            $contentType = $helper->getContentType();
-
+        foreach ($pdf_contents as $pdf_content) {
+            $fileName = 'tmp-etiquette-'.date('H-i-s');
             /* save pdf file */
             $path = Mage::getBaseDir('media').'/chronopost/' . $fileName . '.pdf';
-            file_put_contents($path, file_get_contents($url));
+            file_put_contents($path, $pdf_content);
             $paths[] = $path;
         }
 
@@ -203,16 +187,9 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
         $_billingAddress = $shipment->getBillingAddress();
         $_helper = Mage::helper('chronorelais');
 
-        $shippingMethodAllow = array('chronorelais','chronopost','chronoexpress','chronopostc10','chronopostc18','chronopostcclassic');
+        $shippingMethodAllow = array('chronorelais','chronopost','chronoexpress','chronopostc10','chronopostc18','chronopostcclassic','chronorelaiseurope','chronorelaisdom','chronopostsrdv','chronopostsameday');
         if (in_array($_shippingMethod[0],$shippingMethodAllow)) {
             $esdParams = $header = $shipper = $customer = $recipient = $ref = $skybill = $skybillParams = $password = array();
-
-            //esdParams parameters
-            $esdParams = array(
-                'height' => '',
-                'width' => '',
-                'length' => ''
-            );
 
             //header parameters
             $header = array(
@@ -268,7 +245,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
             $recipientName2 = $this->getFilledValue($_shippingAddress->getFirstname() . ' ' . $_shippingAddress->getLastname());
             //remove any alphabets in phone number
 
-            //$recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
             $recipientPhone = trim(preg_replace("/[^0-9\.\-]/", " ", $_shippingAddress->getTelephone()));
 
             $recipient = array(
@@ -301,8 +277,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
             //skybill parameters
             /* Livraison Samedi (Delivery Saturday) field */
             $SaturdayShipping = 0; //default value for the saturday shipping
-            $send_day = strtolower(date('l'));
-            if ($_shippingMethod[0] == "chronopost" || $_shippingMethod[0] == "chronorelais") {
+            if ($_shippingMethod[0] == "chronopost" || $_shippingMethod[0] == "chronorelais" || $_shippingMethod[0] == "chronorelaisdom") {
                 if (!$_deliver_on_saturday = Mage::helper('chronorelais')->getLivraisonSamediStatus($_order->getEntityId())) {
                     $_deliver_on_saturday = Mage::helper('chronorelais')->getConfigData('carriers/' . $_shippingMethod[0] . '/deliver_on_saturday');
                 } else {
@@ -313,11 +288,21 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                     }
                 }
                 $is_sending_day = Mage::helper('chronorelais')->isSendingDay();
-                if ($_deliver_on_saturday && $is_sending_day) {
-                    $SaturdayShipping = 6;
-                } elseif (!$_deliver_on_saturday && $is_sending_day) {
-                    $SaturdayShipping = 1;
+
+                if($_shippingMethod[0] == "chronorelaisdom") {
+                    if ($_deliver_on_saturday && $is_sending_day) {
+                        $SaturdayShipping = 369;
+                    } else {
+                        $SaturdayShipping = 368;
+                    }
+                } else {
+                    if ($_deliver_on_saturday && $is_sending_day) {
+                        $SaturdayShipping = 6;
+                    } elseif (!$_deliver_on_saturday && $is_sending_day) {
+                        $SaturdayShipping = 1;
+                    }
                 }
+
             }
 
             $weight = 0;
@@ -327,6 +312,13 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
             if ($_helper->getConfigWeightUnit() == 'g') {
                 $weight = $weight / 1000; /* conversion g => kg */
             }
+
+            /* si chronorelaiseurope : service : 337 si poids < 3kg ou 338 si > 3kg */
+            if($_shippingMethod[0] == "chronorelaiseurope") {
+                $weight <= 3 ? $SaturdayShipping = '337' : $SaturdayShipping = '338';
+            }
+
+
             $weight = 0; /* On met le poids à 0 car les colis sont pesé sur place */
 
             $skybill = array(
@@ -356,37 +348,63 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
             );
 
             $expeditionArray = array(
-                'esdParams' => $esdParams,
-                'header' => $header,
-                'shipper' => $shipper,
-                'customer' => $customer,
-                'recipient' => $recipient,
-                'ref' => $ref,
-                'skybill' => $skybill,
-                'skybillParams' => $skybillParams,
-                'password' => $_helper->getConfigurationAccountPass(),
-                'option' => '0'
+                'headerValue' => $header,
+                'shipperValue' => $shipper,
+                'customerValue' => $customer,
+                'recipientValue' => $recipient,
+                'refValue' => $ref,
+                'skybillValue' => $skybill,
+                'skybillParamsValue' => $skybillParams,
+                'password' => $_helper->getConfigurationAccountPass()
             );
-            //printArray($expeditionArray); exit;
+
+            /* si chronopostsrdv : ajout parametres supplementaires */
+            if($_shippingMethod[0] == "chronopostsrdv") {
+
+                $chronopostsrdv_creneaux_info = $_shippingAddress->getData('chronopostsrdv_creneaux_info');
+                $chronopostsrdv_creneaux_info = json_decode($chronopostsrdv_creneaux_info,true);
+
+                $_dateRdvStart = new DateTime($chronopostsrdv_creneaux_info['deliveryDate']);
+                $_dateRdvStart->setTime($chronopostsrdv_creneaux_info['startHour'],$chronopostsrdv_creneaux_info['startMinutes']);
+
+                $_dateRdvEnd = new DateTime($chronopostsrdv_creneaux_info['deliveryDate']);
+                $_dateRdvEnd->setTime($chronopostsrdv_creneaux_info['endHour'],$chronopostsrdv_creneaux_info['endMinutes']);
+
+
+                $scheduledValue = array(
+                    'appointmentValue' => array(
+                        'timeSlotStartDate' => $_dateRdvStart->format("Y-m-d")."T".$_dateRdvStart->format("H:i:s"),
+                        'timeSlotEndDate' => $_dateRdvEnd->format("Y-m-d")."T".$_dateRdvEnd->format("H:i:s"),
+                        'timeSlotTariffLevel' => $chronopostsrdv_creneaux_info['tariffLevel']
+                    )
+                );
+                $expeditionArray['scheduledValue'] = $scheduledValue;
+
+                /* modification productCode et service car dynamique pour ce mode de livraison */
+
+                $expeditionArray['skybillValue']['productCode'] = $chronopostsrdv_creneaux_info['productCode'];
+                $expeditionArray['skybillValue']['service'] = $chronopostsrdv_creneaux_info['serviceCode'];
+
+            }
+
             return $expeditionArray;
         }
     }
 
     protected function getEtiquetteUrl($shipmentId) {
         //On récupère les infos d'expédition
-        $reservationNumber = '';
         $_helper = Mage::helper('chronorelais');
 
         $shipment = Mage::getModel('sales/order_shipment')->load($shipmentId);
         if ($_shipTracks = $shipment->getAllTracks()) {
             foreach ($_shipTracks as $_shipTrack) {
                 if ($_shipTrack->getNumber() && $_shipTrack->getChronoReservationNumber()) {
-                    $reservationNumber = $_shipTrack->getChronoReservationNumber();
+                    $skybill = base64_decode($_shipTrack->getChronoReservationNumber());
                     break;
                 }
             }
-            if ($reservationNumber) {
-                return $reservationNumber;
+            if ($skybill) {
+                return $skybill;
             }
         }
 
@@ -396,19 +414,19 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
         $expeditionArray = $this->getExpeditionParams($shipment, $_shippingMethod);
         $tracking_number = '';
         if ($expeditionArray) {
-            $client = new SoapClient("http://wsshipping.chronopost.fr/shipping/services/services/ServiceEProcurement?wsdl", array('trace' => true));
+            $client = new SoapClient("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('trace' => true));
             try {
-                $webservbt = $client->__call("reservationExpeditionV2", $expeditionArray);
-                if (!$webservbt->errorCode && $webservbt->reservationNumber) {
-                    $tracking_number = $webservbt->skybillNumber;
+                $webservbt = $client->shippingV3($expeditionArray);
+                if (!$webservbt->return->errorCode && $webservbt->return->skybill) {
+                    $tracking_number = $webservbt->return->skybillNumber;
                     // Add tracking number for the shipment if not already exists.
-                    if (!$this->_trackingNumbers && $webservbt->skybillNumber) {
+                    if (!$this->_trackingNumbers && $webservbt->return->skybillNumber) {
                         $track = Mage::getModel('sales/order_shipment_track')
-                                ->setNumber($webservbt->skybillNumber)
+                                ->setNumber($webservbt->return->skybillNumber)
+                                ->setChronoReservationNumber(base64_encode($webservbt->return->skybill))
                                 ->setCarrier(ucwords($_shippingMethod[0]))
                                 ->setCarrierCode($_shippingMethod[0])
                                 ->setTitle(ucwords($_shippingMethod[0]))
-                                ->setChronoReservationNumber($webservbt->reservationNumber)
                                 ->setPopup(1);
                         $shipment->addTrack($track);
 
@@ -416,15 +434,14 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                         $tracking_title = $this->__('Track Your Order');
                         $tracking_order = '<p><a title="' . $tracking_title . '" href="' . $tracking_url . '"><b>' . $tracking_title . '</b></a></p>';
 
-                        //$shipment->register();
                         $comment = '';
                         $shipment->setEmailSent(true);
                         $this->_saveShipment($shipment);
                         $shipment->sendEmail(1, $tracking_order . $comment);
                     }
-                    return $webservbt->reservationNumber;
+                    return $webservbt->return->skybill; // pdf base64
                 } else {
-                    $this->_getSession()->addError($_helper->__($webservbt->errorMessage));
+                    $this->_getSession()->addError($_helper->__($webservbt->return->errorMessage));
                 }
             } catch (SoapFault $fault) {
                 $this->_getSession()->addError($_helper->__($fault->faultstring));
@@ -466,21 +483,20 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
         /**
          * Check shipment create availability
          */
-        /* if (!$order->canShip()) {
-          $this->_getSession()->addError($this->__('Cannot do shipment for the order.'));
-          return false;
-          } */
-        if(empty($savedQtys))
+        if(empty($savedQtys)) {
             $savedQtys = $this->_getItemQtys();
+        }
         $shipment = Mage::getModel('sales/service_order', $order)->prepareShipment($savedQtys);
-        if(Mage::registry('current_shipment')) Mage::unregister ('current_shipment');
+        if(Mage::registry('current_shipment')) {
+            Mage::unregister ('current_shipment');
+        }
         Mage::register('current_shipment', $shipment);
         return $shipment;
     }
 
     public function createNewShipment($orderId,$savedQtys = '') {
         $_helper = Mage::helper('chronorelais');
-        $reservationNumber = '';
+        $skybill = '';
         try {
             if ($shipment = $this->initShipment($orderId,$savedQtys)) {
                 $shipment->register();
@@ -492,22 +508,22 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                 $tracking_number = '';
                 if ($expeditionArray) {
 
-                    $client = new SoapClient("http://wsshipping.chronopost.fr/shipping/services/services/ServiceEProcurement?wsdl", array('trace' => true));
+                    $client = new SoapClient("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('trace' => true));
                     try {
-                        $expedition = $client->__call("reservationExpeditionV2", $expeditionArray);
-                        if (!$expedition->errorCode && $expedition->skybillNumber) {
-                            $tracking_number = $expedition->skybillNumber;
+                        $expedition = $client->shippingV3($expeditionArray);
+                        if (!$expedition->return->errorCode && $expedition->return->skybillNumber) {
+                            $tracking_number = $expedition->return->skybillNumber;
                             $track = Mage::getModel('sales/order_shipment_track')
-                                    ->setNumber($expedition->skybillNumber)
+                                    ->setNumber($expedition->return->skybillNumber)
+                                    ->setChronoReservationNumber(base64_encode($expedition->return->skybill))
                                     ->setCarrier(ucwords($_shippingMethod[0]))
                                     ->setCarrierCode($_shippingMethod[0])
                                     ->setTitle(ucwords($_shippingMethod[0]))
-                                    ->setChronoReservationNumber($expedition->reservationNumber)
                                     ->setPopup(1);
                             $shipment->addTrack($track);
-                            $reservationNumber = $expedition->reservationNumber;
+                            $skybill = $expedition->return->skybill;
                         } else {
-                            $this->_getSession()->addError($_helper->__($expedition->errorMessage));
+                            $this->_getSession()->addError($_helper->__($expedition->return->errorMessage));
                             return;
                         }
                     } catch (SoapFault $fault) {
@@ -525,7 +541,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                 $this->_saveShipment($shipment);
                 $shipment->sendEmail(1, $tracking_order . $comment);
                 $this->_getSession()->addSuccess($this->__('Shipment was successfully created.'));
-                return $reservationNumber;
+                return $skybill;
             } else {
                 $this->_forward('noRoute');
                 return;
@@ -541,20 +557,22 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
 
     public function printMassAction() {
         $orderIds = $this->getRequest()->getParam('order_ids');
-        $trackNumberUrls = array();
+        $skybillArr = array();
         $helper = Mage::helper('chronorelais');
         foreach ($orderIds as $orderId) {
             if ($_shipments = $this->getShipmentByOrderId($orderId)) {
                 if (count($_shipments) == 1) {
                     $shipmentId = $_shipments[0];
-                    $trackNumber = $this->getEtiquetteUrl($shipmentId);
-                    if ($trackNumber)
-                        $trackNumberUrls[] = str_replace('{trackingNumber}', $trackNumber, $helper->getConfigurationTrackingUrl());
+                    $skybill = $this->getEtiquetteUrl($shipmentId);
+                    if ($skybill) {
+                        $skybillArr[] = $skybill;
+                    }
                 } else {
                     foreach ($_shipments as $_shipment) {
-                        $trackNumber = $this->getEtiquetteUrl($_shipment);
-                        if ($trackNumber)
-                            $trackNumberUrls[] = str_replace('{trackingNumber}', $trackNumber, $helper->getConfigurationTrackingUrl());
+                        $skybill = $this->getEtiquetteUrl($_shipment);
+                        if ($skybill) {
+                            $skybillArr[] = $skybill;
+                        }
                     }
                 }
             } else {
@@ -562,7 +580,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                 $order = Mage::getModel('sales/order')->load($orderId);
 
                 /* If shipping method is Chronopost => check if shipping weight isn't over limit */
-                $chronopostMethods = array('chronopost','chronoexpress','chronorelais','chronopostc10','chronopostc18','chronopostcclassic');
+                $chronopostMethods = array('chronorelais','chronopost','chronoexpress','chronopostc10','chronopostc18','chronopostcclassic','chronorelaiseurope','chronorelaisdom','chronopostsrdv','chronopostsameday');
                 $shippingMethod = $order->getShippingMethod();
                 $shippingMethod = explode("_", $shippingMethod);
                 $shippingMethod = $shippingMethod[0];
@@ -578,35 +596,36 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                     }
                     if($weightShipping > $weight_limit) {
                         /* multi shipping. 1 shipment by product */
-                        $trackingNumber = array();
                         foreach ($order->getItemsCollection() as $item) {
                             $qty = $item->getQtyOrdered();
                             for($i = 1; $i <= $qty; $i++) {
-                                $trackingNumber = $this->createNewShipment($orderId,array($item->getId() => '1'));
-                                if ($trackingNumber)
-                                    $trackNumberUrls[] = str_replace('{trackingNumber}', $trackingNumber, $helper->getConfigurationTrackingUrl());
+                                $skybill = $this->createNewShipment($orderId,array($item->getId() => '1'));
+                                if ($skybill)
+                                    $skybillArr[] = $skybill;
                             }
                         }
                     }
                     else {
-                        $trackingNumber = $this->createNewShipment($orderId);
-                        if ($trackingNumber)
-                            $trackNumberUrls[] = str_replace('{trackingNumber}', $trackingNumber, $helper->getConfigurationTrackingUrl());
+                        $skybill = $this->createNewShipment($orderId);
+                        if ($skybill) {
+                            $skybillArr[] = $skybill;
+                        }
                     }
                 }
                 else {
-                    $trackingNumber = $this->createNewShipment($orderId);
-                    if ($trackingNumber)
-                        $trackNumberUrls[] = str_replace('{trackingNumber}', $trackingNumber, $helper->getConfigurationTrackingUrl());
+                    $skybill = $this->createNewShipment($orderId);
+                    if ($skybill) {
+                        $skybillArr[] = $skybill;
+                    }
                 }
             }
         }
-        if (count($trackNumberUrls)) {
-            $this->_processDownloadMass($trackNumberUrls);
-            //exit(0);
+        if (count($skybillArr)) {
+            $this->_processDownloadMass($skybillArr);
         }
-        else
+        else {
             return $this->_redirectReferer();
+        }
     }
 
     public function printAction() {
@@ -617,13 +636,13 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
             if ($_shipments = $this->getShipmentByOrderId($orderId)) {
                 if (count($_shipments) == 1) {
                     $shipmentId = $_shipments[0];
-                    $trackingNumber = $this->getEtiquetteUrl($shipmentId);
+                    $skybillArr = $this->getEtiquetteUrl($shipmentId);
                 } else {
                     $track = "Cette commande contient plusieurs expéditions, cliquez sur chaque lien pour obtenir les étiquettes :<br>";
-                    foreach ($_shipments as $_shipment) {
+                    /*foreach ($_shipments as $_shipment) {
                         $url = str_replace('{trackingNumber}', $this->getEtiquetteUrl($_shipment), $helper->getConfigurationTrackingUrl());
                         $track .= '<a target="_blank" href="' . $url . '">' . $url . '</a><br />';
-                    }
+                    }*/
                     echo $track;
                     return;
                 }
@@ -631,7 +650,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                 $order = Mage::getModel('sales/order')->load($orderId);
 
                 /* If shipping method is Chronopost => check if shipping weight isn't over limit */
-                $chronopostMethods = array('chronopost','chronoexpress','chronorelais','chronopostc10','chronopostc18','chronopostcclassic');
+                $chronopostMethods = array('chronorelais','chronopost','chronoexpress','chronopostc10','chronopostc18','chronopostcclassic','chronorelaiseurope','chronorelaisdom','chronopostsrdv','chronopostsameday');
                 $shippingMethod = $order->getShippingMethod();
                 $shippingMethod = explode("_", $shippingMethod);
                 $shippingMethod = $shippingMethod[0];
@@ -649,56 +668,50 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                     }
                     if($weightShipping > $weight_limit) {
                         /* multi shipping. 1 shipment by product */
-                        $trackingNumber = array();
+                        $skybillArr = array();
                         foreach ($order->getItemsCollection() as $item) {
                             $qty = $item->getQtyOrdered();
                             for($i = 1; $i <= $qty; $i++) {
-                                $trackingNumber[] = $this->createNewShipment($orderId,array($item->getId() => '1'));
+                                $skybillArr[] = $this->createNewShipment($orderId,array($item->getId() => '1'));
                             }
                         }
                     }
                     else {
-                        $trackingNumber = $this->createNewShipment($orderId);
+                        $skybillArr = $this->createNewShipment($orderId);
                     }
                 }
                 else {
-                    $trackingNumber = $this->createNewShipment($orderId);
+                    $skybillArr = $this->createNewShipment($orderId);
                 }
             }
         } else {
             $shipmentId = $this->getRequest()->getParam('shipment_id');
             if ($shipmentId) {
-                $trackingNumber = $this->getEtiquetteUrl($shipmentId);
+                $skybillArr = $this->getEtiquetteUrl($shipmentId);
             } else {
                 $shipmentIncrementId = $this->getRequest()->getParam('shipment_increment_id');
                 $shipmentId = $this->getShipmentByIncrementId($shipmentIncrementId);
-                $trackingNumber = $this->getEtiquetteUrl($shipmentId[0]);
+                $skybillArr = $this->getEtiquetteUrl($shipmentId[0]);
             }
         }
 
 
-        if ($trackingNumber) {
+        if ($skybillArr) {
             try {
-                if(is_array($trackingNumber)) {
-                    $trackNumberUrls = array();
-                    foreach($trackingNumber as $track) {
-                        $trackNumberUrls[] = str_replace('{trackingNumber}', $track, $helper->getConfigurationTrackingUrl());
-                    }
-                    $this->_processDownloadMass($trackNumberUrls);
-                    //exit(0);
+                if(is_array($skybillArr)) {
+                    $this->_processDownloadMass($skybillArr);
                 }
                 else {
-                    $tracking_url = str_replace('{trackingNumber}', $trackingNumber, $helper->getConfigurationTrackingUrl());
-                    $this->_prepareDownloadResponse('Etiquette_chronopost.pdf',  file_get_contents($tracking_url));
-                    //$this->_processDownload($tracking_url, 'url');
-                    //exit(0);
+                    $this->_prepareDownloadResponse('Etiquette_chronopost.pdf',  $skybillArr);
+
                 }
             } catch (Mage_Core_Exception $e) {
-                $this->_getSession()->addError($helper->__('Désolé, une erreur est survenu lors de la récupération de l\'étiquetes. Merci de contacter Chronopost ou de réessayer plus tard'));
+                $this->_getSession()->addError($helper->__('Désolé, une erreur est survenu lors de la récupération de l\'étiquettes. Merci de contacter Chronopost ou de réessayer plus tard'));
             }
         }
-        else
+        else {
             return $this->_redirectReferer();
+        }
     }
 
     public function massLivraisonSamediStatusAction() {
@@ -777,16 +790,12 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
         $_order = $shipment->getOrder();
         $_shippingAddress = $shipment->getShippingAddress();
         $_billingAddress = $shipment->getBillingAddress();
-        $trackingNumber = $this->getEtiquetteRetourUrl($shipment);
+        $skillbill = $this->getEtiquetteRetourUrl($shipment); /* skillbill pdf encode base64*/
 
-        if ($trackingNumber) {
+        if ($skillbill) {
             try {
-                $tracking_url = str_replace('{trackingNumber}', $trackingNumber, Mage::helper('chronorelais')->getConfigurationTrackingUrl());
-                $path = $this->savePdf($tracking_url, $shipmentId);
+                $path = $this->savePdfWithContent($skillbill, $shipmentId);
 
-                /*
-                 * TODO adexos : Send mail with pdf to customer
-                 */
                 $message_email = 'Bonjour,
                                 <br />Vous allez bientôt effectuer un envoi Chronopost. La personne qui vous a adressé ce mail a déjà préparé la lettre de transport que vous utiliserez. Après impression, apposez la lettre de transport dans une pochette plastique adhésive et collez la sur votre envoi. Attention le code à barres doit être bien apparent.
                                 <br />Cordialement,';
@@ -808,7 +817,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
 
                 $this->_getSession()->addSuccess(Mage::helper('chronorelais')->__('L\'etiquette de retour à bien été envoyée au client.'));
             } catch (Mage_Core_Exception $e) {
-                $this->_getSession()->addError(Mage::helper('chronorelais')->__('Désolé, une erreure est survenu lors de la récupération de l\'étiquetes. Merci de contacter Chronopost ou de réessayer plus tard'));
+                $this->_getSession()->addError(Mage::helper('chronorelais')->__('Désolé, une erreure est survenu lors de la récupération de l\'étiquettes. Merci de contacter Chronopost ou de réessayer plus tard'));
             }
         }
         return $this->_redirectReferer();
@@ -820,11 +829,15 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
         $_billingAddress = $shipment->getBillingAddress();
         $_helper = Mage::helper('chronorelais');
 
-        if ($_shippingAddress->getCountryId() != 'FR') {
+        if ($_shippingAddress->getCountryId() != 'FR'
+            && strpos($_shippingMethod[0], 'chronorelaiseurope') === false
+            && strpos($_shippingMethod[0], 'chronorelaisdom') === false
+            && strpos($_shippingMethod[0], 'chronopostsrdv') === false
+        ) {
             $this->_getSession()->addError($_helper->__('Les retours sont disponibles uniquement pour la France'));
             return;
         }
-        $shippingMethodAllow = array('chronorelais','chronopost','chronopostc10','chronopostc18');
+        $shippingMethodAllow = array('chronorelaiseurope','chronorelais','chronopost','chronopostc10','chronopostc18','chronopostsrdv');
         if (!in_array($_shippingMethod[0], $shippingMethodAllow)) {
             $this->_getSession()->addError($_helper->__('Les retours ne sont pas disponibles pour le mode de livraison ' . $_shippingMethod[0]));
             return;
@@ -832,13 +845,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
 
         if (in_array($_shippingMethod[0], $shippingMethodAllow)) {
             $esdParams = $header = $shipper = $customer = $recipient = $ref = $skybill = $skybillParams = $password = array();
-
-            //esdParams parameters
-            $esdParams = array(
-                'height' => '',
-                'width' => '',
-                'length' => ''
-            );
 
             //header parameters
             $header = array(
@@ -885,7 +891,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
 
             //recipient parameters
             $_recipientAddress = $_shippingAddress;
-            if ($_shippingMethod[0] == 'chronorelais') {
+            if(strpos($_shippingMethod[0],'chronorelais') !== false) {
                 // Nicolas, le 27/11/2014 : si Chronorelais, on doit utiliser l'adresse de facturation, non de livraison (qui est celle du relais)
                 $_recipientAddress = $_billingAddress;
             }
@@ -898,7 +904,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
             $recipientName2 = $this->getFilledValue($_shippingAddress->getFirstname() . ' ' . $_shippingAddress->getLastname());
             //remove any alphabets in phone number
 
-            //$recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
             $recipientPhone = trim(preg_replace("/[^0-9\.\-]/", " ", $_shippingAddress->getTelephone()));
             if (!isset($recipient_address[1])) {
                 $recipient_address[1] = '';
@@ -906,7 +911,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
 
             $shipper = array(
                 'shipperAdress1' => substr($this->getFilledValue($recipient_address[0]), 0, 38),
-                'shipperAdress2' => substr($this->getFilledValue($recipient_address[1]), 0, 38),
+                'shipperAdress2' => $recipient_address[1] ? substr($this->getFilledValue($recipient_address[1]), 0, 38) : '',
                 'shipperCity' => $this->getFilledValue($_recipientAddress->getCity()),
                 'shipperCivility' => 'M',
                 'shipperContactName' => $recipientName2,
@@ -935,7 +940,6 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
             //skybill parameters
             /* Livraison Samedi (Delivery Saturday) field */
             $SaturdayShipping = 0; //default value for the saturday shipping
-            $send_day = strtolower(date('l'));
             if ($_shippingMethod[0] == "chronopost" || $_shippingMethod[0] == "chronorelais") {
                 if (!$_deliver_on_saturday = Mage::helper('chronorelais')->getLivraisonSamediStatus($_order->getEntityId())) {
                     $_deliver_on_saturday = Mage::helper('chronorelais')->getConfigData('carriers/' . $_shippingMethod[0] . '/deliver_on_saturday');
@@ -961,6 +965,14 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
             if ($_helper->getConfigWeightUnit() == 'g') {
                 $weight = $weight / 1000; /* conversion g => kg */
             }
+
+            $productCode = Chronopost_Chronorelais_Helper_Data::CHRONO_POST;
+            if($_shippingMethod[0] == 'chronorelaiseurope') {
+                $productCode = '3T';
+                //$weight <= 3 ? $SaturdayShipping = '337' : $SaturdayShipping = '338';
+                $SaturdayShipping = '332';
+            }
+
             $weight = 0; /* On met le poids à 0 car les colis sont pesé sur place */
 
             $skybill = array(
@@ -977,7 +989,7 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                 'insuredCurrency' => 'EUR',
                 'insuredValue' => '',
                 'objectType' => 'MAR',
-                'productCode' => Chronopost_Chronorelais_Helper_Data::CHRONO_POST,
+                'productCode' => $productCode,
                 'service' => $SaturdayShipping,
                 'shipDate' => date('c'),
                 'shipHour' => date('H'),
@@ -985,46 +997,45 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
                 'weightUnit' => 'KGM'
             );
 
+            $mode = $_helper->getConfigurationSkybillParam();
+            if($_shippingMethod[0] == 'chronorelaiseurope') {
+                $mode = 'PPR';
+            }
             $skybillParams = array(
-                'mode' => $_helper->getConfigurationSkybillParam()
+                'mode' => $mode
             );
 
             $expeditionArray = array(
-                'esdParams' => $esdParams,
-                'header' => $header,
-                'shipper' => $shipper,
-                'customer' => $customer,
-                'recipient' => $recipient,
-                'ref' => $ref,
-                'skybill' => $skybill,
-                'skybillParams' => $skybillParams,
-                'password' => $_helper->getConfigurationAccountPass(),
-                'option' => '0'
+                'headerValue' => $header,
+                'shipperValue' => $shipper,
+                'customerValue' => $customer,
+                'recipientValue' => $recipient,
+                'refValue' => $ref,
+                'skybillValue' => $skybill,
+                'skybillParamsValue' => $skybillParams,
+                'password' => $_helper->getConfigurationAccountPass()
             );
-
             return $expeditionArray;
         }
     }
 
     protected function getEtiquetteRetourUrl($shipment) {
         //On récupère les infos d'expédition
-        $reservationNumber = '';
         $_helper = Mage::helper('chronorelais');
 
         $_order = $shipment->getOrder();
         $_shippingMethod = explode("_", $_order->getShippingMethod());
 
         $expeditionArray = $this->getEtiquetteRetourParams($shipment, $_shippingMethod);
-        $tracking_number = '';
         if ($expeditionArray) {
-            $client = new SoapClient("http://wsshipping.chronopost.fr/shipping/services/services/ServiceEProcurement?wsdl", array('trace' => true));
+            $client = new SoapClient("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('trace' => true));
             try {
-                $webservbt = $client->__call("reservationExpeditionV2", $expeditionArray);
-                if (!$webservbt->errorCode && $webservbt->reservationNumber) {
-                    $tracking_number = $webservbt->skybillNumber;
-                    return $webservbt->reservationNumber;
+                $webservbt = $client->shippingV3($expeditionArray);
+
+                if (!$webservbt->return->errorCode && $webservbt->return->skybill) {
+                    return $webservbt->return->skybill;
                 } else {
-                    $this->_getSession()->addError($_helper->__($webservbt->errorMessage));
+                    $this->_getSession()->addError($_helper->__($webservbt->return->errorMessage));
                 }
             } catch (SoapFault $fault) {
                 $this->_getSession()->addError($_helper->__($fault->faultstring));
@@ -1039,12 +1050,87 @@ class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController 
         return $path;
     }
 
+    protected function savePdfWithContent($content_base64, $shipmentId) {
+        $this->createMediaChronopostFolder();
+        $path = 'media/chronopost/etiquetteRetour-' . $shipmentId . '.pdf';
+        file_put_contents($path, $content_base64);
+        return $path;
+    }
+
     /* create folder media/chronopost if not exist */
     protected function createMediaChronopostFolder() {
         $path = 'media/chronopost';
         if(!is_dir($path)) {
             mkdir($path,0777);
         }
+    }
+
+    protected function getShipmentObjectByOrderId($orderId) {
+        $_shipment = Mage::getResourceModel('sales/order_shipment_collection')
+                ->addAttributeToFilter('order_id', $orderId);
+        return $_shipment;
+    }
+
+    public function cancelMassAction() {
+        $orderIds = $this->getRequest()->getParam('order_ids');
+
+        if($orderIds) {
+            $nbEtiquettesDelete = 0;
+            foreach($orderIds as $orderId) {
+                $shipments = $this->getShipmentObjectByOrderId($orderId);
+                if($shipments) {
+                    foreach($shipments as $shipment) {
+
+                        $tracks = $shipment->getTracksCollection();
+                        foreach ($tracks as $track) {
+
+                            /* numero chrono si getChronoReservationNumber non null */
+                            if($track->getChronoReservationNumber()) {
+
+                                /* appel WS pour annuler LT */
+                                $webservbt = Mage::helper('chronorelais/webservice')->cancelSkybill($track->getNumber());
+                                if($webservbt) {
+                                    /* suppression du numéro de tracking */
+                                    if($webservbt->return->errorCode == 0) {
+                                        $nbEtiquettesDelete++;
+                                        $track->delete();
+                                    } else {
+                                        switch($webservbt->return->errorCode) {
+                                            case "1" :
+                                                $errorMessage = $this->__("Une erreur système est survenue");
+                                                break;
+                                            case "2" :
+                                                $errorMessage = $this->__("le colis n'appartient pas au contrat passé en paramètre ou n'a pas encore été enregistré dans le système de tracking Chronopost");
+                                                break;
+                                            case "3" :
+                                                $errorMessage = $this->__("Le colis ne peut être pas annulé car il a été pris en charge par Chronopost");
+                                                break;
+                                            default :
+                                                $errorMessage = '';
+                                                break;
+                                        }
+                                        $this->_getSession()->addError($this->__("Erreur lors de la suppression de l'étiquettes %s : %s.",$track->getNumber(),$errorMessage));
+                                    }
+                                } else {
+                                    $this->_getSession()->addError($this->__('Désolé, une erreur est survenu lors de la suppression de l\'étiquette %s. Merci de contacter Chronopost ou de réessayer plus tard',$track->getNumber()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if($nbEtiquettesDelete > 0) {
+                if($nbEtiquettesDelete > 1) {
+                    $this->_getSession()->addSuccess($this->__('%s étiquettes de transport ont bien été annulées.',$nbEtiquettesDelete));
+                } else {
+                    $this->_getSession()->addSuccess($this->__('%s étiquette de transport a bien été annulée.',$nbEtiquettesDelete));
+                }
+
+            }
+        } else {
+            $this->_getSession()->addError($this->__("Veuillez sélectionner au moins une lettre de transport."));
+        }
+        $this->_redirect('*/*/index');
     }
 
 }

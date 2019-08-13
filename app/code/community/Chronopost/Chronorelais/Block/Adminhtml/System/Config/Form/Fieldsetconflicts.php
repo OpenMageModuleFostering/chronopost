@@ -12,6 +12,7 @@ class Chronopost_Chronorelais_Block_Adminhtml_System_Config_Form_Fieldsetconflic
      */
     protected function _getFooterHtml($element)
     {
+        $tooltipsExist = false;
         $html = '</tbody></table>';
 
         $html .= '<div class="chronorelais_conflicts">';

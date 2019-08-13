@@ -29,17 +29,22 @@ class Chronopost_Chronorelais_Controller_Abstract extends Mage_Adminhtml_Control
 			$args = $message->args;
 			$message = $message->message;
 		}
-		
-		$output = Mage::helper('shipping')->__($message);
-		if (count($args)==0) return $output;
 
-		if (!isset($this->_translate_inline)) $this->_translate_inline = Mage::getSingleton('core/translate')->getTranslateInline();
+		$output = Mage::helper('shipping')->__($message);
+		if (count($args)==0) {
+			return $output;
+		}
+
+		if (!isset($this->_translate_inline)) {
+			$this->_translate_inline = Mage::getSingleton('core/translate')->getTranslateInline();
+		}
 		if ($this->_translate_inline) {
 			$parts = explode('}}{{',$output);
 			$parts[0] = vsprintf($parts[0],$args);
 			return implode('}}{{',$parts);
+		} else {
+			return vsprintf($output,$args);
 		}
-		else return vsprintf($output,$args);
 	}
 
 	protected function getIncludingPath($path) {
@@ -81,7 +86,6 @@ class Chronopost_Chronorelais_Controller_Abstract extends Mage_Adminhtml_Control
 		header('Content-disposition: attachment; filename="'.$filename.'"');
 		header('Content-Type: application/force-download');
 		header('Content-Transfer-Encoding: '.$mime_type."\n"); // Surtout ne pas enlever le \n
-		//header('Content-Length: '.filesize($filename));
 		header('Pragma: no-cache');
 		header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 		header('Expires: 0');

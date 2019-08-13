@@ -1,0 +1,393 @@
+<?php
+/**
+ * @see Chronopost_Chronorelais_Block_Adminhtml_Config_Rdvconfig
+ */
+
+$_value = $this->getValue();
+?>
+<script type="text/javascript">
+//<![CDATA[
+
+    var indiceCreneaux = 0;
+
+    var idField = '<?php echo $this->getHtmlId() ?>';
+    <?php if($_value): ?>
+        var value = <?php echo $_value; ?>;
+    <?php else: ?>
+        var value = {};
+    <?php endif; ?>
+
+
+    $('row_'+idField).hide();
+
+    var jours = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+
+    /* date remise colis */
+    var templateConfig =
+    '<tr id="row_'+idField+'_dateRemiseColis" class="rdv_config">' +
+        '<td class="label">' +
+            '<label>Date de remise des colis</label>' +
+        '</td>' +
+        '<td class="value2" colspan="3">' +
+            'Jour de la commande + ' +
+            '<select name="dateRemiseColis_nbJour">';
+            for(var i = 0; i <= 30; i++) {
+                templateConfig += '<option value="'+i+'">'+i+'</option>';
+            }
+    templateConfig +=
+            '</select> jour(s) ' +
+            'ou jour '+
+            '<select name="dateRemiseColis_jour">';
+            for(var i = 0; i < jours.length; i++) {
+                templateConfig += '<option value="'+(i+1)+'">'+jours[i]+'</option>';
+            }
+    templateConfig +=
+            '</select> ' +
+            'Heure ' +
+            '<select name="dateRemiseColis_heures">';
+            for(var i = 0; i < 24; i++) {
+                templateConfig += '<option value="'+i+'">'+i+'</option>';
+            }
+    templateConfig +=
+            '</select> ' +
+            ' : <select name="dateRemiseColis_minutes">';
+            for(var i = 0; i <= 59; i++) {
+                templateConfig += '<option value="'+i+'">'+i+'</option>';
+            }
+    templateConfig +=
+            '</select> ' +
+            '<p class="note">Date à partir duquel le semainier de l\'option RDV sera calculé</p>' +
+        '</td>' +
+    '</tr>';
+
+    /* Creneaux */
+    var templateCreneauxHtml = '<tr class="row_{{idField}}_creneaux" id="row_{{idField}}_creneaux_{{indice}}" class="rdv_config">' +
+        '<td class="label">' +
+            '<label>&nbsp;</label>' +
+        '</td>' +
+        '<td class="value2" colspan="2">' +
+            'Du ' +
+            '<select name="creneaux_debut_jour" class="creneaux_{{indice}}">';
+            for(var i = 0; i < jours.length; i++) {
+                templateCreneauxHtml += '<option value="'+(i+1)+'">'+jours[i]+'</option>';
+            }
+    templateCreneauxHtml +=
+            '</select> ' +
+            'Heure ' +
+            '<select name="creneaux_debut_heures" class="creneaux_{{indice}}">';
+            for(var i = 0; i < 24; i++) {
+                templateCreneauxHtml += '<option value="'+i+'">'+i+'</option>';
+            }
+    templateCreneauxHtml +=
+            '</select> ' +
+            ' : <select name="creneaux_debut_minutes" class="creneaux_{{indice}}">';
+            for(var i = 0; i <= 59; i++) {
+                templateCreneauxHtml += '<option value="'+i+'">'+i+'</option>';
+            }
+    templateCreneauxHtml +=
+            '</select> ' +
+            ' Au ' +
+            '<select name="creneaux_fin_jour" class="creneaux_{{indice}}">';
+            for(var i = 0; i < jours.length; i++) {
+                templateCreneauxHtml += '<option value="'+(i+1)+'">'+jours[i]+'</option>';
+            }
+    templateCreneauxHtml +=
+            '</select> ' +
+            'Heure ' +
+            '<select name="creneaux_fin_heures" class="creneaux_{{indice}}">';
+            for(var i = 0; i < 24; i++) {
+                templateCreneauxHtml += '<option value="'+i+'">'+i+'</option>';
+            }
+    templateCreneauxHtml +=
+            '</select> ' +
+            ' : <select name="creneaux_fin_minutes" class="creneaux_{{indice}}">';
+            for(var i = 0; i <= 59; i++) {
+                templateCreneauxHtml += '<option value="'+i+'">'+i+'</option>';
+            }
+    templateCreneauxHtml +=
+            '</select> ' +
+        '</td>' +
+        '<td>' +
+            '<a href="javascript:;" class="del_creneau" indiceCreneau="{{indice}}">Supprimer creneau</a>' +
+        '</td>' +
+    '</tr>';
+
+    var templateCreneaux = new Template(templateCreneauxHtml,/(^|.|\r|\n)({{(\w+)}})/);
+
+    templateConfig +=
+    '<tr id="row_'+idField+'_creneaux" class="rdv_config">' +
+        '<td class="label">' +
+            '<label>Créneaux qui devront être fermés</label>' +
+        '</td>' +
+        '<td class="value2" colspan="3">' +
+            '<a href="javascript:;" class="add_creneau">Ajouter un créneau</a>' +
+        '</td>' +
+    '</tr>';
+
+    /* Niveau tarifaire */
+    templateConfig +=
+    '<tr id="row_'+idField+'_niveauTarifaire_labels" class="rdv_config">' +
+        '<td class="label">' +
+            '<label>Niveau tarifaire</label>' +
+        '</td>' +
+        '<td class="value2" colspan="3">' +
+            '<table width="100%">' +
+                '<tr>';
+
+                for($i = 1; $i <= 4; $i++) {
+    templateConfig +=
+                    '<td width="25%">' +
+                        'RDV'+$i +
+                    '</td>';
+                }
+
+    templateConfig +=
+                '</tr>' +
+            '</table>' +
+        '</td>' +
+    '</tr>';
+
+    templateConfig +=
+    '<tr id="row_'+idField+'_niveauTarifaire_status" class="rdv_config">' +
+        '<td class="label">' +
+            '<label>&nbsp;</label>' +
+        '</td>' +
+        '<td class="value2" colspan="3">' +
+            '<table width="100%">' +
+                '<tr>';
+
+                for($i = 1; $i <= 4; $i++) {
+    templateConfig +=
+                    '<td width="25%">' +
+                        '<select name="N'+$i+'_status">' +
+                            '<option value="1">Ouvert</option>' +
+                            '<option value="0">Fermé</option>' +
+                        '</select>' +
+                    '</td>';
+                }
+
+    templateConfig +=
+                '</tr>' +
+            '</table>' +
+        '</td>' +
+    '</tr>';
+
+    templateConfig +=
+    '<tr id="row_'+idField+'_niveauTarifaire_price" class="rdv_config">' +
+        '<td class="label">' +
+            '<label>&nbsp;</label>' +
+        '</td>' +
+        '<td class="value2" colspan="3">' +
+            '<table width="100%">' +
+                '<tr>';
+
+                for($i = 1; $i <= 4; $i++) {
+    templateConfig +=
+                    '<td width="25%">' +
+                        '<input type="text" name="N'+$i+'_price" value="{{N'+$i+'_price}}" class="required-entry validate-number">' +
+                    '</td>';
+                }
+
+    templateConfig +=
+                '</tr>' +
+            '</table>' +
+        '</td>' +
+    '</tr>';
+
+    templateConfig +=
+    '<tr id="row_'+idField+'_niveauTarifaire_show" class="rdv_config">' +
+        '<td class="label">' +
+            '<label>Afficher les tarifs</label>' +
+        '</td>' +
+        '<td class="value2" colspan="3">' +
+            '<select name="niveauTarifaire_show">' +
+                '<option value="1">Oui</option>' +
+                '<option value="0">Non</option>' +
+            '</select>' +
+        '</td>' +
+    '</tr>';
+
+    templateConfig = new Template(templateConfig,/(^|.|\r|\n)({{(\w+)}})/);
+
+
+
+
+    document.observe("dom:loaded", function() {
+        $('row_'+idField).insert({ after: templateConfig.evaluate(value) });
+
+        /* préchargement des données */
+        if(value) {
+
+            /* date de remise colis */
+            if (typeof value.dateRemiseColis_nbJour != 'undefined') {
+                var options = $$('#row_'+idField+'_dateRemiseColis select[name^="dateRemiseColis_nbJour"]').first().options;
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].value==value.dateRemiseColis_nbJour) options[i].selected = true;
+                }
+            }
+            if (typeof value.dateRemiseColis_jour != 'undefined') {
+                var options = $$('#row_'+idField+'_dateRemiseColis select[name^="dateRemiseColis_jour"]').first().options;
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].value==value.dateRemiseColis_jour) options[i].selected = true;
+                }
+            }
+            if (typeof value.dateRemiseColis_heures != 'undefined') {
+                var options = $$('#row_'+idField+'_dateRemiseColis select[name^="dateRemiseColis_heures"]').first().options;
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].value==value.dateRemiseColis_heures) options[i].selected = true;
+                }
+            }
+            if (typeof value.dateRemiseColis_minutes != 'undefined') {
+                var options = $$('#row_'+idField+'_dateRemiseColis select[name^="dateRemiseColis_minutes"]').first().options;
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].value==value.dateRemiseColis_minutes) options[i].selected = true;
+                }
+            }
+
+            /* creneaux */
+            if(value['creneaux']) {
+                for(var key in value['creneaux']) {
+                    indiceCreneaux = key;
+                    var data = value['creneaux'][key];
+                    data['idField'] = idField;
+                    data['indice'] = indiceCreneaux;
+                    addCreneaux(data);
+                }
+            }
+
+            /* Niveau tarifaire */
+            for(i = 1; i <= 4; i++) {
+                if (typeof value['N'+i+'_status'] != 'undefined') {
+                    var options = $$('#row_'+idField+'_niveauTarifaire_status select[name^="N'+i+'_status"]').first().options;
+                    for (var j = 0; j < options.length; j++) {
+                        if (options[j].value==value['N'+i+'_status']) options[j].selected = true;
+                    }
+                }
+            }
+            if (typeof value.niveauTarifaire_show != 'undefined') {
+                var options = $$('#row_'+idField+'_niveauTarifaire_show select[name^="niveauTarifaire_show"]').first().options;
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].value==value.niveauTarifaire_show) options[i].selected = true;
+                }
+            }
+
+
+        }
+
+        $$('.add_creneau').first().observe('click',function(){
+
+            var data = {
+                idField : idField,
+                indice : indiceCreneaux
+            };
+            addCreneaux(data);
+        });
+
+        /* Ajout observer sur le changement de configuration */
+        $$('#row_'+idField+'_dateRemiseColis select, .row_'+idField+'_creneaux select, #row_'+idField+'_niveauTarifaire_status select, #row_'+idField+'_niveauTarifaire_price input, #row_'+idField+'_niveauTarifaire_show select').each(function(element) {
+            if(element.nodeName == 'SELECT') {
+                element.observe("change",updateValueObject);
+            } else if(element.nodeName == 'INPUT') {
+                element.observe("blur",updateValueObject);
+            }
+        });
+
+    });
+
+    function updateValueObject(event) {
+        if(this.name.indexOf('creneaux') != -1) {
+            // get indice creneaux
+            var indice = this.className.replace('creneaux_','');
+            if(typeof value['creneaux'] == 'undefined') {
+                value['creneaux'] = {};
+            }
+            if(typeof value['creneaux'][indice] == 'undefined') {
+                value['creneaux'][indice] = {};
+                value['creneaux'][indice]['creneaux_debut_jour'] = "1";
+                value['creneaux'][indice]['creneaux_debut_heures'] = "0";
+                value['creneaux'][indice]['creneaux_debut_minutes'] = "0";
+                value['creneaux'][indice]['creneaux_fin_jour'] = "1";
+                value['creneaux'][indice]['creneaux_fin_heures'] = "0";
+                value['creneaux'][indice]['creneaux_fin_minutes'] = "0";
+            }
+            value['creneaux'][indice][this.name] = this.value;
+        } else {
+            value[this.name] = this.value;
+        }
+        $(idField).value = JSON.stringify(value);
+    }
+
+    function addCreneaux(data) {
+        $('row_'+idField+'_niveauTarifaire_labels').insert({ before: templateCreneaux.evaluate(data) });
+
+        /* creneaux debut */
+        if (typeof value['creneaux'] != 'undefined' && typeof value['creneaux'][indiceCreneaux] != 'undefined' && typeof value['creneaux'][indiceCreneaux]['creneaux_debut_jour'] != 'undefined') {
+            var options = $$('#row_'+idField+'_creneaux_'+indiceCreneaux+' select[name^="creneaux_debut_jour"]').first().options;
+            for (var j = 0; j < options.length; j++) {
+                if (options[j].value==value['creneaux'][indiceCreneaux]['creneaux_debut_jour']) options[j].selected = true;
+            }
+        }
+        if (typeof value['creneaux'] != 'undefined' && typeof value['creneaux'][indiceCreneaux] != 'undefined' && typeof value['creneaux'][indiceCreneaux]['creneaux_debut_heures'] != 'undefined') {
+            var options = $$('#row_'+idField+'_creneaux_'+indiceCreneaux+' select[name^="creneaux_debut_heures"]').first().options;
+            for (var j = 0; j < options.length; j++) {
+                if (options[j].value==value['creneaux'][indiceCreneaux]['creneaux_debut_heures']) options[j].selected = true;
+            }
+        }
+        if (typeof value['creneaux'] != 'undefined' && typeof value['creneaux'][indiceCreneaux] != 'undefined' && typeof value['creneaux'][indiceCreneaux]['creneaux_debut_minutes'] != 'undefined') {
+            var options = $$('#row_'+idField+'_creneaux_'+indiceCreneaux+' select[name^="creneaux_debut_minutes"]').first().options;
+            for (var j = 0; j < options.length; j++) {
+                if (options[j].value==value['creneaux'][indiceCreneaux]['creneaux_debut_minutes']) options[j].selected = true;
+            }
+        }
+        /* creneaux fin */
+        if (typeof value['creneaux'] != 'undefined' && typeof value['creneaux'][indiceCreneaux] != 'undefined' && typeof value['creneaux'][indiceCreneaux]['creneaux_fin_jour'] != 'undefined') {
+            var options = $$('#row_'+idField+'_creneaux_'+indiceCreneaux+' select[name^="creneaux_fin_jour"]').first().options;
+            for (var j = 0; j < options.length; j++) {
+                if (options[j].value==value['creneaux'][indiceCreneaux]['creneaux_fin_jour']) options[j].selected = true;
+            }
+        }
+        if (typeof value['creneaux'] != 'undefined' && typeof value['creneaux'][indiceCreneaux] != 'undefined' && typeof value['creneaux'][indiceCreneaux]['creneaux_fin_heures'] != 'undefined') {
+            var options = $$('#row_'+idField+'_creneaux_'+indiceCreneaux+' select[name^="creneaux_fin_heures"]').first().options;
+            for (var j = 0; j < options.length; j++) {
+                if (options[j].value==value['creneaux'][indiceCreneaux]['creneaux_fin_heures']) options[j].selected = true;
+            }
+        }
+        if (typeof value['creneaux'] != 'undefined' && typeof value['creneaux'][indiceCreneaux] != 'undefined' && typeof value['creneaux'][indiceCreneaux]['creneaux_fin_minutes'] != 'undefined') {
+            var options = $$('#row_'+idField+'_creneaux_'+indiceCreneaux+' select[name^="creneaux_fin_minutes"]').first().options;
+            for (var j = 0; j < options.length; j++) {
+                if (options[j].value==value['creneaux'][indiceCreneaux]['creneaux_fin_minutes']) options[j].selected = true;
+            }
+        }
+
+        indiceCreneaux++;
+
+        var buttons = $$('.del_creneau');
+        for(var i=0;i<buttons.length;i++){
+            if(!$(buttons[i]).binded){
+                $(buttons[i]).binded = true;
+                Event.observe(buttons[i], 'click', function(event){
+                    var element = event.element();
+                    element.up('tr').remove();
+
+                    /* suppression du creneau dans l'objet json */
+                    var indice = element.readAttribute("indiceCreneau");
+                    if(typeof value['creneaux'] != 'undefined' && typeof value['creneaux'][indice] != 'undefined') {
+                        delete value['creneaux'][indice];
+                        $(idField).value = JSON.stringify(value);
+                    }
+                });
+            }
+        }
+
+        var elements = $$('.row_'+idField+'_creneaux select');
+        for(var i=0;i<elements.length;i++){
+            if(!$(elements[i]).binded){
+                $(elements[i]).binded = true;
+                elements[i].observe("change",updateValueObject);
+            }
+        }
+
+    }
+
+//]]>
+</script>
