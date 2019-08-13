@@ -13,24 +13,24 @@ function loadMyPoint(i) {
 
 var bounds = new google.maps.LatLngBounds();
 function loadRelayMap(address, relaisArray, nextpt, mapid) {
-  var geo = new google.maps.Geocoder(); 
-  
+  var geo = new google.maps.Geocoder();
+
   var myOptions = {
     zoom: 5,
     center: new google.maps.LatLng(47.37285025362682, 2.4172996312499784),
     mapTypeId: google.maps.MapTypeId.ROADMAP
   }
   map = new google.maps.Map(document.getElementById(mapid), myOptions);
-  
+
   var blueIcon = new google.maps.MarkerImage(Picto_Chrono_Relais);
-  
+
   var homeIcon = new google.maps.MarkerImage(Home_Chrono_Icon);
-  
+
   if(!homeaddress && !hidehomeicon) {
     var ship_address = getShipAddress(); //get shipping address to set home address
     homeaddress = relaisArray.codePostal + " " + relaisArray.localite;
     if(ship_address) { homeaddress = ship_address+" "+homeaddress; }
-    
+
     geo.geocode({'address': homeaddress}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
         var point = results[0].geometry.location;
@@ -42,7 +42,7 @@ function loadRelayMap(address, relaisArray, nextpt, mapid) {
         });
         map.setCenter(point, 11);
       }
-    });	
+    });
   }
 
   function createTabbedMarker(point, relaisArray) {
@@ -50,7 +50,7 @@ function loadRelayMap(address, relaisArray, nextpt, mapid) {
     var label = nextpt;
     var relaypoint_id = relaisArray.identifiantChronopostPointA2PAS;
     var marker = new google.maps.Marker({map: map, position: point, title:relaisArray.nomEnseigne, icon:blueIcon});
-    
+
     var infowindow;
     if (window.innerWidth < 700) {
       infowindow = new google.maps.InfoWindow({
@@ -61,39 +61,39 @@ function loadRelayMap(address, relaisArray, nextpt, mapid) {
         content: '<div style="width: 400px;"><div style="width: 190px; float: left;"><h2>Infos</h2>'+getMarkerInfoContent(relaisArray) + getActionsForm(addressrelais.length)+'</div><div style="margin-left: 10px; padding-left: 10px; border-left: 1px solid #000; float: left;"><h2>Horaires</h2><div style="width: 189px">'+getHorairesTab(relaisArray, true)+'</div></div></div>'
       });
     }
-    
+
     google.maps.event.addListener(marker, 'click', function() {
       if(document.getElementById('s_method_chronorelais_'+relaisArray.identifiantChronopostPointA2PAS))
         document.getElementById('s_method_chronorelais_'+relaisArray.identifiantChronopostPointA2PAS).checked = true;
-        
+
       if (currentInfoWindow) {
         currentInfoWindow.close();
       }
       infowindow.open(map,marker);
       currentInfoWindow = infowindow;
     });
-    
+
     gmarkers[relaypoint_id] = marker;
     return marker;
   }
 
   function showAddress(address, relaisArray) {
     var search = address;
-    // ====== Perform the Geocoding ======        
+    // ====== Perform the Geocoding ======
     geo.geocode({'address': search}, function(results, status)
-    { 
+    {
       // If that was successful
       if (status == google.maps.GeocoderStatus.OK) {
         // Loop through the results, placing markers
         //for (var i=0; i<result.Placemark.length; i++) {
-        for (var i=0; i<1; i++) {	  
+        for (var i=0; i<1; i++) {
           var p = results[i].geometry.location;
           relaylatan.push(p);
           var marker = createTabbedMarker(p, relaisArray);
           // ==== Each time a point is found, extent the bounds ato include it =====
           bounds.extend(p);
         }
-        // centre the map on the first result 
+        // centre the map on the first result
         //!homeaddress && hidehomeicon &&
         if(nextpt==5) {
           var p = results[0].geometry.location;
@@ -109,7 +109,7 @@ function loadRelayMap(address, relaisArray, nextpt, mapid) {
         /*
         if (reasons[status]) {
           reason = reasons[status]
-        } 
+        }
          */
         alert('Could not find "' + search + '" ' + reason);
       }
@@ -123,9 +123,9 @@ function addEvent( obj, type, fn ) {
     obj["e"+type+fn] = fn;
     obj[type+fn] = function() { obj["e"+type+fn]( window.event ) };
     obj.attachEvent( "on"+type, obj[type+fn] );
-  } 
+  }
   else{
-    obj.addEventListener( type, fn, false );	
+    obj.addEventListener( type, fn, false );
   }
 }
 
@@ -133,9 +133,9 @@ function getMarkerInfoContent(relaisArray){
 	var icoPath = Picto_Chrono_Relais;
 	var content="<div class=\"sw-map-adresse-wrp\" style=\"background-image: url("+ icoPath +"); background-repeat: no-repeat;padding-left:50px;\">"
     + "<h2>"+relaisArray.nomEnseigne+"</h2>"
-    + "<div class=\"sw-map-adresse\">"								
-    + parseAdresse(relaisArray)	
-    + relaisArray.codePostal + " " + relaisArray.localite 
+    + "<div class=\"sw-map-adresse\">"
+    + parseAdresse(relaisArray)
+    + relaisArray.codePostal + " " + relaisArray.localite
     + "</div></div>";
 	return content;
 }
@@ -154,7 +154,7 @@ function getHorairesTab(anArray, highlight)
 	var rs = "" ;
 	rs =  "<table id=\"sw-table-horaire\" class=\"sw-table\"";
 	if(msie) {
-		rs +=  " style=\"width:auto;\"";	
+		rs +=  " style=\"width:auto;\"";
 	}
 	rs +=  ">"
 		+ "<tr><td>Lun:</td>"+ parseHorairesOuverture(anArray.horairesOuvertureLundi, 1, highlight) +"</tr>"
@@ -167,7 +167,7 @@ function getHorairesTab(anArray, highlight)
 		+ "</table>" ;
 	return rs ;
 }
-	
+
 function parseAdresse(anArray)
 {
 	var address = anArray.adresse1 + "<br />" ;
@@ -176,19 +176,19 @@ function parseAdresse(anArray)
 	if (anArray.adresse3)
 		address += anArray.adresse3 + "<br />" ;
 	return address ;
-} 
+}
 
 function parseHorairesOuverture(value , day, highlight)
 {
 	var rs = "" ;
-	
+
 	var now = new Date() ;
 	var today = now.getDay() ;	// number of day
-	var attributedCell = "" ;	
+	var attributedCell = "" ;
 	var reg = new RegExp(" ", "g");
 
 	var horaires = value.split(reg) ;
-	
+
 	for (var i=0; i < horaires.length; i++)
 	{
 		// first define the attributes for the current cell
@@ -204,7 +204,7 @@ function parseHorairesOuverture(value , day, highlight)
 		/*
 		}
      */
-		
+
 		// so, re-format time
 		if (horaires[i] == "00:00-00:00")
 		{
@@ -214,17 +214,17 @@ function parseHorairesOuverture(value , day, highlight)
 		{
 			horaires[i] = "<td "+attributedCell+">"+horaires[i]+"</td>" ;
 		}
-		
+
 		// yeah, concatenates result to the returned value
 		rs += horaires[i] ;
 	}
-	
+
 	return rs ;
 }
 
 function printPage(i)
 {
-	var  fen=open("","Impression"); 
+	var  fen=open("","Impression");
 	fen.focus();
 	var baseURL = "http://www.chronopost.fr/transport-express/webdav/site/chronov4/groups/administrators/public/Chronomaps/" ;
 	var latlngpoint = relaylatan[i-1];
@@ -264,7 +264,7 @@ function btQueryString(anArray, needEscape)
 				rs += key +"=" + anArray[key] ;
 			}
     }
-  }	
+  }
 	return rs ;
 }
 
@@ -330,7 +330,7 @@ ShippingMethod.prototype = {
 
     for (var i=0; i<methods.length; i++) {
       if (methods[i].checked) {
-        if (methods[i].value == 'chronorelais_chronorelais') {
+        if (methods[i].value.indexOf('chronorelais') != -1) {
           var submethods = document.getElementsByName('shipping_method_chronorelais');
           if (submethods.length==0) {
             alert(Translator.translate('Your order cannot be completed at this time as there is no shipping methods available for it. Please make neccessary changes in your shipping address.'));
@@ -367,7 +367,7 @@ ShippingMethod.prototype = {
     );
     //}
   },
-	
+
   changePostalCode: function(url){
     if (checkout.loadWaiting!=false) return;
     //if (this.validate()) {
@@ -389,11 +389,13 @@ ShippingMethod.prototype = {
       );
     //}
   },
-	
+
   hiderelais: function(url){
-		if($('checkout-shipping-method-chronorelais-load')) {
-			$('checkout-shipping-method-chronorelais-load').innerHTML = "";
-		}
+    if($$('.chronorelais-list')) {
+      $$('.chronorelais-list').each(function(element) {
+          element.innerHTML = "";
+      });
+    }
   },
 
   save: function(){
@@ -427,7 +429,7 @@ ShippingMethod.prototype = {
         response = {};
       }
     }
-		
+
     if (response.error) {
       alert(response.message);
 			if($('mappostalcodebtn')) { $('mappostalcodebtn').show(); }
@@ -438,7 +440,7 @@ ShippingMethod.prototype = {
 		if (response.update_section) {
       $('checkout-'+response.update_section.name+'-load').update(response.update_section.html);
       response.update_section.html.evalScripts();
-			
+
 			if(response.relaypoints) {
 				if(response.relaypoints.length>0) {
 					var relayaddress = "";
@@ -499,9 +501,9 @@ MultiShippingMethod.prototype = {
       onComplete: this.onComplete
     }
   );
-        
+
   },
-	
+
   changePostalCode: function(url, index){
     if (this.loadWaiting!=false) return;
     this.loadWaiting = true;
@@ -520,7 +522,7 @@ MultiShippingMethod.prototype = {
     }
   );
   },
-	
+
   hiderelais: function(url, index){
     if($('checkout-shipping-method-chronorelais-load_' + index)) {
       $('checkout-shipping-method-chronorelais-load_' + index).innerHTML = "";
@@ -529,7 +531,7 @@ MultiShippingMethod.prototype = {
 
   complete: function(transport){
     this.loadWaiting = false;
-        
+
     if (transport && transport.responseText){
       try{
         response = eval('(' + transport.responseText + ')');
@@ -538,18 +540,18 @@ MultiShippingMethod.prototype = {
         response = {};
       }
     }
-		
+
     if (response.error) {
       alert(response.message);
       if($('mappostalcodebtn' + multiindex)) { $('mappostalcodebtn' + multiindex).show(); }
       if($('postalcode-please-wait' + multiindex)) { $('postalcode-please-wait' + multiindex).hide(); }
       return false;
     }
-        
+
     if (response.update_section) {
       $(response.update_section.name).update(response.update_section.html);
       response.update_section.html.evalScripts();
-			
+
       if(response.relaypoints) {
         if(response.relaypoints.length>0) {
           var relayaddress = "";

@@ -82,7 +82,7 @@
                         </tr>
                         </table>
                         <?php if($code=="chronorelais"): ?>
-                        <div id="checkout-shipping-method-chronorelais-load" class="chronorelais-list">
+                        <div id="checkout-shipping-method-<?php echo $_rate->getCode() ?>-load" class="chronorelais-list">
                         	<?php echo $this->getChildHtml('relaislist') ?>
                         </div>
                         <?php endif; ?>

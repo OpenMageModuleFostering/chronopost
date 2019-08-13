@@ -1,6 +1,6 @@
 <?php
 
-class Chronopost_Chronorelais_ExportController extends Mage_Adminhtml_Controller_Action {
+class Chronopost_Chronorelais_Adminhtml_Chronorelais_ExportController extends Mage_Adminhtml_Controller_Action {
 
     /**
      * Constructor
@@ -130,8 +130,8 @@ class Chronopost_Chronorelais_ExportController extends Mage_Adminhtml_Controller
                 /* real order id */
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($order->getRealOrderId()));
                 $content .= $separator;
-                
-                
+
+
                 /* total weight (in kg) */
                 $order_weight = number_format($order->getWeight(), 2, '.', '');
                 if($weightUnit == 'g') {
@@ -309,7 +309,7 @@ class Chronopost_Chronorelais_ExportController extends Mage_Adminhtml_Controller
                 /* real order id */
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($order->getRealOrderId()));
                 $content .= $separator;
-                
+
                 /* total weight (in g)*/
                 $order_weight = number_format($order->getWeight(), 2, '.', '');
                 if($weightUnit == 'kg') {

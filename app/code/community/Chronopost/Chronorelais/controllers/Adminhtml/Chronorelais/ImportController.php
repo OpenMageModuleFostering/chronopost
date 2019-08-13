@@ -1,12 +1,12 @@
 <?php
-class Chronopost_Chronorelais_ImportController extends Mage_Adminhtml_Controller_Action
+class Chronopost_Chronorelais_Adminhtml_Chronorelais_ImportController extends Mage_Adminhtml_Controller_Action
 {
 
     /**
      * Constructor
      */
     protected function _construct()
-    {        
+    {
         $this->setUsedModuleName('Chronopost_Chronorelais');
     }
 
@@ -120,11 +120,11 @@ class Chronopost_Chronorelais_ImportController extends Mage_Adminhtml_Controller
              * Try to create a shipment
              */
             $shipmentId = $this->_createShipment($order, $trackingNumber, $trackingTitle, $sendEmail, $comment, $includeComment);
-            
+
             if ($shipmentId != 0) {
                 $this->_getSession()->addSuccess($this->__('Shipment %s created for order %s, with tracking number %s', $shipmentId, $orderId, $trackingNumber));
             }
-             
+
         }//foreach
 
     }
@@ -180,7 +180,7 @@ class Chronopost_Chronorelais_ImportController extends Mage_Adminhtml_Controller
         /**
          * Tracking number instanciation
          */
-		 
+
 		$_shippingMethod = explode("_",$order->getShippingMethod());
 		switch($_shippingMethod[0]) {
 			case "chronopost":
@@ -200,7 +200,7 @@ class Chronopost_Chronorelais_ImportController extends Mage_Adminhtml_Controller
 				$tracking_order = '';
 				break;
 		}
-		
+
         $track = Mage::getModel('sales/order_shipment_track')
                 	->setNumber($trackingNumber) //setTrackingNumber ?
                     ->setCarrierCode($carrier_code)

@@ -32,7 +32,7 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
 		$collection = Mage::getResourceModel($this->_getCollectionClass());
         $collection->join('order', 'main_table.entity_id = order.entity_id', 'shipping_description');
         $collection->join('order_payment', 'main_table.entity_id = order_payment.parent_id', 'method');
-		$collection->getSelect()->joinLeft(array('oes' => Mage::getSingleton('core/resource')->getTableName('sales_chronopost_order_export_status')), 'main_table.entity_id = oes.order_id', array("if(isNull(oes.livraison_le_samedi), CASE LOWER(SUBSTRING_INDEX(order.shipping_method,'_','1')) WHEN 'chronopost' THEN '$_chronopost_deliver_saturday' WHEN 'chronorelais' THEN '$_chronorelais_deliver_saturday' WHEN 'chronoexpress' THEN '--' ELSE 'No' END, oes.livraison_le_samedi) as livraison_le_samedi"));
+		$collection->getSelect()->joinLeft(array('oes' => Mage::getSingleton('core/resource')->getTableName('sales_chronopost_order_export_status')), 'main_table.entity_id = oes.order_id', array(new Zend_Db_Expr("if(isNull(oes.livraison_le_samedi), CASE LOWER(SUBSTRING_INDEX(order.shipping_method,'_','1')) WHEN 'chronopost' THEN '$_chronopost_deliver_saturday' WHEN 'chronorelais' THEN '$_chronorelais_deliver_saturday' WHEN 'chronoexpress' THEN '--' ELSE 'No' END, oes.livraison_le_samedi) as livraison_le_samedi")));
 		$collection->getSelect()->where('order.shipping_method LIKE "chronorelais%" OR order.shipping_method LIKE "chronopost%" OR order.shipping_method LIKE "chronoexpress%"');
 
 		$this->setCollection($collection);

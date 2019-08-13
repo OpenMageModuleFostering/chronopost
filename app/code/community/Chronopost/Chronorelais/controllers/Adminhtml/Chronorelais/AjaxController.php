@@ -19,7 +19,7 @@
  * @author     Antoine Lemoine
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class Chronopost_Chronorelais_AjaxController extends Chronopost_Chronorelais_Controller_Abstract {
+class Chronopost_Chronorelais_Adminhtml_Chronorelais_AjaxController extends Chronopost_Chronorelais_Controller_Abstract {
 
     private function getPropertyHelper($row_id, $property_key, $property) {
         $cleaned_property = $this->cleanKey($property_key);
@@ -190,9 +190,9 @@ class Chronopost_Chronorelais_AjaxController extends Chronopost_Chronorelais_Con
                         for ($i = count($region_codes); --$i >= 0;) {
                             $code = trim($region_codes[$i]);
                             $region_codes[$i] = $code;
-                        }    
+                        }
                     }
-                    
+
                     /* $in_array = in_array($address['region_code'],$region_codes,true) || in_array($address['postcode'],$region_codes,true); */
                     $excluding_region = (isset($result[2]) && $result[2] == '-') || (isset($result[3]) && $result[3] == '-');
                     $output['countries'][] = array(
@@ -440,7 +440,7 @@ class Chronopost_Chronorelais_AjaxController extends Chronopost_Chronorelais_Con
     }
 
     public function checkConflictsAction() {
-        // Vérification 
+        // Vérification
         echo '<pre style="background: #000; color: #FFF; padding: 5px 10px; margin-top: 5px; border: 1px solid #0F0; font-family: Courier, Sans Serif; white-space: normal; text-indent: -20px; padding-left: 30px; line-height: 15px;">' . Mage::helper('chronorelais/conflicts')->checkForConflicts() . '</pre>';
     }
 }

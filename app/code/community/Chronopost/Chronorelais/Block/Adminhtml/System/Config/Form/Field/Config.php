@@ -3,7 +3,7 @@
 class Chronopost_Chronorelais_Block_Adminhtml_System_Config_Form_Field_Config extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
 	private static $JS_INCLUDED = false;
-	
+
 	private function label($input) {
 		return str_replace(array("\r\n","\r","\n","'"),array("\\n","\\n","\\n","\\'"),$this->__($input));
 	}
@@ -19,7 +19,7 @@ class Chronopost_Chronorelais_Block_Adminhtml_System_Config_Form_Field_Config ex
 				."//<![CDATA[\n"
 				."jQuery.noConflict();\n"
 				."var ocseditor = new OCSEditor({\n"
-				."ajax_url: '".$this->getUrl('chronorelais/ajax')."?isAjax=true',\n"
+				."ajax_url: '".$this->getUrl('adminhtml/chronorelais_ajax')."?isAjax=true',\n"
 				."form_key: FORM_KEY,\n"
 				."menu_item_dissociate_label: '".$this->label('Dissociate')."',\n"
 				."menu_item_remove_label: '".$this->label('Remove')."',\n"

@@ -26,7 +26,7 @@ class Chronopost_Chronorelais_Block_Adminhtml_System_Config_Form_Fieldsetconflic
         $html .= '<script type="text/javascript">' . "\r\n";
         $html .= '//<![CDATA[' . "\r\n";
         $html .= '    function checkConflicts() {' . "\r\n";
-        $html .= '        new Ajax.Request(\'' . Mage::getSingleton('adminhtml/url')->getUrl('chronorelais/ajax/checkConflicts') . '\', {' . "\r\n";
+        $html .= '        new Ajax.Request(\'' . Mage::getSingleton('adminhtml/url')->getUrl('adminhtml/chronorelais_ajax/checkConflicts') . '\', {' . "\r\n";
         $html .= '            onSuccess: function(data) {' . "\r\n";
         $html .= '                var response = data.responseText;' . "\r\n";
         $html .= '                $(\'chronorelais_conflicts_result\').update(response).show();' . "\r\n";

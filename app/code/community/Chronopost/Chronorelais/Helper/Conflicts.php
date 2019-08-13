@@ -32,6 +32,9 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
 
         // Recursively browse pathes
         foreach ($modulePathes as $modulePath) {
+
+            if(!is_dir($modulePath)) { continue; }
+
             $dir = new RecursiveDirectoryIterator($modulePath, FilesystemIterator::SKIP_DOTS);
             $ite  = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::SELF_FIRST);
 
@@ -103,8 +106,8 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
                        $extends_token = true;
                     } else if ($extends_token && $token[0] == T_STRING) {
                         if (self::DEBUG) {
-                            $result .= 'File ' . $controllerPhp[0] . ":\n" . 
-                                "  Class " . $className . "\n" . 
+                            $result .= 'File ' . $controllerPhp[0] . ":\n" .
+                                "  Class " . $className . "\n" .
                                 "  Extends " . $token[1] . "\n\n";
                         }
 
@@ -124,7 +127,7 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
                         $className = "";
                         $extends_token = false;
                     }
-                  }       
+                  }
                 }
 
                 // $className = str_replace(".php", "", str_replace($modulePath . DS, "", $controllerPhp[0]));
@@ -135,7 +138,7 @@ class Chronopost_Chronorelais_Helper_Conflicts extends Mage_Core_Helper_Abstract
         }
 
         // Parse rewrites table to check for conflicts
-        
+
         foreach ($this->rewrites['chrono'] as $type => $rewrites) {
             foreach ($rewrites as $from => $tos) {
                 if (!in_array($from, $this->whiteList) && isset($this->rewrites['other'][$type][$from])) {

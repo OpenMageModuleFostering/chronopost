@@ -2,7 +2,7 @@
 
 require_once 'Mage/Adminhtml/controllers/Sales/Order/ShipmentController.php';
 
-class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_Sales_Order_ShipmentController {
+class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_Sales_Order_ShipmentController {
 
     protected $_trackingNumbers = '';
 
@@ -1001,7 +1001,7 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
                 'password' => $_helper->getConfigurationAccountPass(),
                 'option' => '0'
             );
-            
+
             return $expeditionArray;
         }
     }

@@ -2,7 +2,7 @@
 
 require_once 'Mage/Adminhtml/controllers/Sales/Order/ShipmentController.php';
 
-class Chronopost_Chronorelais_Sales_Order_ShipmentController extends Mage_Adminhtml_Sales_Order_ShipmentController {
+class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_Order_ShipmentController extends Mage_Adminhtml_Sales_Order_ShipmentController {
 
     /**
      * Save shipment
@@ -28,7 +28,7 @@ class Chronopost_Chronorelais_Sales_Order_ShipmentController extends Mage_Adminh
         }
     }
 
-    protected function saveAndCreateEtiquette($shipment) {
+    protected function saveAndCreateEtiquette($shipment,$data) {
         $shipment->register();
 
         //Si l'expedition est réalisé par Mondial Relay, on créé le tracking automatiquement.
@@ -105,7 +105,7 @@ class Chronopost_Chronorelais_Sales_Order_ShipmentController extends Mage_Adminh
             $recipientName = $this->getFilledValue($_shippingAddress->getCompany()); //RelayPoint Name if chronorelais or Companyname if chronopost and
             $recipientName2 = $this->getFilledValue($_shippingAddress->getFirstname() . ' ' . $_shippingAddress->getLastname());
             //remove any alphabets in phone number
-            
+
             //$recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
             $recipientPhone = trim(preg_replace("/[^0-9\.\-]/", " ", $_shippingAddress->getTelephone()));
 
@@ -351,12 +351,12 @@ class Chronopost_Chronorelais_Sales_Order_ShipmentController extends Mage_Adminh
                 if(is_array($shipment))
                 {
                     foreach($shipment as $ship) {
-                        $this->saveAndCreateEtiquette($ship);
+                        $this->saveAndCreateEtiquette($ship,$data);
                     }
                 }
                 else
                 {
-                    $this->saveAndCreateEtiquette($shipment);
+                    $this->saveAndCreateEtiquette($shipment,$data);
                 }
             } else {
                 $this->_redirect('*/*/new', array('order_id' => $this->getRequest()->getParam('order_id')));

@@ -2,7 +2,7 @@
 
 require_once 'Mage/Adminhtml/controllers/Sales/OrderController.php';
 
-class Chronopost_Chronorelais_Sales_BordereauController extends Mage_Adminhtml_Sales_OrderController {
+class Chronopost_Chronorelais_Adminhtml_Chronorelais_Sales_BordereauController extends Mage_Adminhtml_Sales_OrderController {
 
     /**
      * Additional initialization
@@ -60,12 +60,12 @@ class Chronopost_Chronorelais_Sales_BordereauController extends Mage_Adminhtml_S
 
                     /* Tracking Number */
                     $trackNumber = $this->getTrackingNumber($shipment->getId());
-                    
+
                     /* items */
                     $items = $shipment->getAllItems();
                     $weightTotal = 0;
                     $nbTotal = 0;
-                    
+
                     $maxAmount = $helper->getMaxAdValoremAmount();
                     $adValoremAmount = $helper->assuranceAdValoremAmount();
                     $adValoremEnabled = $helper->assuranceAdValoremEnabled();
@@ -208,7 +208,7 @@ class Chronopost_Chronorelais_Sales_BordereauController extends Mage_Adminhtml_S
         $page->drawRectangle($xPos, $yPos, 570, $yPos -20);
         $page->setFillColor(new Zend_Pdf_Color_Rgb(0, 0, 0));
         $yPos -= 15;
-        
+
         $page->drawText("Numéro de LT", $xPos+5, $yPos,'UTF-8');
         $page->drawText('Poids (kg)', $xPos+110, $yPos);
         $page->drawText('Code produit', $xPos+170, $yPos);
@@ -217,7 +217,7 @@ class Chronopost_Chronorelais_Sales_BordereauController extends Mage_Adminhtml_S
         $page->drawText('Assurance', $xPos+380, $yPos);
         $page->drawText('Ville', $xPos+440, $yPos);
         $yPos -= 5;
-        
+
         foreach($detail as $line) {
 
             $page->setFillColor(new Zend_Pdf_Color_Rgb(255, 255, 255));

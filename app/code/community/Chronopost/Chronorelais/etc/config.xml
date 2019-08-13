@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Chronopost_Chronorelais>
-            <version>1.0.5</version>
+            <version>1.0.6</version>
             <depends>
                 <Mage_Shipping />
                 <Mage_Sales />
@@ -90,7 +90,7 @@
             <chronopost_chronorelais_sales_order_shipment>
                 <from><![CDATA[#^/.*sales_order_shipment/save/#]]>
                 </from>
-                <to>/chronorelais/sales_order_shipment/save/</to>
+                <to>/admin/chronorelais_sales_order_shipment/save/</to>
             </chronopost_chronorelais_sales_order_shipment>
         </rewrite>
 
@@ -154,7 +154,7 @@
         </translate>
     </frontend>
 
-    <admin>
+    <!-- <admin>
         <routers>
             <chronorelais>
                 <use>admin</use>
@@ -164,7 +164,7 @@
                 </args>
             </chronorelais>
         </routers>
-    </admin>
+    </admin> -->
 
     <adminhtml>
         <layout>
@@ -183,22 +183,22 @@
                         <children>
                             <export translate="title">
                                 <title>Export</title>
-                                <action>chronorelais/export</action>
+                                <action>adminhtml/chronorelais_export</action>
                                 <sort_order>10</sort_order>
                             </export>
                             <import translate="title">
                                 <title>Import</title>
-                                <action>chronorelais/import</action>
+                                <action>adminhtml/chronorelais_import</action>
                                 <sort_order>20</sort_order>
                             </import>
                             <impression translate="title" module="sales">
                                 <title>Impression des étiquettes</title>
-                                <action>chronorelais/sales_impression</action>
+                                <action>adminhtml/chronorelais_sales_impression</action>
                                 <sort_order>30</sort_order>
                             </impression>
                             <bordereau translate="title" module="sales">
                                 <title>Bordereau de fin de journée</title>
-                                <action>chronorelais/sales_bordereau</action>
+                                <action>adminhtml/chronorelais_sales_bordereau</action>
                                 <sort_order>40</sort_order>
                             </bordereau>
                         </children>
@@ -260,6 +260,18 @@
         </translate>
 
     </adminhtml>
+
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <Chronopost_Chronorelais before="Mage_Adminhtml">Chronopost_Chronorelais_Adminhtml</Chronopost_Chronorelais>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
 
     <default>
         <chronorelais>

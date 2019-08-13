@@ -44,10 +44,9 @@
 
     $('checkout-shipping-method-load').on('click', 'input[name=shipping_method]', function(event, element) {
         var shippingMethodSelected = element.value;
-        if(shippingMethodSelected=="chronorelais_chronorelais") {
-            shippingMethod.getrelais('<?php echo $this->getUrl("checkout/onepage/getRelais")?>');
-        } else {
-            shippingMethod.hiderelais();
+        shippingMethod.hiderelais();
+        if(shippingMethodSelected.indexOf("chronorelais") !== -1) {
+            shippingMethod.getrelais('<?php echo $this->getUrl("checkout/onepage/getRelais",shippingMethodSelected)?>');
         }
     });
 

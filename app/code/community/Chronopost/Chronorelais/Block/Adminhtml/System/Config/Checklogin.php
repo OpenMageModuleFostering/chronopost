@@ -35,7 +35,7 @@ class Chronopost_Chronorelais_Block_Adminhtml_System_Config_Checklogin extends M
         $this->addData(array(
             'button_label' => Mage::helper('chronorelais')->__($originalData['button_label']),
             'html_id' => $element->getHtmlId(),
-            'ajax_url' => Mage::getSingleton('adminhtml/url')->getUrl('chronorelais/ajax/checklogin')
+            'ajax_url' => Mage::getSingleton('adminhtml/url')->getUrl('adminhtml/chronorelais_ajax/checklogin')
         ));
 
 

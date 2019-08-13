@@ -19,7 +19,8 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
     /* get point relais by address */
     public function getPointRelaisByAddress() {
 
-        $quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
+        //$quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
+        $quote = Mage::getSingleton('checkout/cart')->getQuote();
         $address = $quote->getShippingAddress();
         $helperData = Mage::helper('chronorelais');
 
@@ -39,7 +40,7 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
                 'weight' => 2000,
                 'shippingDate' => date('d/m/Y'),
                 'maxPointChronopost' => 5,
-                'maxDistanceSearch' => 10,
+                'maxDistanceSearch' => 15,
                 'holidayTolerant' => 1
             );
             $webservbt = $client->recherchePointChronopost($params);
@@ -92,6 +93,9 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
                  *
                  */
                 $listePr = $webservbt->return->listePointRelais;
+                if(count($webservbt->return->listePointRelais) == 1) {
+                    $listePr = array($listePr);
+                }
                 $return = array();
                 foreach($listePr as $pr)
                 {

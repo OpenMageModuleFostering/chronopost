@@ -167,7 +167,7 @@ class Chronopost_Chronorelais_Checkout_OnepageController extends Mage_Checkout_O
                 }
             }
             //ENDWEC chronorelais
-            
+
             parent::saveShippingMethodAction();
         }
     }
@@ -183,6 +183,7 @@ class Chronopost_Chronorelais_Checkout_OnepageController extends Mage_Checkout_O
         $quote = $this->getOnepage()->getQuote(); //Mage::getSingleton('checkout/cart')->init()->getQuote();
         $address = $quote->getShippingAddress();
         $postcode = $address->getPostcode();
+        $shippingMethod = $this->getRequest()->getPost('shipping_method');
 
         if (extension_loaded('soap')) {
 
@@ -193,7 +194,7 @@ class Chronopost_Chronorelais_Checkout_OnepageController extends Mage_Checkout_O
                 $this->loadLayout('checkout_onepage_shippingchronorelais');
                 $result['goto_section'] = 'shipping-method';
                 $result['update_section'] = array(
-                    'name' => 'shipping-method-chronorelais',
+                    'name' => 'shipping-method-'.$shippingMethod,
                     'html' => $this->_getChronoRelaisHtml()
                 );
                 $result['relaypoints'] = $webservbt;
@@ -218,6 +219,7 @@ class Chronopost_Chronorelais_Checkout_OnepageController extends Mage_Checkout_O
         $result = array();
         $webservbt = array();
         $postcode = $this->getRequest()->getPost('mappostalcode');
+        $shippingMethod = $this->getRequest()->getPost('shipping_method');
         if ($postcode) {
             $quote = $this->getOnepage()->getQuote(); //Mage::getSingleton('checkout/cart')->init()->getQuote();
             $address = $quote->getShippingAddress();
@@ -233,7 +235,7 @@ class Chronopost_Chronorelais_Checkout_OnepageController extends Mage_Checkout_O
             $this->loadLayout('checkout_onepage_shippingchronorelais');
             $result['goto_section'] = 'shipping-method';
             $result['update_section'] = array(
-                'name' => 'shipping-method-chronorelais',
+                'name' => 'shipping-method-'.$shippingMethod,
                 'html' => $this->_getChronoRelaisHtml()
             );
             $result['relaypoints'] = $webservbt;

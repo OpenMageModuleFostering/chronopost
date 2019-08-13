@@ -18,10 +18,10 @@ class Chronopost_Chronorelais_Block_Sales_Order_Shipment_View extends Mage_Admin
             );
         }
     }
-    
+
     public function getPrintChronopostUrl()
     {
-        return $this->getUrl('chronorelais/sales_impression/print', array(
+        return $this->getUrl('adminhtml/chronorelais_sales_impression/print', array(
             'shipment_id' => $this->getShipment()->getId()
         ));
     }
