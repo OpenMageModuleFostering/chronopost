@@ -344,8 +344,8 @@ abstract class Chronopost_Chronorelais_Model_Carrier_AbstractChronorelaisShippin
                     }
                 }
 
-                /* Si C10, CClassic ou Express => On vérifie si la méthode fait partie du contrat */
-                $methodsToCheck = array('chronoexpress','chronopostc10','chronopostcclassic');
+                /* Si C10, CClassic ou C18 => On vérifie si la méthode fait partie du contrat */
+                $methodsToCheck = array('chronopostc18','chronopostc10','chronopostcclassic');
                 if(in_array($this->_code, $methodsToCheck))
                 {
                     $isAllowed = $helperWS->getMethodIsAllowed($this->_code);
@@ -359,7 +359,7 @@ abstract class Chronopost_Chronorelais_Model_Carrier_AbstractChronorelaisShippin
 			foreach ($process['config'] as $row) {
 				$result = $this->_helper->processRow($process,$row);
 				$this->_addMessages($this->_helper->getMessages());
-				if ($result->success) {
+				if ($result && $result->success) {
 					$value_found = true;
 					$fees = $result->result;
 					if($applicationFee) { $fees += $applicationFee; }

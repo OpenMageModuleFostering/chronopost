@@ -24,7 +24,8 @@ class Chronopost_Chronorelais_ExportController extends Mage_Adminhtml_Controller
     }
 
     public function removeSpclChars($text) {
-        return ereg_replace("[^0-9a-zA-Z]", "", $text);
+        //return ereg_replace("[^0-9a-zA-Z]", "", $text);
+        return preg_replace("/[^0-9a-zA-Z]/", "", $text);
     }
 
     public function massLivraisonSamediStatusAction() {
@@ -280,7 +281,9 @@ class Chronopost_Chronorelais_ExportController extends Mage_Adminhtml_Controller
                 $content = $this->_addFieldToCsv($content, $delimiter, $this->getValue($address->getFirstname()));
                 $content .= $separator;
                 /* telephone */
-                $telephone = trim(ereg_replace("[^0-9.-]", " ", $address->getTelephone()));
+                //$telephone = trim(ereg_replace("[^0-9.-]", " ", $address->getTelephone()));
+                $telephone = trim(preg_replace("/[^0-9\.\-]/", " ", $address->getTelephone()));
+
                 $telephone = (strlen($telephone) >= 10 ? $telephone : '');
                 $content = $this->_addFieldToCsv($content, $delimiter, $telephone);
                 $content .= $separator;

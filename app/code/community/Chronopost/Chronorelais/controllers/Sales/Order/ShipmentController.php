@@ -105,7 +105,9 @@ class Chronopost_Chronorelais_Sales_Order_ShipmentController extends Mage_Adminh
             $recipientName = $this->getFilledValue($_shippingAddress->getCompany()); //RelayPoint Name if chronorelais or Companyname if chronopost and
             $recipientName2 = $this->getFilledValue($_shippingAddress->getFirstname() . ' ' . $_shippingAddress->getLastname());
             //remove any alphabets in phone number
-            $recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
+            
+            //$recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
+            $recipientPhone = trim(preg_replace("/[^0-9\.\-]/", " ", $_shippingAddress->getTelephone()));
 
             $recipient = array(
                 'recipientAdress1' => substr($this->getFilledValue($recipient_address[0]), 0, 38),
@@ -366,7 +368,8 @@ class Chronopost_Chronorelais_Sales_Order_ShipmentController extends Mage_Adminh
         } catch (Exception $e) {
             $this->_getSession()->addError($this->__('Can not save shipment: ' . $e->getMessage()));
         }
-        $this->_redirect('*/*/new', array('order_id' => $this->getRequest()->getParam('order_id')));
+        //$this->_redirect('*/*/new', array('order_id' => $this->getRequest()->getParam('order_id')));
+        $this->_redirect('adminhtml/sales_order/view', array('order_id' => $orderId));
     }
 
     public function removeaccents($string) {

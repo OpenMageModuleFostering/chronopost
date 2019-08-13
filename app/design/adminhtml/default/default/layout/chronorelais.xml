@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <default>
+        <reference name="content">
+            <block type="chronorelais/adminhtml_notification" />
+        </reference>
+    </default>
+    <adminhtml_sales_order_view>
+        <reference name="order_tab_info">
+            <action method="setTemplate" translate="value"><value>chronorelais/sales/order/view/tab/info.phtml</value></action>
+        </reference>
+    </adminhtml_sales_order_view>
+    <adminhtml_system_config_edit>
+        <reference name="head">
+            <action method="addItem"><type>skin_css</type><value>chronorelais/chronorelais.css</value></action>
+            <action method="addItem"><type>js</type><value>chronopost/chronorelais/chronorelais.js</value></action>
+        </reference>
+    </adminhtml_system_config_edit>
+</layout>

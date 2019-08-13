@@ -294,7 +294,7 @@ class Country
 	);
 	
 	public static function loadCache() {
-		$filename = 'cache/countries';
+		$filename = 'var/cache/countries.txt';
 		if (!file_exists($filename)) {
 			self::$COUNTRIES['code2soft-cleaned-name'] = array();
 			self::$COUNTRIES['code2hard-cleaned-name'] = array();
@@ -303,9 +303,11 @@ class Country
 				self::$COUNTRIES['code2soft-cleaned-name'][$_code] = $soft_cleaned;
 				self::$COUNTRIES['code2hard-cleaned-name'][$_code] = self::hardClean($soft_cleaned);
 			}
-			file_put_contents('cache/countries',serialize(self::$COUNTRIES));
+			$fp = fopen($filename,'w');
+			fwrite($fp, serialize(self::$COUNTRIES));
+			//file_put_contents('var/cache/countries.txt',serialize(self::$COUNTRIES));
 		} else {
-			self::$COUNTRIES = unserialize(file_get_contents('cache/countries'));
+			self::$COUNTRIES = unserialize(file_get_contents($filename));
 		}
 	}
 
@@ -365,7 +367,7 @@ class AddressFilter extends Country
 	private $address_filters_list;
 
 	public function AddressFilter($data) {
-		$input = trim($input);
+		//$input = trim($input);
 		$this->data = $data;
 		$this->classes = array();
 		$this->address_filters_list = null;

@@ -364,7 +364,7 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
     /*
      * Return true si la méthode de livraison fait partie du contrat
      */
-    public function getMethodIsAllowed($code,$quote) {
+    public function getMethodIsAllowed($code,$quote = '') {
         $quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
         $address = $quote->getShippingAddress();
         $helperData = Mage::helper('chronorelais');

@@ -194,7 +194,7 @@ class ChronorelaisShippingHelper {
     }
 
     public function processRow($process, &$row, $is_checking = false) {
-        if (!isset($row['*code']))
+        if (!isset($row['*code']) || !isset($process['data']['carrier.code']))
             return;
 
         self::debug('process row <span class="osh-key">' . $row['*code'] . '</span>', 1);
@@ -1109,7 +1109,8 @@ class ChronorelaisShippingHelper {
         }
         if (trim($config_string) != '') {
             $this->_addIgnoredLines(trim($config_string));
-            $this->addMessage('info', $row = null, null, 'Ignored lines %s', '<div class="code">' . trim($config_string) . '</div>');
+            $row = null;
+            $this->addMessage('info', $row, null, 'Ignored lines %s', '<div class="code">' . trim($config_string) . '</div>');
         }
     }
 

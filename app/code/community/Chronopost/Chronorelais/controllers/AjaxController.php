@@ -183,14 +183,18 @@ class Chronopost_Chronorelais_AjaxController extends Chronopost_Chronorelais_Con
                 if (preg_match('# *([^,(]+) *(-)? *(?:\( *(-)? *(.*)\))? *#s', $address_filter, $result)) {
                     $country_code = $result[1];
 
-                    $region_codes = explode(',', $result[4]);
-                    $in_array = false;
-                    for ($i = count($region_codes); --$i >= 0;) {
-                        $code = trim($region_codes[$i]);
-                        $region_codes[$i] = $code;
+                    $region_codes = array();
+                    if(isset($result[4])) {
+                        $region_codes = explode(',', $result[4]);
+                        $in_array = false;
+                        for ($i = count($region_codes); --$i >= 0;) {
+                            $code = trim($region_codes[$i]);
+                            $region_codes[$i] = $code;
+                        }    
                     }
+                    
                     /* $in_array = in_array($address['region_code'],$region_codes,true) || in_array($address['postcode'],$region_codes,true); */
-                    $excluding_region = $result[2] == '-' || $result[3] == '-';
+                    $excluding_region = (isset($result[2]) && $result[2] == '-') || (isset($result[3]) && $result[3] == '-');
                     $output['countries'][] = array(
                         'excluding' => $excluding_region,
                         'country_code' => $country_code,
@@ -254,13 +258,15 @@ class Chronopost_Chronorelais_AjaxController extends Chronopost_Chronorelais_Con
         foreach ($properties as $property_key => $label) {
             $cleaned_property = $this->cleanKey($property_key);
             $value = isset($row[$property_key]) ? trim($row[$property_key]['value']) : '';
+            $property = isset($row[$property_key]) ? $row[$property_key] : '';
+
             $list .= "<li id=\"r-" . $row_id . "-p-" . $cleaned_property . "-item\" class=\"property-item" . ($j == 0 ? ' selected' : '')
                     . (empty($value) ? ' empty' : '')
                     . "\" onclick=\"ocseditor.selectProperty('" . $row_id . "','" . $cleaned_property . "');\">" . $this->__($label) . "</li>";
             $output .= "<div id=\"r-" . $row_id . "-p-" . $cleaned_property . "-container\" class=\"property-container"
                     . ($j == 0 ? ' selected' : '') . "\" property-name=\"" . $property_key . "\">"
                     . "<div class=\"buttons-set\" style=\"text-align:right;\">" . $this->button('Help', "ocseditor.help('property." . $property_key . "');", 'help') . "</div>"
-                    . $this->getPropertyHelper($row_id, $property_key, $row[$property_key]) . "</div>";
+                    . $this->getPropertyHelper($row_id, $property_key, $property) . "</div>";
             $j++;
         }
         foreach ($row as $property_key => $property) {

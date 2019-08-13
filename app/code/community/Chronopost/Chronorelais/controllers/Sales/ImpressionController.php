@@ -267,7 +267,9 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
             $recipientName = $this->getFilledValue($_shippingAddress->getCompany()); //RelayPoint Name if chronorelais or Companyname if chronopost and
             $recipientName2 = $this->getFilledValue($_shippingAddress->getFirstname() . ' ' . $_shippingAddress->getLastname());
             //remove any alphabets in phone number
-            $recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
+
+            //$recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
+            $recipientPhone = trim(preg_replace("/[^0-9\.\-]/", " ", $_shippingAddress->getTelephone()));
 
             $recipient = array(
                 'recipientAdress1' => substr($this->getFilledValue($recipient_address[0]), 0, 38),
@@ -889,7 +891,11 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
             $recipientName = $this->getFilledValue($_shippingAddress->getCompany()); //RelayPoint Name if chronorelais or Companyname if chronopost and
             $recipientName2 = $this->getFilledValue($_shippingAddress->getFirstname() . ' ' . $_shippingAddress->getLastname());
             //remove any alphabets in phone number
-            $recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
+            
+            //$recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
+            $recipientPhone = trim(preg_replace("/[^0-9\.\-]/", " ", $_shippingAddress->getTelephone()));
+
+
             $shipper = array(
                 'shipperAdress1' => substr($this->getFilledValue($recipient_address[0]), 0, 38),
                 'shipperAdress2' => substr($this->getFilledValue($recipient_address[1]), 0, 38),
