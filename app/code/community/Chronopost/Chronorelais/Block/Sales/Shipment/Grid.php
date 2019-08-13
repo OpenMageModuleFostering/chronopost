@@ -71,6 +71,7 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
             'type' => 'text',
             'width' => '100px',
             'filter' => false,
+            'column_css_class' => 'shipment_ids'
         ));
 
         $this->addColumn('shipment_created_at', array(
@@ -212,7 +213,9 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
     }
 
     public function getAdditionalJavaScript() {
-        echo "$$('#sales_order_grid_table tr td:nth-child(4)').each(function(item) {
+        echo "
+            var tds = $$('#sales_order_grid_table tr td.shipment_ids');
+        tds.each(function(item) {
         var chaine = item.innerHTML.replace(/^\s+/g,'').replace(/\s+$/g,'');
         var lienExpedition = $(item).next('.etiquette_expedition').down('a');
         var lienRetour = $(item).next('.etiquette_retour').down('a');
