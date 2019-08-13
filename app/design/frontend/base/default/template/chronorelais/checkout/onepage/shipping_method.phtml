@@ -26,7 +26,7 @@
 ?>
 <?php $isSoColissimoSimplicite = Mage::getConfig()->getModuleConfig('LaPoste_SoColissimoSimplicite')->is('active'); ?>
 
-<script src="http://maps.googleapis.com/maps/api/js?sensor=false<?php if (Mage::helper('chronorelais')->getConfigurationGoogleMapAPIKey()): ?>&amp;key=<?php echo Mage::helper('chronorelais')->getConfigurationGoogleMapAPIKey() ?><?php endif; ?>" type="text/javascript"></script>
+<script src="//maps.googleapis.com/maps/api/js?v=3.17&sensor=false<?php if (Mage::helper('chronorelais')->getConfigurationGoogleMapAPIKey()): ?>&amp;key=<?php echo Mage::helper('chronorelais')->getConfigurationGoogleMapAPIKey() ?><?php endif; ?>" type="text/javascript"></script>
 <script type="text/javascript" src="<?php echo $this->getSkinUrl('chronorelais/chronorelaismap.js') ?>"></script>
 <script type="text/javascript">
 //<![CDATA[
@@ -38,6 +38,21 @@
     <div id="checkout-shipping-method-load">
         <?php echo $this->getChildHtml('available') ?>
     </div>
+
+    <script type="text/javascript">
+    /* add click event on shipping methods */
+
+    $('checkout-shipping-method-load').on('click', 'input[name=shipping_method]', function(event, element) {
+        var shippingMethodSelected = element.value;
+        if(shippingMethodSelected=="chronorelais_chronorelais") {
+            shippingMethod.getrelais('<?php echo $this->getUrl("checkout/onepage/getRelais")?>');
+        } else {
+            shippingMethod.hiderelais();
+        }
+    });
+
+    </script>
+
     <?php if(!empty($isSoColissimoSimplicite)) : ?>
     <?php $_helper = Mage::helper('socolissimosimplicite'); ?>
     <script type="text/javascript">
@@ -71,7 +86,7 @@
         }
         // pass to next step (= default onSave binding
         ShippingMethod.prototype.nextStep(transport);
-    }; 
+    };
     //]]>
     </script>
     <?php endif; ?>

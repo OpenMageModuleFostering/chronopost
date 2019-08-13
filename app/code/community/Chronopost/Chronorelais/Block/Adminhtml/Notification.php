@@ -2,6 +2,10 @@
 class Chronopost_Chronorelais_Block_Adminhtml_Notification extends Mage_Core_Block_Template
 {
     const XML_SEVERITY_ICONS_URL_PATH  = 'system/adminnotification/severity_icons_url';
+
+    const MODULE_RELEASES_XML_URL = 'http://connect20.magentocommerce.com/community/Chronopost/releases.xml';
+    //all community packages => http://connect20.magentocommerce.com/community/packages.xml
+
     protected function _prepareLayout()
     {
         parent::_prepareLayout();
@@ -23,7 +27,13 @@ class Chronopost_Chronorelais_Block_Adminhtml_Notification extends Mage_Core_Blo
         if (!Mage::getSingleton('admin/session')->isFirstPageAfterLogin()) {
             return false;
         }
+        return true;
+    }
 
+    public function getNotifications()
+    {
+        $notifications = array();
+        /* test if WS is ok */
         $_helper = Mage::helper('chronorelais');
         $account_number = $_helper->getConfigurationAccountNumber();
         $password = $_helper->getConfigurationAccountPass();
@@ -44,12 +54,28 @@ class Chronopost_Chronorelais_Block_Adminhtml_Notification extends Mage_Core_Blo
         $helperWS = Mage::helper('chronorelais/webservice');
         $webservbt = $helperWS->checkLogin($WSParams);
 
-        if(!$webservbt) return true;
-        
-        $webservbt = (array)$webservbt;
-        if($webservbt['errorCode'] != 0) { return true; }
+        if(!$webservbt) {
+            $notifications[] = 'quickcost_not_available';
+        } else {
+            $webservbt = (array)$webservbt;
+            if(isset($webservbt['errorCode']) && $webservbt['errorCode'] != 0) {
+                $notifications[] = 'quickcost_not_available';
+            }
+        }
 
-        return false;
+        /* test if new version is available */
+        $currentVersion = (string)Mage::getConfig()->getModuleConfig("Chronopost_Chronorelais")->version;
+
+        $xml = simplexml_load_file(self::MODULE_RELEASES_XML_URL);
+        $nbRelease = count($xml->children());
+        $releases = $xml->children();
+        $lastRelease = $releases[$nbRelease-1];
+        if(version_compare($currentVersion, $lastRelease->v, '>')) {
+            $notifications[] = 'new_version';
+        }
+
+        return $notifications;
+
     }
 
 }

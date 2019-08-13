@@ -3,7 +3,8 @@
  * @see Chronopost_Chronorelais_Block_Adminhtml_Notification
  */
 ?>
-<?php if ($this->canShow()): ?>
+<?php $notifications = $this->getNotifications();?>
+<?php if ($this->canShow() && count($notifications) > 0): ?>
 <script type="text/javascript">
 //<![CDATA[
     var messagePopupClosed = false;
@@ -43,11 +44,24 @@
     <div class="message-popup-content">
         <div class="message">
             <span class="message-icon message-notice" style="background-image:url(<?php echo $this->getSeverityIconsUrl() ?>);">Notice</span>
+            <?php foreach($notifications as $notif): ?>
             <p class="message-text">
-                Le quickcost est momentanément indisponible, les prix renseignés dans la grille tarifaire sont appliqués.
-                <br />
-                Veuillez les vérifier.
+                <?php
+                switch($notif) {
+                    case 'quickcost_not_available':
+                        echo 'Le quickcost est momentanément indisponible, les prix renseignés dans la grille tarifaire sont appliqués.
+                            <br />
+                            Veuillez les vérifier.';
+                    break;
+
+                    case 'new_version':
+                        echo 'Une nouvelle version du module Chronopost est disponible.';
+                        echo 'Vous pouvez la télécharger <a href="http://www.magentocommerce.com/magento-connect/chronopost.html" target="_blank">ici</a>';
+                    break;
+                }
+                ?>
             </p>
+            <?php endforeach; ?>
         </div>
     </div>
 </div>

@@ -95,23 +95,7 @@ class Chronopost_Chronorelais_Checkout_OnepageController extends Mage_Checkout_O
      * Shipping address save action
      */
     public function saveShippingAction() {
-        if ($this->_expireAjax()) {
-            return;
-        }
-        if ($this->getRequest()->isPost()) {
-            $data = $this->getRequest()->getPost('shipping', array());
-            $customerAddressId = $this->getRequest()->getPost('shipping_address_id', false);
-            $result = $this->getOnepage()->saveShipping($data, $customerAddressId);
-
-            if (!isset($result['error'])) {
-                $result['goto_section'] = 'shipping_method';
-                $result['update_section'] = array(
-                    'name' => 'shipping-method',
-                    'html' => $this->_getShippingMethodsHtml()
-                );
-            }
-            $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-        }
+        parent::saveShippingAction();
 
         //WEC chronorelais
         if (isset($_SESSION["customer_shipping_address_reference"])) {
@@ -123,7 +107,6 @@ class Chronopost_Chronorelais_Checkout_OnepageController extends Mage_Checkout_O
         $_SESSION["customer_shipping_address_reference"]["data"] = $data;
         $_SESSION["customer_shipping_address_reference"]["customerAddressId"] = $customerAddressId;
         $_SESSION["customer_shipping_address_reference"]["available"] = false;
-
         //ENDWEC
     }
 
@@ -184,26 +167,8 @@ class Chronopost_Chronorelais_Checkout_OnepageController extends Mage_Checkout_O
                 }
             }
             //ENDWEC chronorelais
-
-            $data = $this->getRequest()->getPost('shipping_method', '');
-            $result = $this->getOnepage()->saveShippingMethod($data);
-            /*
-              $result will have erro data if shipping method is empty
-             */
-            if (!$result) {
-                Mage::dispatchEvent('checkout_controller_onepage_save_shipping_method', array('request' => $this->getRequest(),
-                    'quote' => $this->getOnepage()->getQuote()));
-                $this->getOnepage()->getQuote()->collectTotals();
-                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-
-                $result['goto_section'] = 'payment';
-                $result['update_section'] = array(
-                    'name' => 'payment-method',
-                    'html' => $this->_getPaymentMethodsHtml()
-                );
-            }
-            $this->getOnepage()->getQuote()->collectTotals()->save();
-            $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+            
+            parent::saveShippingMethodAction();
         }
     }
 

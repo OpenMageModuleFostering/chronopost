@@ -5,7 +5,7 @@
 			<action method="addItem"><type>skin_css</type><name>chronorelais/chronorelais.css</name></action>
         </reference>
 	</default>
-	
+
 	<checkout_onepage_index>
 		<reference name="checkout.onepage.shipping_method">
 			<action method="setTemplate"><template>chronorelais/checkout/onepage/shipping_method.phtml</template></action>
@@ -14,7 +14,7 @@
 			</block>
 		</reference>
 	</checkout_onepage_index>
-	
+
   <!-- -->
 	<checkout_multishipping_shipping>
     <update handle="checkout_multishipping"/>
@@ -24,7 +24,7 @@
 		</reference>
 	</checkout_multishipping_shipping>
 	<!-- -->
-  
+
   <checkout_onepage_shippingmethod>
     <remove name="right"/>
     <remove name="left"/>
@@ -56,5 +56,5 @@
 			<action method="setTemplate"><template>chronorelais/sales/order/history.phtml</template></action>
         </reference>
     </sales_order_history>
-	
+
 </layout>

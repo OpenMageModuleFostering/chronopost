@@ -389,15 +389,24 @@ class Chronopost_Chronorelais_Helper_Webservice extends Mage_Core_Helper_Abstrac
                 //print_r($webservbt);
                 if($webservbt->return->errorCode == 0)
                 {
-                    if($webservbt->return->productList) {
+                    /*if($webservbt->return->productList) {
                         foreach($webservbt->return->productList as $product) {
-                            //echo $product->productCode.' ---- ';
                             $this->methodsAllowed[] = $product->productCode;
                         }
+                    }*/
+                    if($webservbt->return->productList) {
+                        if(is_array($webservbt->return->productList)) {
+                          foreach($webservbt->return->productList as $product) {
+                              $this->methodsAllowed[] = $product->productCode;
+                          }
+                        } else { /* cas ou il y a un seul résultat */
+                          $product = $webservbt->return->productList;
+                          $this->methodsAllowed[] = $product->productCode;
+                        }
+
                     }
                 }
             }
-            //print_r($this->methodsAllowed);
             if(!empty($this->methodsAllowed) && in_array($code, $this->methodsAllowed)) {
                 return true;
             }

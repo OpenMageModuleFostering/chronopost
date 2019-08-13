@@ -89,22 +89,22 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
         $code = strtolower($code);
 
         switch($code) {
-            case 'chronorelais' : 
+            case 'chronorelais' :
                 $productcode = self::CHRONORELAIS;
                 break;
-            case 'chronopost' : 
-                $productcode = self::CHRONO_POST; 
+            case 'chronopost' :
+                $productcode = self::CHRONO_POST;
                 break;
-            case 'chronoexpress' : 
+            case 'chronoexpress' :
                 $productcode = self::CHRONO_EXPRESS;
                 break;
-            case 'chronopostc10' : 
+            case 'chronopostc10' :
                 $productcode = self::CHRONOPOST_C10;
                 break;
-            case 'chronopostc18' : 
-                $productcode = self::CHRONOPOST_C18; 
+            case 'chronopostc18' :
+                $productcode = self::CHRONOPOST_C18;
                 break;
-            case 'chronopostcclassic' : 
+            case 'chronopostcclassic' :
                 $productcode = self::CHRONOPOST_CClassic;
                 break;
         }
@@ -326,6 +326,25 @@ class Chronopost_Chronorelais_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function shippingMethodEnabled($shippingMethod) {
         return true;
+    }
+
+    /*
+    * Return true if we can show google map
+    */
+    public function canShowGoogleMap() {
+        return $this->getConfigData('carriers/chronorelais/show_google_map');
+    }
+
+    /* return track number field name */
+    public function getTrackNumberFieldName() {
+        $magentoVersion = Mage::getVersionInfo();
+        //if($magentoVersion['minor'] > 4 || ($magentoVersion['minor'] == 4 && $magentoVersion['revision'] > 1)) { /* version > 1.4.1 */
+        if (version_compare(Mage::getVersion(), '1.5.1.0', '>')) {
+            return "track_number";
+        } else {
+            return "number";
+        }
+
     }
 
 }

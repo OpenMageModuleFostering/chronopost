@@ -51,9 +51,16 @@ function loadRelayMap(address, relaisArray, nextpt, mapid) {
     var relaypoint_id = relaisArray.identifiantChronopostPointA2PAS;
     var marker = new google.maps.Marker({map: map, position: point, title:relaisArray.nomEnseigne, icon:blueIcon});
     
-    var infowindow = new google.maps.InfoWindow({
-      content: '<div style="width: 400px;"><div style="width: 190px; float: left;"><h2>Infos</h2>'+getMarkerInfoContent(relaisArray) + getActionsForm(addressrelais.length)+'</div><div style="margin-left: 10px; padding-left: 10px; border-left: 1px solid #000; float: left;"><h2>Horaires</h2><div style="width: 189px">'+getHorairesTab(relaisArray, true)+'</div></div></div>'
-    });
+    var infowindow;
+    if (window.innerWidth < 700) {
+      infowindow = new google.maps.InfoWindow({
+        content: '<div style=""><div style="float: left;"><h2>Infos</h2>'+getMarkerInfoContent(relaisArray)+'</div><div style="margin-left: 10px; padding-left: 10px; border-left: 1px solid #000; float: left;"><h2>Horaires</h2><div style="">'+getHorairesTab(relaisArray, true)+'</div></div></div>'
+      });
+    } else {
+      infowindow = new google.maps.InfoWindow({
+        content: '<div style="width: 400px;"><div style="width: 190px; float: left;"><h2>Infos</h2>'+getMarkerInfoContent(relaisArray) + getActionsForm(addressrelais.length)+'</div><div style="margin-left: 10px; padding-left: 10px; border-left: 1px solid #000; float: left;"><h2>Horaires</h2><div style="width: 189px">'+getHorairesTab(relaisArray, true)+'</div></div></div>'
+      });
+    }
     
     google.maps.event.addListener(marker, 'click', function() {
       if(document.getElementById('s_method_chronorelais_'+relaisArray.identifiantChronopostPointA2PAS))

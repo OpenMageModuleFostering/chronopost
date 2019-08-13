@@ -3,6 +3,8 @@
 	$quote = Mage::getSingleton('checkout/cart')->init()->getQuote();
 	$address = $quote->getShippingAddress();
 	$postcode = $address->getPostcode();
+
+    $helperData = Mage::helper('chronorelais');
 ?>
 <div class="chronorelaismap">
     <div class="mappostalcode">
@@ -10,7 +12,9 @@
         <button onclick="shippingMethod.changePostalCode('<?php echo $this->getUrl('checkout/onepage/changePostalCode')?>');" id="mappostalcodebtn" class="button" type="button"><span><span><?php echo $this->__('Changer mon code postal')?></span></span></button>
     	<span style="display: none;" class="please-wait" id="postalcode-please-wait"><img class="v-middle" title="<?php echo $this->__('Loading map...')?>" alt="<?php echo $this->__('Loading map...')?>" src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif')?>"> <?php echo $this->__('Loading map...')?></span>
     </div>
+    <?php if($helperData->canShowGoogleMap()): ?>
     <div id="chronomap" class="chronomap"></div>
+    <?php endif; ?>
 </div>
 <p style="margin: 0;"><?php echo $this->__('Veuillez choisir parmi les 5 relais Pickup affich&eacute;s ci-dessous celui qui servira d\'adresse de livraison.')?></p>
 <dl class="sp-methods-chronorelais">
@@ -19,12 +23,15 @@
         <ul>
         <?php foreach($this->getChronorelais() as $key=>$chronorelais): ?>
             <li>
-                <input name="shipping_method_chronorelais" type="radio" value="<?php echo $chronorelais->identifiantChronopostPointA2PAS;?>" id="s_method_chronorelais_<?php echo $chronorelais->identifiantChronopostPointA2PAS;?>" class="radio" onclick="loadMyPoint('<?php echo $chronorelais->identifiantChronopostPointA2PAS;//$key?>')" /> 
+                <?php
+                $onClick = $helperData->canShowGoogleMap() ? "loadMyPoint('".$chronorelais->identifiantChronopostPointA2PAS."')" : ""; //$key
+                ?>
+                <input name="shipping_method_chronorelais" type="radio" value="<?php echo $chronorelais->identifiantChronopostPointA2PAS;?>" id="s_method_chronorelais_<?php echo $chronorelais->identifiantChronopostPointA2PAS;?>" class="radio" onclick="<?php echo $onClick; ?>" />
                 <label for="s_method_chronorelais_<?php echo $chronorelais->identifiantChronopostPointA2PAS;?>"><?php echo $chronorelais->nomEnseigne.' - '.$chronorelais->adresse1.' - '.$chronorelais->codePostal.' - '.$chronorelais->localite;?></label>
             </li>
-        <?php endforeach; ?>    
+        <?php endforeach; ?>
         </ul>
-    </dd>   
-</dl> 
+    </dd>
+</dl>
 
 <?php endif; ?>

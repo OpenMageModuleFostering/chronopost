@@ -438,4 +438,9 @@ class Chronopost_Chronorelais_AjaxController extends Chronopost_Chronorelais_Con
 
         echo json_encode($webservbt);
     }
+
+    public function checkConflictsAction() {
+        // Vérification 
+        echo '<pre style="background: #000; color: #FFF; padding: 5px 10px; margin-top: 5px; border: 1px solid #0F0; font-family: Courier, Sans Serif; white-space: normal; text-indent: -20px; padding-left: 30px; line-height: 15px;">' . Mage::helper('chronorelais/conflicts')->checkForConflicts() . '</pre>';
+    }
 }

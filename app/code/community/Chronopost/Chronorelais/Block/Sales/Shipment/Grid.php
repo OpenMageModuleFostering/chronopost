@@ -32,10 +32,12 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
             $_chronorelais_deliver_saturday = 'No';
         }
 
+        $trackNumberFieldName = Mage::helper('chronorelais')->getTrackNumberFieldName();
+
         $collection = Mage::getResourceModel($this->_getCollectionClass());
         $collection->getSelect()->joinLeft(array('og' => $collection->getTable('sales/order')), 'main_table.entity_id = og.entity_id', array('CASE LOWER(SUBSTRING_INDEX(og.shipping_method,"_","1")) WHEN "chronoexpress" THEN "Chrono Express" WHEN "chronorelais" THEN "Chrono Relais" ELSE CONCAT(UCASE(SUBSTRING(SUBSTRING_INDEX(og.shipping_method,"_","1"),1,1)),LOWER(SUBSTRING(SUBSTRING_INDEX(og.shipping_method,"_","1"), 2))) END as chrono_shipping_method', 'og.total_qty_ordered'));
         $collection->getSelect()->joinLeft(array('osg' => $collection->getTable('sales/shipment_grid')), 'main_table.entity_id = osg.order_id', array('if(isNull(osg.increment_id) , "--" , GROUP_CONCAT(DISTINCT osg.increment_id SEPARATOR \', \')) as shipment_increment_id', 'GROUP_CONCAT(DISTINCT osg.created_at SEPARATOR \', \') as shipment_created_at'));
-        $collection->getSelect()->joinLeft(array('ost' => $collection->getTable('sales/shipment_track')), 'main_table.entity_id = ost.order_id', array('if(isNull(ost.track_number) , "--" , GROUP_CONCAT(DISTINCT ost.track_number SEPARATOR \', \')) as track_number', 'if(isNull(ost.title) , "--" , GROUP_CONCAT(DISTINCT ost.title SEPARATOR \', \')) as title'));
+        $collection->getSelect()->joinLeft(array('ost' => $collection->getTable('sales/shipment_track')), 'main_table.entity_id = ost.order_id', array('if(isNull(ost.'.$trackNumberFieldName.') , "--" , GROUP_CONCAT(DISTINCT ost.'.$trackNumberFieldName.' SEPARATOR \', \')) as track_number', 'if(isNull(ost.title) , "--" , GROUP_CONCAT(DISTINCT ost.title SEPARATOR \', \')) as title'));
         $collection->getSelect()->joinLeft(array('oes' => Mage::getSingleton('core/resource')->getTableName('sales_chronopost_order_export_status')), 'main_table.entity_id = oes.order_id', array("if(isNull(oes.livraison_le_samedi), CASE LOWER(SUBSTRING_INDEX(og.shipping_method,'_','1')) WHEN 'chronopost' THEN '$_chronopost_deliver_saturday' WHEN 'chronorelais' THEN '$_chronorelais_deliver_saturday' WHEN 'chronoexpress' THEN '--' ELSE 'No' END, oes.livraison_le_samedi) as livraison_le_samedi"));
         $collection->getSelect()->where('og.shipping_method LIKE "chronorelais%" OR og.shipping_method LIKE "chronopost%" OR og.shipping_method LIKE "chronoexpress%"');
         $collection->getSelect()->group('main_table.entity_id');
@@ -176,7 +178,7 @@ class Chronopost_Chronorelais_Block_Sales_Shipment_Grid extends Mage_Adminhtml_B
         $this->getMassactionBlock()->setFormFieldName('order_ids');
         $this->getMassactionBlock()->setUseSelectAll(false);
 
-        $cmd = Mage::helper('chronorelais')->getConfigData('chronorelais/shipping/gs_path');
+        $cmd = Mage::helper('chronorelais')->getConfigData('chronorelais/shipping/gs_path')." -v";
         $res_shell = shell_exec($cmd);
         if($res_shell !== null) {
             $this->getMassactionBlock()->addItem('print', array(

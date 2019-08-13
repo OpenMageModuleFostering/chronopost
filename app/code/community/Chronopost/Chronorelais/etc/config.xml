@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Chronopost_Chronorelais>
-            <version>1.0.3</version>
+            <version>1.0.5</version>
             <depends>
                 <Mage_Shipping />
                 <Mage_Sales />
@@ -16,11 +16,11 @@
             <chronorelais>
                 <class>Chronopost_Chronorelais_Model</class>
             </chronorelais>
-            <sales>
+            <!--<sales>
                 <rewrite>
                     <quote_address_total_shipping>Chronopost_Chronorelais_Model_Sales_Quote_Address_Total_Shipping</quote_address_total_shipping>
                 </rewrite>
-            </sales>
+            </sales>-->
         </models>
         <blocks>
             <chronorelais>
@@ -75,7 +75,7 @@
                 </connection>
             </chronorelais_read>
         </resources>
-        
+
         <rewrite>
             <chronopost_chronorelais_checkout_onepage>
                 <from><![CDATA[#^/checkout/onepage/#]]>
@@ -122,9 +122,9 @@
                 </w_relay_point_code>
             </customer_address>
         </fieldsets>
-		
+
     </global>
-	
+
     <frontend>
         <routers>
             <chronorelais>
@@ -135,7 +135,7 @@
                 </args>
             </chronorelais>
         </routers>
-		
+
         <layout>
             <updates>
                 <chronorelais>
@@ -153,7 +153,7 @@
             </modules>
         </translate>
     </frontend>
-	
+
     <admin>
         <routers>
             <chronorelais>
@@ -165,7 +165,7 @@
             </chronorelais>
         </routers>
     </admin>
-	
+
     <adminhtml>
         <layout>
             <updates>
@@ -248,7 +248,7 @@
                 </admin>
             </resources>
         </acl>
-		
+
         <translate>
             <modules>
                 <Chronopost_Chronorelais>
@@ -264,7 +264,7 @@
     <default>
         <chronorelais>
             <shipping>
-                <google_map_api>ABQIAAAAZvdukOwsytNocL5anZKqZxS51Nc8ngbKeRYi0kVLSLeRaqOKHRSLs6O150txpwWCDcct2mH4X-G6OA</google_map_api>
+                <google_map_api></google_map_api>
                 <tracking_view_url><![CDATA[http://www.chronopost.fr/expedier/inputLTNumbersNoJahia.do?lang=fr_FR&listeNumeros={tracking_number}]]>
                 </tracking_view_url>
                 <gs_path>/usr/bin/gs</gs_path>
@@ -375,6 +375,7 @@
                 </config>
                 <weight_limit>20</weight_limit>
                 <quickcost_url>https://www.chronopost.fr/quickcost-cxf/QuickcostServiceWS?wsdl</quickcost_url>
+                <show_google_map>1</show_google_map>
                 <logo_url>chronorelais.png</logo_url>
                 <debug>0</debug>
                 <stop_to_first_match>0</stop_to_first_match>
@@ -399,7 +400,7 @@
                     }
                 </config>
                 <weight_limit>30</weight_limit>
-                <quickcost_url>http://wsshipping.chronopost.fr/wsQuickcost/services/ServiceQuickCost?wsdl</quickcost_url>
+                <quickcost_url>https://www.chronopost.fr/quickcost-cxf/QuickcostServiceWS?wsdl</quickcost_url>
                 <logo_url>chronopost.png</logo_url>
                 <debug>0</debug>
                 <stop_to_first_match>0</stop_to_first_match>

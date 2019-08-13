@@ -34,7 +34,7 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
         $collection->join('order_payment', 'main_table.entity_id = order_payment.parent_id', 'method');
 		$collection->getSelect()->joinLeft(array('oes' => Mage::getSingleton('core/resource')->getTableName('sales_chronopost_order_export_status')), 'main_table.entity_id = oes.order_id', array("if(isNull(oes.livraison_le_samedi), CASE LOWER(SUBSTRING_INDEX(order.shipping_method,'_','1')) WHEN 'chronopost' THEN '$_chronopost_deliver_saturday' WHEN 'chronorelais' THEN '$_chronorelais_deliver_saturday' WHEN 'chronoexpress' THEN '--' ELSE 'No' END, oes.livraison_le_samedi) as livraison_le_samedi"));
 		$collection->getSelect()->where('order.shipping_method LIKE "chronorelais%" OR order.shipping_method LIKE "chronopost%" OR order.shipping_method LIKE "chronoexpress%"');
-		
+
 		$this->setCollection($collection);
         return parent::_prepareCollection();
     }
@@ -113,7 +113,7 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
             'currency' => 'order_currency_code',
             'filter'    => false,
         ));
-		
+
 		$this->addColumn('shipping_description', array(
             'header'=> Mage::helper('sales')->__('Shipping Method'),
             'width' => '80px',
@@ -122,8 +122,8 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
             'filter'    => false,
 			'truncate'      => 30,
 			'escape'        => true,
-        )); 
-		
+        ));
+
 		$this->addColumn('payment', array(
 			'header' => Mage::helper('sales')->__('Mode de Paiement'),
 			'index' => 'method',
@@ -131,7 +131,7 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
 			'type'      => 'text',
             'filter'    => false,
 		));
-		
+
 		if($is_sending_day = Mage::helper('chronorelais')->isSendingDay()) {
 			$this->addColumn('livraison_le_samedi', array(
 				'header' 	=> Mage::helper('sales')->__('Livraison le Samedi'),
@@ -141,7 +141,7 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
 				'filter'    => false,
 			));
 		}
-		
+
         $this->addColumn('status', array(
             'header' => Mage::helper('sales')->__('Status'),
             'index' => 'status',
@@ -188,16 +188,16 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
              'label'=> Mage::helper('chronorelais')->__('Export CSO'),
              'url'  => $this->getUrl('*/*/exportcso'),
         ));
-		
+
         return $this;
     }
-	
-    protected function _prepareMassaction() 
+
+    protected function _prepareMassaction()
 	{
         $this->setMassactionIdField('entity_id');
         $this->getMassactionBlock()->setFormFieldName('order_ids');
         $this->getMassactionBlock()->setUseSelectAll(false);
-		
+
 		if($is_sending_day = Mage::helper('chronorelais')->isSendingDay()) {
 			$shipping = array(
 					'Yes' => Mage::helper('chronorelais')->__('Yes'),
@@ -217,11 +217,11 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
 					)
 			));
 		}
-		
+
         $export = array(
                 'css' => Mage::helper('chronorelais')->__('CSS Format'),
                 'cso' => Mage::helper('chronorelais')->__('CSO Format'));
-        array_unshift($statuses, array('label'=>'', 'value'=>''));
+        array_unshift($export, array('label'=>'', 'value'=>''));
         $this->getMassactionBlock()->addItem('export', array(
                 'label'=> Mage::helper('chronorelais')->__('Export'),
                 'url'  => $this->getUrl('*/*/massExport', array('_current'=>true)),
@@ -250,7 +250,7 @@ class Chronopost_Chronorelais_Block_Export_Orders_Grid extends Mage_Adminhtml_Bl
     {
         return $this->getUrl('*/*/*', array('_current'=>true));
     }
-    
+
     public function getAdditionalJavaScript()
     {
       echo "

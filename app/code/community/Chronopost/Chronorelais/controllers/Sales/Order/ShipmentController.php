@@ -54,7 +54,7 @@ class Chronopost_Chronorelais_Sales_Order_ShipmentController extends Mage_Adminh
 
             //header parameters
             $header = array(
-                'idEmit' => 'CHRFR',
+                'idEmit' => 'MAG',
                 'accountNumber' => $_helper->getConfigurationAccountNumber(),
                 'subAccount' => $_helper->getConfigurationSubAccountNumber()
             );

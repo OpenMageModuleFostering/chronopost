@@ -40,16 +40,13 @@
                     <ul class="messages"><li class="error-msg"><ul><li><?php echo $_rate->getErrorMessage() ?></li></ul></li></ul>
                    <?php else: ?>
                    		<table>
-                        <tr><td class="method-radio">
+                        <tr><td class="method-radio" style="vertical-align: top;">
                         <?php /*if ($_sole) : ?>
                         <span class="no-display"><input name="shipping_method" type="radio" value="<?php echo $_rate->getCode() ?>" id="s_method_<?php echo $_rate->getCode() ?>" checked="checked" onclick="<?php if($code=="chronorelais"): ?>shippingMethod.getrelais('<?php echo $this->getUrl('checkout/onepage/getRelais')?>')<?php else: ?>shippingMethod.hiderelais()<?php endif; ?>" /></span>
                         <?php else:*/ ?>
-                        <input name="shipping_method" type="radio" value="<?php echo $_rate->getCode() ?>" id="s_method_<?php echo $_rate->getCode() ?>"<?php /*if($_rate->getCode()===$this->getAddressShippingMethod()) echo ' checked="checked"'*/ ?> class="radio" onclick="<?php if($code=="chronorelais"): ?>shippingMethod.getrelais('<?php echo $this->getUrl('checkout/onepage/getRelais')?>')<?php else: ?>shippingMethod.hiderelais()<?php endif; ?>" />
+                        <input name="shipping_method" type="radio" value="<?php echo $_rate->getCode() ?>" id="s_method_<?php echo $_rate->getCode() ?>"<?php /*if($_rate->getCode()===$this->getAddressShippingMethod()) echo ' checked="checked"'*/ ?> class="radio" />
                         <?php //endif; ?>
                        	</td>
-                        <?php if(Mage::getStoreConfig('carriers/'.$code.'/logo_url')): ?>
-                        <td class="method-image"><img src="<?php echo $this->getSkinUrl("chronorelais/".Mage::getStoreConfig('carriers/'.$code.'/logo_url')); ?>" alt="" /></td>
-                        <?php endif; ?>
                         <td class="method-contents">
                             <label for="s_method_<?php echo $_rate->getCode() ?>"><?php echo $_rate->getMethodTitle() ?>
                             <?php $_excl = $this->getShippingPrice($_rate->getPrice(), $this->helper('tax')->displayShippingPriceIncludingTax()); ?>
@@ -61,6 +58,9 @@
                             </label>
                             <?php if($_rate->getMethodDescription()): ?>
                                 <div class="method-description">
+                                <?php if(Mage::getStoreConfig('carriers/'.$code.'/logo_url')): ?>
+                                <img src="<?php echo $this->getSkinUrl("chronorelais/".Mage::getStoreConfig('carriers/'.$code.'/logo_url')); ?>" alt="" style="float: left; margin-right: 5px;" />
+                                <?php endif; ?>
                                 <?php echo $_rate->getMethodDescription()?>
                                 </div>
                             <?php endif;?>
@@ -68,7 +68,7 @@
 							<?php // disponibilité de la plateforme soco ?>
                             <?php if(Mage::getConfig()->getModuleConfig('LaPoste_SoColissimoSimplicite')->is('active')) : ?>
 								<?php $helper = Mage::helper('socolissimosimplicite'); ?>
-                                <?php 
+                                <?php
                                         $serviceIsAvailable = true;
                                         if ($helper->getServiceIsAvailable() and $helper->getServiceIsAvailableUrl() != '') {
                                             $serviceIsAvailable = $helper->checkserviceAvailability();
@@ -80,11 +80,11 @@
 							<?php endif; ?>
                         </td>
                         </tr>
-                        </table>   
+                        </table>
                         <?php if($code=="chronorelais"): ?>
                         <div id="checkout-shipping-method-chronorelais-load" class="chronorelais-list">
                         	<?php echo $this->getChildHtml('relaislist') ?>
-                        </div>    
+                        </div>
                         <?php endif; ?>
                    <?php endif ?>
                 </li>

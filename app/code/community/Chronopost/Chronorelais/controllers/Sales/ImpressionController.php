@@ -22,7 +22,7 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
             $this->_getSession()->addError($this->__('The SOAP extension is not installed in the server. Please contact the site administrator. Sorry for inconvenience.'));
             return $this->_redirectReferer();
         }
-        $cmdTestGs = Mage::helper('chronorelais')->getConfigData('chronorelais/shipping/gs_path');
+        $cmdTestGs = Mage::helper('chronorelais')->getConfigData('chronorelais/shipping/gs_path')." -v";
         if(shell_exec($cmdTestGs) === null) {
             $this->_getSession()->addNotice($this->__('Please install %s on your server to print mass','<a href="http://www.ghostscript.com/download/" target="_blank">Ghostscript</a>'));
         }
@@ -123,7 +123,7 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
         $content = '';
 
         $paths = array();
-
+        $this->createMediaChronopostFolder();
         foreach ($urls as $url) {
             $helper->setResource($url, 'url');
             $fileName = $helper->getFilename();
@@ -216,7 +216,7 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
 
             //header parameters
             $header = array(
-                'idEmit' => 'CHRFR',
+                'idEmit' => 'MAG',
                 'accountNumber' => $_helper->getConfigurationAccountNumber(),
                 'subAccount' => $_helper->getConfigurationSubAccountNumber()
             );
@@ -562,12 +562,12 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
                 $order = Mage::getModel('sales/order')->load($orderId);
 
                 /* If shipping method is Chronopost => check if shipping weight isn't over limit */
-                $chronopostMethods = array('chronopost_chronopost','chronoexpress_chronoexpress','chronorelais_chronorelais','chronopostc10_chronopostC10','chronopostc18_chronopostC18','chronopostcclassic_chronopostCClassic');
+                $chronopostMethods = array('chronopost','chronoexpress','chronorelais','chronopostc10','chronopostc18','chronopostcclassic');
                 $shippingMethod = $order->getShippingMethod();
+                $shippingMethod = explode("_", $shippingMethod);
+                $shippingMethod = $shippingMethod[0];
                 if(in_array($shippingMethod, $chronopostMethods)) {
                     $weightShipping = 0;
-                    $shippingMethod = explode("_", $shippingMethod);
-                    $shippingMethod = $shippingMethod[0];
                     $weight_limit = Mage::getStoreConfig('carriers/'.$shippingMethod.'/weight_limit');
                     foreach ($order->getItemsCollection() as $item) {
                         $weightShipping += $item->getWeight()*$item->getQtyOrdered();
@@ -631,8 +631,10 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
                 $order = Mage::getModel('sales/order')->load($orderId);
 
                 /* If shipping method is Chronopost => check if shipping weight isn't over limit */
-                $chronopostMethods = array('chronopost_chronopost','chronoexpress_chronoexpress','chronorelais_chronorelais','chronopostc10_chronopostC10','chronopostc18_chronopostC18','chronopostcclassic_chronopostCClassic');
+                $chronopostMethods = array('chronopost','chronoexpress','chronorelais','chronopostc10','chronopostc18','chronopostcclassic');
                 $shippingMethod = $order->getShippingMethod();
+                $shippingMethod = explode("_", $shippingMethod);
+                $shippingMethod = $shippingMethod[0];
                 if(in_array($shippingMethod, $chronopostMethods)) {
                     $weightShipping = 0;
                     $shippingMethod = explode("_", $shippingMethod);
@@ -785,8 +787,8 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
                 /*
                  * TODO adexos : Send mail with pdf to customer
                  */
-                $message_email .= 'Bonjour,
-                                <br />Vous allez bientôt effectuer un envoi Chronopost . La personne qui vous a adressé ce mail a déjà préparé la lettre de transport que vous utiliserez. Après impression, apposez la lettre de transport dans une pochette plastique adhésive et collez la sur votre envoi. Attention le code à barres doit être bien apparent.
+                $message_email = 'Bonjour,
+                                <br />Vous allez bientôt effectuer un envoi Chronopost. La personne qui vous a adressé ce mail a déjà préparé la lettre de transport que vous utiliserez. Après impression, apposez la lettre de transport dans une pochette plastique adhésive et collez la sur votre envoi. Attention le code à barres doit être bien apparent.
                                 <br />Cordialement,';
 
                 $customer_email = ($_shippingAddress->getEmail()) ? $_shippingAddress->getEmail() : ($_billingAddress->getEmail() ? $_billingAddress->getEmail() : $_order->getCustomerEmail());
@@ -840,7 +842,7 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
 
             //header parameters
             $header = array(
-                'idEmit' => 'CHRFR',
+                'idEmit' => 'MAG',
                 'accountNumber' => $_helper->getConfigurationAccountNumber(),
                 'subAccount' => $_helper->getConfigurationSubAccountNumber()
             );
@@ -882,34 +884,40 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
             );
 
             //recipient parameters
-            $recipient_address = $_shippingAddress->getStreet();
+            $_recipientAddress = $_shippingAddress;
+            if ($_shippingMethod[0] == 'chronorelais') {
+                // Nicolas, le 27/11/2014 : si Chronorelais, on doit utiliser l'adresse de facturation, non de livraison (qui est celle du relais)
+                $_recipientAddress = $_billingAddress;
+            }
+            $recipient_address = $_recipientAddress->getStreet();
+
+            // Champs forcément basés sur l'adresse de livraison
+            $customer_email = ($_shippingAddress->getEmail()) ? $_shippingAddress->getEmail() : ($_billingAddress->getEmail() ? $_billingAddress->getEmail() : $_order->getCustomerEmail());
+            $recipientMobilePhone = $this->checkMobileNumber($_shippingAddress->getTelephone());
+            $recipientName = $this->getFilledValue($_recipientAddress->getCompany()); //RelayPoint Name if chronorelais or Companyname if chronopost and
+            $recipientName2 = $this->getFilledValue($_shippingAddress->getFirstname() . ' ' . $_shippingAddress->getLastname());
+            //remove any alphabets in phone number
+
+            //$recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
+            $recipientPhone = trim(preg_replace("/[^0-9\.\-]/", " ", $_shippingAddress->getTelephone()));
             if (!isset($recipient_address[1])) {
                 $recipient_address[1] = '';
             }
-            $customer_email = ($_shippingAddress->getEmail()) ? $_shippingAddress->getEmail() : ($_billingAddress->getEmail() ? $_billingAddress->getEmail() : $_order->getCustomerEmail());
-            $recipientMobilePhone = $this->checkMobileNumber($_shippingAddress->getTelephone());
-            $recipientName = $this->getFilledValue($_shippingAddress->getCompany()); //RelayPoint Name if chronorelais or Companyname if chronopost and
-            $recipientName2 = $this->getFilledValue($_shippingAddress->getFirstname() . ' ' . $_shippingAddress->getLastname());
-            //remove any alphabets in phone number
-            
-            //$recipientPhone = trim(ereg_replace("[^0-9.-]", " ", $_shippingAddress->getTelephone()));
-            $recipientPhone = trim(preg_replace("/[^0-9\.\-]/", " ", $_shippingAddress->getTelephone()));
-
 
             $shipper = array(
                 'shipperAdress1' => substr($this->getFilledValue($recipient_address[0]), 0, 38),
                 'shipperAdress2' => substr($this->getFilledValue($recipient_address[1]), 0, 38),
-                'shipperCity' => $this->getFilledValue($_shippingAddress->getCity()),
+                'shipperCity' => $this->getFilledValue($_recipientAddress->getCity()),
                 'shipperCivility' => 'M',
                 'shipperContactName' => $recipientName2,
-                'shipperCountry' => $this->getFilledValue($_shippingAddress->getCountryId()),
+                'shipperCountry' => $this->getFilledValue($_recipientAddress->getCountryId()),
                 'shipperEmail' => $customer_email,
                 'shipperMobilePhone' => $recipientMobilePhone,
                 'shipperName' => $recipientName,
                 'shipperName2' => $recipientName2,
                 'shipperPhone' => $recipientPhone,
                 'shipperPreAlert' => '',
-                'shipperZipCode' => $this->getFilledValue($_shippingAddress->getPostcode()),
+                'shipperZipCode' => $this->getFilledValue($_recipientAddress->getPostcode()),
             );
 
             //ref parameters
@@ -969,7 +977,7 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
                 'insuredCurrency' => 'EUR',
                 'insuredValue' => '',
                 'objectType' => 'MAR',
-                'productCode' => $_helper::CHRONO_POST,
+                'productCode' => Chronopost_Chronorelais_Helper_Data::CHRONO_POST,
                 'service' => $SaturdayShipping,
                 'shipDate' => date('c'),
                 'shipHour' => date('H'),
@@ -993,7 +1001,7 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
                 'password' => $_helper->getConfigurationAccountPass(),
                 'option' => '0'
             );
-            //printArray($expeditionArray); exit;
+            
             return $expeditionArray;
         }
     }
@@ -1025,9 +1033,18 @@ class Chronopost_Chronorelais_Sales_ImpressionController extends Mage_Adminhtml_
     }
 
     protected function savePdf($url, $shipmentId) {
+        $this->createMediaChronopostFolder();
         $path = 'media/chronopost/etiquetteRetour-' . $shipmentId . '.pdf';
         file_put_contents($path, file_get_contents($url));
         return $path;
+    }
+
+    /* create folder media/chronopost if not exist */
+    protected function createMediaChronopostFolder() {
+        $path = 'media/chronopost';
+        if(!is_dir($path)) {
+            mkdir($path,0777);
+        }
     }
 
 }
