@@ -1,7 +1,7 @@
 {
-    "name": "OpenMageModuleFostering\/Chronopost",
+    "name": "openmage-module-fostering\/chronopost",
     "type": "magento-module",
-    "license": "OSL-v3.0",
+    "license": "OSL-3.0",
     "homepage": "",
     "description": "Cette extension officielle permet de proposer \u00e0 vos clients le mode de livraison Chronopost",
     "authors": [
